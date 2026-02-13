@@ -1,0 +1,1 @@
+select * from distribucion_almacen_producto

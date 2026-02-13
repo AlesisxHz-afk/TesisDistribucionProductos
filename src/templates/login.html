@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Agrícola - Portal de Acceso</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/login.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ESTILOS DE EMERGENCIA PARA MÓVILES */
+        @media (max-width: 480px) {
+            .left-panel {
+                display: none !important;
+            }
+            .right-panel {
+                flex: 1 !important;
+                width: 100% !important;
+                padding: 20px 16px !important;
+            }
+            .two-panel-container {
+                border-radius: 0 !important;
+                min-height: 100vh !important;
+            }
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+            .modern-background {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fondo moderno minimalista -->
+    <div class="modern-background">
+        <div class="gradient-bg"></div>
+        <div class="floating-shapes">
+            <div class="shape shape1"></div>
+            <div class="shape shape2"></div>
+            <div class="shape shape3"></div>
+        </div>
+    </div>
+    
+    <!-- Contenedor principal de dos paneles -->
+    <div class="two-panel-container">
+        <!-- Panel izquierdo - Oculto en móviles -->
+        <div class="left-panel">
+            <div class="panel-content">
+                <div class="logo-section">
+                    <img src="../static/images/logo.png" alt="Logo Agrícola" class="brand-logo">
+                    <div class="brand-text">
+                        <h1 class="brand-title">Agrícola</h1>
+                        <p class="brand-tagline">Sistema de Gestión</p>
+                    </div>
+                </div>
+                
+                <div class="welcome-message">
+                    <h2><i class="fas fa-leaf"></i> Bienvenido</h2>
+                    <p>Gestiona todas tus operaciones agrícolas en un solo lugar</p>
+                </div>
+                
+                <div class="key-features">
+                    <div class="feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>100% Seguro</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-bolt"></i>
+                        <span>Rápido y eficiente</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Totalmente responsive</span>
+                    </div>
+                </div>
+                
+                <div class="panel-footer">
+                    <p>© Sistema Agrícola 2025</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel derecho - Formularios de acceso -->
+        <div class="right-panel">
+            <div class="form-switcher">
+                <button class="switch-btn active" data-form="login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Iniciar</span>
+                </button>
+                <button class="switch-btn" data-form="register">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Registrar</span>
+                </button>
+            </div>
+            
+            <!-- Contenedor de formularios -->
+            <div class="forms-container">
+                <!-- Formulario de INICIAR SESIÓN -->
+                <div id="loginForm" class="form-wrapper active">
+                    <div class="form-header">
+                        <h2 class="form-title">Acceder</h2>
+                        <p class="form-subtitle">Ingresa tus datos</p>
+                    </div>
+                    
+                    <form id="loginFormElement" method="POST" class="auth-form">
+                        <div class="input-group">
+                            <label for="username" class="input-label">
+                                <i class="fas fa-user"></i>
+                                Usuario
+                            </label>
+                            <input type="text" id="username" name="username" class="form-input" placeholder="usuario" required autocomplete="username">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="password" class="input-label">
+                                <i class="fas fa-key"></i>
+                                Contraseña
+                            </label>
+                            <div class="password-wrapper">
+                                <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+                                <button type="button" class="password-toggle" id="togglePassword" aria-label="Mostrar/ocultar contraseña">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="submit-btn primary-btn">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Ingresar</span>
+                            </button>
+                        </div>
+                        
+                        <div class="form-footer">
+                            <p>¿No tienes cuenta?
+                                <button type="button" id="showRegister" class="link-btn">Regístrate</button>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Formulario de REGISTRARSE -->
+                <div id="registerForm" class="form-wrapper">
+                    <div class="form-content">
+                        <div class="form-header">
+                            <h2 class="form-title">Registrarse</h2>
+                            <p class="form-subtitle">Completa tus datos</p>
+                        </div>
+                        
+                        <form id="registerFormElement" enctype="multipart/form-data" class="auth-form">
+                            <!-- Información básica -->
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="registerUsername" class="input-label">
+                                        <i class="fas fa-at"></i>
+                                        Usuario <span class="required">*</span>
+                                    </label>
+                                    <input type="text" id="registerUsername" class="form-input" placeholder="usuario" required autocomplete="off">
+                                    <small class="input-hint">Mín. 3 caracteres</small>
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label for="registerPassword" class="input-label">
+                                        <i class="fas fa-lock"></i>
+                                        Contraseña <span class="required">*</span>
+                                    </label>
+                                    <div class="password-wrapper">
+                                        <input type="password" id="registerPassword" class="form-input" placeholder="••••••••" required autocomplete="new-password">
+                                        <button type="button" class="password-toggle" id="toggleRegisterPassword" aria-label="Mostrar/ocultar contraseña">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <small class="input-hint">Mín. 6 caracteres</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Tipo de usuario -->
+                            <div class="form-section">
+                                <label class="section-label">Tipo</label>
+                                <div class="type-selector">
+                                    <div class="type-option active" id="typeRegular">
+                                        <div class="type-icon">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="type-text">
+                                            <h4>Usuario</h4>
+                                        </div>
+                                    </div>
+                                    <div class="type-option" id="typeConductor">
+                                        <div class="type-icon">
+                                            <i class="fas fa-truck"></i>
+                                        </div>
+                                        <div class="type-text">
+                                            <h4>Conductor</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="esConductor" value="false">
+                            </div>
+                            
+                            <!-- Campos para conductor -->
+                            <div id="conductorFields" class="form-section" style="display: none;">
+                                <label class="section-label">Conductor</label>
+                                <div class="dni-search">
+                                    <div class="input-group">
+                                        <label for="registerDNI" class="input-label">
+                                            <i class="fas fa-id-card"></i>
+                                            DNI
+                                        </label>
+                                        <div class="search-wrapper">
+                                            <input type="tel" id="registerDNI" class="form-input" placeholder="00000000" maxlength="8" inputmode="numeric" pattern="[0-9]*">
+                                            <button type="button" id="buscarDNI" class="search-btn">
+                                                <i class="fas fa-search"></i>
+                                                Verificar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="driverInfo" class="driver-card" style="display: none;">
+                                    <div class="driver-header">
+                                        <i class="fas fa-user-check"></i>
+                                        <h4>Verificado</h4>
+                                    </div>
+                                    <div class="driver-info">
+                                        <div class="info-item">
+                                            <span>Nombre:</span>
+                                            <strong id="driverFullName">-</strong>
+                                        </div>
+                                        <div class="info-item">
+                                            <span>Estado:</span>
+                                            <span id="driverStatus" class="status-active">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Información personal -->
+                            <div id="regularFields" class="form-section">
+                                <label class="section-label">Personal</label>
+                                <div class="input-group">
+                                    <label for="registerNombres" class="input-label">
+                                        <i class="fas fa-user"></i>
+                                        Nombres <span class="required">*</span>
+                                    </label>
+                                    <input type="text" id="registerNombres" class="form-input" placeholder="Juan Carlos" required>
+                                </div>
+                                <div class="input-row">
+                                    <div class="input-group">
+                                        <label for="registerPaterno" class="input-label">
+                                            Paterno <span class="required">*</span>
+                                        </label>
+                                        <input type="text" id="registerPaterno" class="form-input" placeholder="Pérez" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="registerMaterno" class="input-label">
+                                            Materno <span class="required">*</span>
+                                        </label>
+                                        <input type="text" id="registerMaterno" class="form-input" placeholder="Gómez" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Foto opcional -->
+                            <div class="form-section">
+                                <label class="section-label">Foto (Opcional)</label>
+                                <div class="photo-upload">
+                                    <div class="upload-area" id="uploadArea">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <div class="upload-text">
+                                            <span>Subir foto</span>
+                                            <small>JPG, PNG</small>
+                                        </div>
+                                        <input type="file" id="registerFoto" class="file-input" accept="image/*">
+                                    </div>
+                                    <div id="previewContainer" class="preview-container" style="display: none;">
+                                        <img id="imagePreview" class="preview-img" src="" alt="Vista previa">
+                                        <button type="button" class="remove-preview" aria-label="Eliminar">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Botones de acción -->
+                            <div class="form-actions">
+                                <button type="submit" id="registerSubmit" class="submit-btn success-btn">
+                                    <i class="fas fa-user-plus"></i>
+                                    <span>Crear cuenta</span>
+                                </button>
+                                <button type="button" id="cancelRegister" class="cancel-btn">
+                                    <i class="fas fa-times"></i>
+                                    <span>Cancelar</span>
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="form-footer">
+                            <p>¿Ya tienes cuenta?
+                                <button type="button" id="showLogin" class="link-btn">Inicia sesión</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/static/js/login.js"></script>
+</body>
+</html>

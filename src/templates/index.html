@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block titulo %}Agrícola Alaya S.A.C{% endblock %}</title>
+  <link rel="shortcut icon" href="/static/images/logo.png" type="image/x-icon" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- CSS Personalizado -->
+  <link rel="stylesheet" href="/static/css/index.css" />
+  {% block css %}
+  <!-- Hojas de estilo adicionales -->
+  {% endblock %}
+</head>
+<body>
+  <!-- Boton para subir arriba -->
+  <button id="scrollTopBtn" onclick="scrollToTop()">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <!-- Barra superior fija -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-content">
+        <div class="top-bar-left">
+          <a href="tel:+51984134872"><i class="fas fa-phone"></i> +51 984 134 872</a>
+          <a href="#" id="openMapModal"><i class="fas fa-map-marker-alt"></i> Olmos, Lambayeque</a>
+          <a href="#" onclick="openInfoModal('Contáctanos')"><i class="fas fa-envelope"></i> Contáctanos</a>
+        </div>
+        <div class="top-bar-right">
+          <a href="/login" class="login-link"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navbar fijo -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+      <!-- Logo -->
+      <a class="navbar-brand" href="/">
+        <img src="/static/images/logo.png" alt="Logo Agrícola Alaya" width="180" height="70" />
+      </a>
+
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="openInfoModal('Sobre Nosotros')">Sobre nosotros</a>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="/producto/galeria">Productos</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="openInfoModal('Contáctanos')">Contáctanos</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Modal para información -->
+  <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="infoModalLabel">Título</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="modalContent">
+            <!-- El contenido se cargará dinámicamente -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para el mapa -->
+  <div class="modal fade" id="mapModal" tabindex="-1" aria-labelledby="mapModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="mapModalLabel"><i class="fas fa-map-marker-alt me-2"></i>Nuestra Ubicación</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12 mb-3">
+              <div class="map-container">
+                <!-- Mapa de Google Maps con las coordenadas correctas -->
+                <iframe 
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.214050596612!2d-80.04640279999999!3d-6.046362!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x904b7430c19fdf3f%3A0x50d33e501e2f98f6!2sAGRICOLA%20ALAYA%20SAC!5e0!3m2!1ses-419!2spe!4v1737558400000!5m2!1ses-419!2spe" 
+                  width="100%" 
+                  height="400" 
+                  style="border:0;" 
+                  allowfullscreen="" 
+                  loading="lazy" 
+                  referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="location-info">
+                <h6><i class="fas fa-info-circle text-success me-2"></i>Información de contacto:</h6>
+                <p class="mb-1"><i class="fas fa-map-marker-alt text-success me-2"></i> <strong>Dirección:</strong> Carretera Panamericana Norte Km 780, Olmos, Lambayeque, Perú</p>
+                <p class="mb-1"><i class="fas fa-phone text-success me-2"></i> <strong>Teléfono:</strong> +51 984 134 872</p>
+                <p class="mb-1"><i class="fas fa-envelope text-success me-2"></i> <strong>Email:</strong> avargas@agricolaalaya.com</p>
+                <p class="mb-0"><i class="fas fa-clock text-success me-2"></i> <strong>Horario:</strong> Lunes a Domingo: 7:00 AM - 10:00 PM</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% block content %}
+  <div class="container-fluid p-0">
+    <!-- Carrusel principal -->
+    <div id="carouselExample" class="carousel slide carousel-fade" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <img
+            src="/static/images/carruselimg01.jpg"
+            class="d-block w-100"
+            alt="Cultivo 1"
+          />
+          <div class="carousel-caption d-flex flex-column justify-content-center h-100">
+            <h1 class="animate__animated animate__fadeInDown animate__delay-1s">Bienvenidos a Agrícola Alaya S.A.C</h1>
+            <p class="animate__animated animate__fadeInUp animate__delay-2s">Descubre nuestros cultivos en crecimiento</p>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <img
+            src="/static/images/carruselimg02.jpg"
+            class="d-block w-100"
+            alt="Cultivo 2"
+          />
+          <div class="carousel-caption d-flex flex-column justify-content-center h-100">
+            <h1 class="animate__animated animate__fadeInDown animate__delay-1s">Compromiso con la Agricultura</h1>
+            <p class="animate__animated animate__fadeInUp animate__delay-2s">Promovemos el cultivo sostenible y responsable</p>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <img
+            src="/static/images/carruselimg03.jpg"
+            class="d-block w-100"
+            alt="Cultivo 3"
+          />
+          <div class="carousel-caption d-flex flex-column justify-content-center h-100">
+            <h1 class="animate__animated animate__fadeInDown animate__delay-1s">Innovación en el Campo</h1>
+            <p class="animate__animated animate__fadeInUp animate__delay-2s">Explora nuevas técnicas y variedades de cultivos</p>
+          </div>
+        </div>
+      </div>
+      <button
+        class="carousel-control-prev"
+        type="button"
+        data-bs-target="#carouselExample"
+        data-bs-slide="prev"
+      >
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      </button>
+      <button
+        class="carousel-control-next"
+        type="button"
+        data-bs-target="#carouselExample"
+        data-bs-slide="next"
+      >
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <!-- Sección de Productos en Carrusel -->
+    <div class="container mt-5 py-5" id="productos">
+      <h2 class="text-center mb-4 animate-on-scroll">Nuestros Productos</h2>
+      
+      <!-- Controles del carrusel de productos -->
+      <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+          <h3 class="h4 mb-0 text-success">Productos Destacados</h3>
+          <div class="carousel-controls">
+            <button class="btn btn-success carousel-btn me-2" id="prevBtn">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="btn btn-success carousel-btn" id="nextBtn">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Carrusel de productos -->
+      <div class="product-carousel-container">
+        <div class="product-carousel" id="productCarousel">
+          <!-- Los productos se cargarán dinámicamente aquí -->
+        </div>
+      </div>
+      
+      <!-- Indicadores del carrusel -->
+      <div class="text-center mt-4">
+        <div id="carouselIndicators" class="carousel-indicators">
+          <!-- Los indicadores se generarán dinámicamente -->
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  {% endblock %}
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white pt-5 pb-4">
+    <div class="container">
+      <div class="row">
+        <!-- Horario de atención -->
+        <div class="col-lg-4 col-md-12 col-sm-12 mb-4">
+          <div class="footer-top-box">
+            <h3 class="text-success">Horario de atención</h3>
+            <ul class="list-unstyled">
+              <li><i class="far fa-clock me-2"></i>Lunes - Viernes: 07:00 am - 10:00 pm</li>
+              <li><i class="far fa-clock me-2"></i>Sábado: 07:00 am - 10:00 pm</li>
+              <li><i class="far fa-clock me-2"></i>Domingo: 07:00 am - 08:00 pm</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Información Agrícola -->
+        <div class="col-lg-4 col-md-12 col-sm-12 mb-4 text-center">
+          <div class="footer-top-box">
+            <h3 class="text-success mb-4">Novedades del agroindustrial</h3>
+            <p class="mb-4">
+              Mantente informado sobre prácticas agrícolas, tendencias y
+              novedades del sector. 🌱🚜
+            </p>
+            <div class="float-animation">
+              <i class="fas fa-leaf fa-3x text-success"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Redes Sociales -->
+        <div class="col-lg-4 col-md-12 col-sm-12 mb-4">
+          <div class="footer-top-box">
+            <h3 class="text-success">Síguenos en redes sociales</h3>
+            <ul class="list-inline mt-4">
+              <li class="list-inline-item me-3">
+                <a href="https://www.facebook.com/profile.php?id=100076443363111"
+                   class="btn btn-outline-success btn-lg rounded-circle">
+                  <i class="fab fa-facebook-f"></i>
+                </a>
+              </li>
+              <li class="list-inline-item me-3">
+                <a href="#" class="btn btn-outline-success btn-lg rounded-circle">
+                  <i class="fab fa-instagram"></i>
+                </a>
+              </li>
+              <li class="list-inline-item">
+                <a href="#" class="btn btn-outline-success btn-lg rounded-circle">
+                  <i class="fab fa-twitter"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <hr class="bg-light my-4" />
+
+      <div class="row">
+        <!-- Sobre Nosotros -->
+        <div class="col-lg-4 col-md-12 col-sm-12 mb-4">
+          <h4 class="text-success mb-3">Sobre Nosotros</h4>
+          <p>
+            Somos una empresa comprometida con la excelencia agrícola, 
+            ofreciendo productos de la más alta calidad cultivados con 
+            técnicas sostenibles y responsables.
+          </p>
+          <button class="btn btn-sm btn-outline-success" onclick="openInfoModal('Sobre Nosotros')">
+            Leer más
+          </button>
+        </div>
+
+        <!-- Información -->
+        <div class="col-lg-4 col-md-12 col-sm-12 mb-4">
+          <h4 class="text-success mb-3">Información Legal</h4>
+          <ul class="list-unstyled">
+            <li class="mb-2">
+              <a href="#" class="text-success text-decoration-none info-link" onclick="openInfoModal('Quiénes Somos')">
+                <i class="fas fa-chevron-right me-2"></i>Quiénes somos
+              </a>
+            </li>
+            <li class="mb-2">
+              <a href="#" class="text-success text-decoration-none info-link" onclick="openInfoModal('Atención al Cliente')">
+                <i class="fas fa-chevron-right me-2"></i>Atención al cliente
+              </a>
+            </li>
+            <li class="mb-2">
+              <a href="#" class="text-success text-decoration-none info-link" onclick="openInfoModal('Términos y Condiciones')">
+                <i class="fas fa-chevron-right me-2"></i>Términos y condiciones
+              </a>
+            </li>
+            <li>
+              <a href="#" class="text-success text-decoration-none info-link" onclick="openInfoModal('Política de Privacidad')">
+                <i class="fas fa-chevron-right me-2"></i>Política de privacidad
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Contacto -->
+        <div class="col-lg-4 col-md-12 col-sm-12 mb-4" id="contacto">
+          <h4 class="text-success mb-3">Contáctanos</h4>
+          <ul class="list-unstyled">
+            <li class="mb-3">
+              <p>
+                <i class="fas fa-map-marker-alt text-success me-2"></i> 
+                <strong>Dirección:</strong> Olmos, Lambayeque Perú
+              </p>
+              <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#mapModal">
+                Ver en mapa
+              </button>
+            </li>
+            <li class="mb-3">
+              <p>
+                <i class="fas fa-phone text-success me-2"></i> 
+                <strong>Teléfono:</strong>
+                <a href="tel:+51984134872" class="text-success text-decoration-none">
+                  +51 984 134 872
+                </a>
+              </p>
+            </li>
+            <li>
+              <p>
+                <i class="fas fa-envelope text-success me-2"></i> 
+                <strong>Email:</strong>
+                <a href="mailto:avargas@agricolaalaya.com" class="text-success text-decoration-none">
+                  avargas@agricolaalaya.com
+                </a>
+              </p>
+            </li>
+          </ul>
+          <button class="btn btn-sm btn-outline-success" onclick="openInfoModal('Contáctanos')">
+            Más información
+          </button>
+        </div>
+      </div>
+
+      <div class="text-center mt-4 pt-3 border-top border-secondary">
+        <p class="mb-0">
+          © 2024 Agrícola Alaya S.A.C | 
+          <span class="text-success">RUC: 20605456789</span> | 
+          Diseñado por:
+          <a href="/" class="text-success text-decoration-none fw-bold">Alejandro Purizaca</a>
+        </p>
+        <p class="mt-2 mb-0 text-muted">
+          <small>Registro en SUNAT: Actividad 0111 - Cultivo de cereales</small>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- JavaScript Personalizado -->
+  <script src="/static/js/index.js"></script>
+
+  {% block js %}
+  <!-- Scripts adicionales -->
+  {% endblock %}
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error 404 - No Autorizado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c1b2a 0%, #152a3a 100%);
+            color: #e0f2fe;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .error-container {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #152a3a 0%, #1e3a5a 100%);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(64, 224, 208, 0.2);
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .error-icon {
+            font-size: 80px;
+            color: #f87171;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #f87171;
+            font-size: 36px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        p {
+            color: #a5d8ff;
+            font-size: 16px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .btn-return {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(64, 224, 208, 0.3);
+        }
+        
+        .btn-return:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(64, 224, 208, 0.2);
+            background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
+        }
+        
+        .btn-return i {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h1>Acceso No Autorizado</h1>
+        <p>No tiene los permisos necesarios para acceder a esta sección.</p>
+        <p>Por favor, contacte al administrador si necesita acceso.</p>
+        <button class="btn-return" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"></i> Volver Atrás
+        </button>
+    </div>
+    
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>

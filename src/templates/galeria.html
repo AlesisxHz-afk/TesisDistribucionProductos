@@ -1,0 +1,163 @@
+{% extends "index.html" %}
+
+{% block titulo %}Productos - Agrícola Alaya S.A.C{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/galeria.css" />
+{% endblock %}
+
+{% block content %}
+<!-- Filtros -->
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card filtros-card">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-8 mb-3 mb-md-0">
+              <div class="d-flex flex-wrap gap-2" id="filtersContainer">
+                <!-- Los filtros se generarán dinámicamente según los tipos de productos -->
+                <button class="btn btn-outline-success filter-btn active" data-filter="todos">
+                  Todos los productos
+                </button>
+                <!-- Aquí se insertarán los botones de filtro por tipo -->
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-text bg-success text-white">
+                  <i class="fas fa-search"></i>
+                </span>
+                <input type="text" 
+                       class="form-control" 
+                       id="searchInput" 
+                       placeholder="Buscar producto...">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contador de productos -->
+<div class="container">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="productos-contador">
+        <span id="productCount">0</span> productos encontrados
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Galería de Productos -->
+<div class="container">
+  <div class="row" id="productosGrid">
+    <!-- Los productos se cargarán dinámicamente aquí -->
+    <div class="col-12 text-center py-5">
+      <div class="spinner-border text-success" role="status">
+        <span class="visually-hidden">Cargando productos...</span>
+      </div>
+      <p class="mt-3">Cargando productos...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para ver detalles del producto -->
+<div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="productoModalLabel">Detalles del Producto</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <!-- Imagen del producto -->
+          <div class="col-md-6">
+            <div class="producto-modal-img">
+              <img id="modalProductImage" src="" alt="Producto" class="img-fluid rounded">
+            </div>
+          </div>
+          <!-- Información del producto -->
+          <div class="col-md-6">
+            <h3 id="modalProductName" class="mb-3"></h3>
+            <div class="mb-3">
+              <span class="badge bg-success me-2" id="modalProductType"></span>
+              <span class="badge bg-info" id="modalProductVariety"></span>
+            </div>
+            <p id="modalProductDescription" class="text-muted mb-4"></p>
+            
+            <div class="producto-info-detalle">
+              <div class="row">
+                <div class="col-6 mb-3">
+                  <div class="info-box">
+                    <i class="fas fa-thermometer-half text-success"></i>
+                    <div>
+                      <small>Temperatura Óptima</small>
+                      <p class="mb-0 fw-bold" id="modalProductTemp"></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 mb-3">
+                  <div class="info-box">
+                    <i class="fas fa-tint text-success"></i>
+                    <div>
+                      <small>Humedad Óptima</small>
+                      <p class="mb-0 fw-bold" id="modalProductHumidity"></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 mb-3">
+                  <div class="info-box">
+                    <i class="fas fa-boxes text-success"></i>
+                    <div>
+                      <small>Cantidad Disponible</small>
+                      <p class="mb-0 fw-bold" id="modalProductQuantity"></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 mb-3">
+                  <div class="info-box">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <div>
+                      <small>Estado</small>
+                      <p class="mb-0 fw-bold" id="modalProductStatus"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-4">
+              <button class="btn btn-success w-100" data-bs-dismiss="modal">
+                <i class="fas fa-shopping-cart me-2"></i>Solicitar Información
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mensaje sin productos -->
+<div class="container d-none" id="noProductsMessage">
+  <div class="row">
+    <div class="col-12 text-center py-5">
+      <i class="fas fa-seedling fa-4x text-muted mb-4"></i>
+      <h4 class="text-muted mb-3">No se encontraron productos</h4>
+      <p class="text-muted">Intenta con otros filtros de búsqueda</p>
+      <button class="btn btn-success" id="resetFiltersBtn">
+        <i class="fas fa-redo me-2"></i>Restablecer filtros
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="/static/js/galeria.js"></script>
+{% endblock %}

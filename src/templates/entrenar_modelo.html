@@ -1,0 +1,114 @@
+{% extends "main.html" %}
+
+{% block title %}Entrenar Modelos - Alaya S.A.C{% endblock %}
+
+{% block page_title %}Entrenar Modelos{% endblock %}
+{% block page_description %}Entrena modelos de IA para optimización{% endblock %}
+
+{% block maincss %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/entrenar_modelo.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <!-- Entrenamiento de modelos -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-cogs"></i> Entrenamiento de Modelos
+            </h3>
+        </div>
+        <div class="card-body">            
+            <div class="row mb-4">
+                <!-- Modelo de Stock Óptimo -->
+                <div class="col-md-4">
+                    <div class="model-card">
+                        <div class="model-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="model-content">
+                            <h4>Stock Óptimo</h4>
+                            <p>Predice niveles de inventario ideal</p>
+                            <button class="btn btn-primary btn-entrenar" id="btnStockOptimo">
+                                <i class="fas fa-play-circle"></i> Entrenar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modelo de Clasificación de Almacenes -->
+                <div class="col-md-4">
+                    <div class="model-card">
+                        <div class="model-icon">
+                            <i class="fas fa-warehouse"></i>
+                        </div>
+                        <div class="model-content">
+                            <h4>Clasificación</h4>
+                            <p>Clasifica almacenes por capacidad</p>
+                            <button class="btn btn-primary btn-entrenar" id="btnClasificacionAlmacenes">
+                                <i class="fas fa-play-circle"></i> Entrenar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modelo de Planificación de Rutas -->
+                <div class="col-md-4">
+                    <div class="model-card">
+                        <div class="model-icon">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <div class="model-content">
+                            <h4>Rutas</h4>
+                            <p>Optimiza rutas de distribución</p>
+                            <button class="btn btn-primary btn-entrenar" id="btnPlanificacionRutas">
+                                <i class="fas fa-play-circle"></i> Entrenar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Entrenando modelo...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Resultados del entrenamiento -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-chart-bar"></i> Resultados
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Los resultados se mostrarán aquí después de entrenar.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row" id="resultadosContainer" style="display: none;">
+                <div class="col-md-12">
+                    <div class="results-card">
+                        <h4 id="resultTitle"></h4>
+                        <div class="metrics-container" id="metricsContainer"></div>
+                        <div class="model-info" id="modelInfo"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="{{ url_for('static', filename='js/entrenar_modelo.js') }}"></script>
+{% endblock %}
