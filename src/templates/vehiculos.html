@@ -1,0 +1,191 @@
+{% extends "main.html" %}
+
+{% block title %}Gestión de Vehículos - Alaya S.A.C{% endblock %}
+
+{% block page_title %}Gestión de vehículos{% endblock %}
+{% block page_description %}Administra los vehículos de transporte del sistema{% endblock %}
+
+{% block maincss %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vehiculos.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+{% endblock %}
+
+{% block contenido %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Lista de vehículos</h3>
+        
+        <div class="header-actions">
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-vehiculos" placeholder="Buscar vehículos...">
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" id="btn-nuevo-vehiculo">
+                <i class="fas fa-plus"></i> Nuevo vehículo
+            </button>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table" id="tabla-vehiculos">
+                <thead>
+                    <tr>
+                        <th>Placa</th>
+                        <th>Modelo</th>
+                        <th>Marca</th>
+                        <th>Tipo</th>
+                        <th>Cant. Carga (kg)</th>
+                        <th>Año Fabricación</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-vehiculos-body">
+                    <!-- Los vehículos se cargarán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Contenedor de paginación -->
+        <div class="pagination-container" id="pagination-container">
+            <div class="pagination-info" id="pagination-info">
+                Mostrando 0 de 0 vehículos
+            </div>
+            <div class="pagination-controls">
+                <button class="btn-pagination btn-first" id="btn-first">
+                    <i class="fas fa-angle-double-left"></i>
+                </button>
+                <button class="btn-pagination btn-prev" id="btn-prev">
+                    <i class="fas fa-angle-left"></i>
+                </button>
+                
+                <div class="pagination-pages" id="pagination-pages">
+                    <!-- Los números de página se generarán aquí -->
+                </div>
+                
+                <button class="btn-pagination btn-next" id="btn-next">
+                    <i class="fas fa-angle-right"></i>
+                </button>
+                <button class="btn-pagination btn-last" id="btn-last">
+                    <i class="fas fa-angle-double-right"></i>
+                </button>
+            </div>
+            <div class="pagination-size">
+                <select id="page-size" class="form-control">
+                    <option value="5" selected>5 por página</option>
+                    <option value="10">10 por página</option>
+                    <option value="25">25 por página</option>
+                    <option value="50">50 por página</option>
+                    <option value="100">100 por página</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar/editar vehículo -->
+<div class="modal fade" id="modal-vehiculo" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-titulo">Nuevo vehículo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="form-vehiculo">
+                    <input type="hidden" id="vehiculo_id" name="vehiculo_id">
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="placa">Placa *</label>
+                                <input type="text" class="form-control" id="placa" name="placa" required maxlength="15" placeholder="ABC-123">
+                                <div class="invalid-feedback">Por favor ingrese la placa del vehículo</div>
+                                <small class="form-text text-muted">Formato: ABC-123</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="marca">Marca *</label>
+                                <input type="text" class="form-control" id="marca" name="marca" required maxlength="50" placeholder="Ej: Toyota">
+                                <div class="invalid-feedback">Por favor ingrese la marca del vehículo</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="modelo">Modelo *</label>
+                                <input type="text" class="form-control" id="modelo" name="modelo" required maxlength="50" placeholder="Ej: Hilux">
+                                <div class="invalid-feedback">Por favor ingrese el modelo del vehículo</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="tipo_vehiculo">Tipo de vehículo *</label>
+                                <select class="form-control" id="tipo_vehiculo" name="tipo_vehiculo" required>
+                                    <option value="">Seleccione tipo</option>
+                                    <option value="Camion">Camión</option>
+                                    <option value="Furgoneta">Furgoneta</option>
+                                </select>
+                                <div class="invalid-feedback">Por favor seleccione el tipo de vehículo</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="anio_fabricacion">Año de fabricación *</label>
+                                <input type="number" class="form-control" id="anio_fabricacion" name="anio_fabricacion" required min="1900" max="2025" placeholder="Ej: 2020">
+                                <div class="invalid-feedback">Por favor ingrese un año válido (1900-2025)</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="cantidad_carga">Capacidad de carga (kg) *</label>
+                                <input type="number" step="0.01" min="0" class="form-control" id="cantidad_carga" name="cantidad_carga" required placeholder="Ej: 1000">
+                                <div class="invalid-feedback">Por favor ingrese la capacidad de carga</div>
+                                <small class="form-text text-muted">Capacidad en kilogramos</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="estado">Estado *</label>
+                                <select class="form-control" id="estado" name="estado" required>
+                                    <option value="ACTIVO">Activo</option>
+                                    <option value="EN_USO">En uso</option>
+                                    <option value="INACTIVO">Inactivo</option>
+                                </select>
+                                <div class="invalid-feedback">Por favor seleccione el estado</div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-guardar-vehiculo">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="{{ url_for('static', filename='js/vehiculos.js') }}"></script>
+{% endblock %}
