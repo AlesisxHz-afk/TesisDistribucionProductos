@@ -14,9 +14,11 @@ body {
     align-items: center;
     padding: 10px;
     color: #333;
+    position: relative;
+    overflow-x: hidden;
 }
 
-/* ===== FONDO MODERNO ===== */
+/* ===== FONDO MODERNO CON FRUTAS CAYENDO ===== */
 .modern-background {
     position: fixed;
     top: 0;
@@ -38,41 +40,61 @@ body {
         rgba(33, 150, 243, 0.05) 100%);
 }
 
-.floating-shapes {
+.fruit-background {
     position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
+    pointer-events: none;
+    overflow: hidden;
 }
 
-.shape {
+.fruit {
     position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.15);
-    animation: float 20s infinite ease-in-out;
+    font-size: 3rem;
+    opacity: 0.2;
+    animation: fall linear infinite;
+    transform: translateZ(0);
+    will-change: transform;
 }
 
-.shape1 {
-    width: 150px;
-    height: 150px;
-    top: 10%;
-    right: 10%;
-    animation-delay: 0s;
-}
+/* Estilos para cada fruta */
+.fruit-1 { left: 5%; animation-duration: 12s; animation-delay: 0s; font-size: 3.5rem; }
+.fruit-2 { left: 15%; animation-duration: 15s; animation-delay: 2s; font-size: 2.5rem; }
+.fruit-3 { left: 25%; animation-duration: 18s; animation-delay: 1s; font-size: 3rem; }
+.fruit-4 { left: 35%; animation-duration: 14s; animation-delay: 4s; font-size: 2.8rem; }
+.fruit-5 { left: 45%; animation-duration: 16s; animation-delay: 3s; font-size: 3.2rem; }
+.fruit-6 { left: 55%; animation-duration: 20s; animation-delay: 0s; font-size: 4rem; }
+.fruit-7 { left: 65%; animation-duration: 13s; animation-delay: 5s; font-size: 2.2rem; }
+.fruit-8 { left: 75%; animation-duration: 17s; animation-delay: 2s; font-size: 3rem; }
+.fruit-9 { left: 85%; animation-duration: 19s; animation-delay: 1s; font-size: 3.8rem; }
+.fruit-10 { left: 95%; animation-duration: 14s; animation-delay: 4s; font-size: 2.5rem; }
+.fruit-11 { left: 10%; animation-duration: 22s; animation-delay: 6s; font-size: 3rem; }
+.fruit-12 { left: 20%; animation-duration: 11s; animation-delay: 0s; font-size: 2.8rem; }
+.fruit-13 { left: 30%; animation-duration: 23s; animation-delay: 3s; font-size: 3.5rem; }
+.fruit-14 { left: 40%; animation-duration: 15s; animation-delay: 7s; font-size: 3rem; }
+.fruit-15 { left: 50%; animation-duration: 21s; animation-delay: 2s; font-size: 2.5rem; }
+.fruit-16 { left: 60%; animation-duration: 12s; animation-delay: 5s; font-size: 3.2rem; }
+.fruit-17 { left: 70%; animation-duration: 18s; animation-delay: 1s; font-size: 2.8rem; }
+.fruit-18 { left: 80%; animation-duration: 16s; animation-delay: 4s; font-size: 3rem; }
+.fruit-19 { left: 90%; animation-duration: 20s; animation-delay: 3s; font-size: 3.5rem; }
+.fruit-20 { left: 98%; animation-duration: 13s; animation-delay: 6s; font-size: 2.8rem; }
+.fruit-21 { left: 2%; animation-duration: 24s; animation-delay: 2s; font-size: 3.2rem; }
+.fruit-22 { left: 8%; animation-duration: 17s; animation-delay: 8s; font-size: 3rem; }
+.fruit-23 { left: 18%; animation-duration: 19s; animation-delay: 4s; font-size: 2.5rem; }
+.fruit-24 { left: 28%; animation-duration: 14s; animation-delay: 0s; font-size: 3.5rem; }
+.fruit-25 { left: 38%; animation-duration: 21s; animation-delay: 5s; font-size: 3rem; }
 
-.shape2 {
-    width: 100px;
-    height: 100px;
-    bottom: 20%;
-    left: 5%;
-    animation-delay: -7s;
-}
-
-.shape3 {
-    width: 80px;
-    height: 80px;
-    top: 60%;
-    right: 15%;
-    animation-delay: -14s;
+@keyframes fall {
+    0% {
+        transform: translateY(-100%) rotate(0deg);
+        opacity: 0.2;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0.2;
+    }
 }
 
 /* ===== CONTENEDOR DE DOS PANELES ===== */
@@ -1453,5 +1475,28 @@ body {
     
     #registerForm .auth-form {
         max-height: 300px;
+    }
+}
+
+/* ESTILOS DE EMERGENCIA PARA MÓVILES */
+@media (max-width: 480px) {
+    .left-panel {
+        display: none !important;
+    }
+    .right-panel {
+        flex: 1 !important;
+        width: 100% !important;
+        padding: 20px 16px !important;
+    }
+    .two-panel-container {
+        border-radius: 0 !important;
+        min-height: 100vh !important;
+    }
+    body {
+        background: white !important;
+        padding: 0 !important;
+    }
+    .modern-background {
+        display: none !important;
     }
 }

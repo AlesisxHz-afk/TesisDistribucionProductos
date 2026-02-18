@@ -321,3 +321,28 @@ def obtener_estadisticas():
     except Exception as e:
         print(f"Error en obtener_estadisticas: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
+
+@main.route('/obtener_almacenes_activos', methods=['GET'])
+def obtener_almacenes_activos():
+    """Obtiene todos los almacenes activos para selects"""
+    try:
+        almacenes_activos = almacen.query.filter_by(estado='ACTIVO').all()
+        
+        almacenes_lista = []
+        for alm in almacenes_activos:
+            almacenes_lista.append({
+                "almacen_id": alm.almacen_id,
+                "nombre": alm.nombre,
+                "tipo_almacen": alm.tipo_almacen,
+                "capacidad": float(alm.capacidad) if alm.capacidad else 0
+            })
+        
+        return jsonify({
+            "success": True,
+            "almacenes": almacenes_lista,
+            "total": len(almacenes_lista)
+        }), 200
+        
+    except Exception as e:
+        print(f"Error en obtener_almacenes_activos: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500

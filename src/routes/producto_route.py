@@ -247,3 +247,32 @@ def eliminar_producto(id):
     except Exception as e:
         print(f"Error en eliminar_producto: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
+
+@main.route('/obtener_productos_activos_con_stock', methods=['GET'])
+def obtener_productos_activos_con_stock():
+    """Obtiene productos activos que tienen stock disponible"""
+    try:
+        productos_activos = producto.query.filter(
+            producto.estado_producto == 'ACTIVO',
+            producto.cant_productos_act > 0
+        ).all()
+        
+        productos_lista = []
+        for prod in productos_activos:
+            productos_lista.append({
+                "producto_id": prod.producto_id,
+                "nombre": prod.nombre,
+                "tipo": prod.tipo,
+                "variedad": prod.variedad,
+                "cant_productos_act": float(prod.cant_productos_act) if prod.cant_productos_act else 0
+            })
+        
+        return jsonify({
+            "success": True,
+            "productos": productos_lista,
+            "total": len(productos_lista)
+        }), 200
+        
+    except Exception as e:
+        print(f"Error en obtener_productos_activos_con_stock: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500

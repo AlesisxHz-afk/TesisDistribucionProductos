@@ -21,13 +21,37 @@ const previewContainer = document.getElementById('previewContainer');
 const imagePreview = document.getElementById('imagePreview');
 const removePreviewBtn = previewContainer?.querySelector('.remove-preview');
 
-// Función para mostrar mensajes de éxito
-function showSuccessMessage(title, text, htmlContent = null) {
+// Función para mostrar mensajes de éxito, ahora con opción de Lottie
+function showSuccessMessage(title, text, htmlContent = null, showLottie = false) {
+    let finalHtml = htmlContent || text;
+    
+    // Si se solicita Lottie, agregamos el contenedor
+    if (showLottie) {
+        finalHtml = `
+            <div style="text-align: center; padding: 20px 0;">
+                <div id="lottie-success" style="width: 150px; height: 150px; margin: 0 auto 20px;"></div>
+                <h3 style="color: #333; margin-bottom: 10px; font-weight: 600;">¡Bienvenido al Sistema!</h3>
+                <p style="color: #666; margin-bottom: 10px; line-height: 1.5;">
+                    ${text ? text.replace(/<[^>]*>/g, '') : 'Acceso exitoso.'}
+                </p>
+                <div style="background: #E8F5E9; padding: 15px; border-radius: 10px; margin: 20px 0; border: 1px solid #C8E6C9;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
+                        <i class="fas fa-spinner fa-spin" style="color: #4CAF50;"></i>
+                        <span style="color: #666; font-size: 14px;">Redirigiendo al sistema...</span>
+                    </div>
+                    <p style="color: #888; font-size: 12px; margin: 0; text-align: center;">
+                        Serás redirigido automáticamente en unos segundos.
+                    </p>
+                </div>
+            </div>
+        `;
+    }
+
     return Swal.fire({
         title: title,
-        text: htmlContent ? null : text,
-        html: htmlContent || text,
-        icon: 'success',
+        text: finalHtml === text ? text : null,
+        html: finalHtml !== text ? finalHtml : null,
+        icon: showLottie ? null : 'success', // No mostrar icono si usamos Lottie
         iconColor: '#4CAF50',
         showConfirmButton: true,
         confirmButtonText: 'Continuar',
@@ -38,6 +62,34 @@ function showSuccessMessage(title, text, htmlContent = null) {
             popup: 'custom-swal-popup',
             title: 'custom-swal-title',
             htmlContainer: 'custom-swal-html'
+        },
+        didOpen: () => {
+            // Si se mostró Lottie, cargar la animación
+            if (showLottie) {
+                // Cargar la librería Lottie y la animación
+                if (typeof lottie === 'undefined') {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js';
+                    script.onload = () => {
+                        lottie.loadAnimation({
+                            container: document.getElementById('lottie-success'),
+                            renderer: 'svg',
+                            loop: false,
+                            autoplay: true,
+                            path: '/static/animation/login.json'
+                        });
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    lottie.loadAnimation({
+                        container: document.getElementById('lottie-success'),
+                        renderer: 'svg',
+                        loop: false,
+                        autoplay: true,
+                        path: '/static/animation/login.json'
+                    });
+                }
+            }
         }
     });
 }
@@ -706,26 +758,8 @@ if (loginFormElement) {
                 showSuccessMessage(
                     '¡Bienvenido al Sistema!',
                     null,
-                    `
-                    <div style="text-align: center; padding: 20px 0;">
-                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; border: 2px solid #4CAF50;">
-                            <i class="fas fa-check-circle" style="font-size: 35px; color: #4CAF50;"></i>
-                        </div>
-                        <h3 style="color: #333; margin-bottom: 10px; font-weight: 600;">¡Acceso Exitoso!</h3>
-                        <p style="color: #666; margin-bottom: 10px; line-height: 1.5;">
-                            Bienvenido de nuevo, <strong style="color: #4CAF50;">${username}</strong>.
-                        </p>
-                        <div style="background: #E8F5E9; padding: 15px; border-radius: 10px; margin: 20px 0; border: 1px solid #C8E6C9;">
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
-                                <i class="fas fa-spinner fa-spin" style="color: #4CAF50;"></i>
-                                <span style="color: #666; font-size: 14px;">Redirigiendo al sistema...</span>
-                            </div>
-                            <p style="color: #888; font-size: 12px; margin: 0; text-align: center;">
-                                Serás redirigido automáticamente en unos segundos.
-                            </p>
-                        </div>
-                    </div>
-                    `
+                    null, // Pasamos null para que use el HTML por defecto de Lottie
+                    true  // Activamos Lottie
                 ).then(() => {
                     window.location.href = response.url;
                 });

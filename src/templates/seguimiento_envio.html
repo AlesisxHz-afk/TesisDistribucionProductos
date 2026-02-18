@@ -1,0 +1,104 @@
+{% extends "main.html" %}
+
+{% block title %}Seguimiento de Envíos - Alaya S.A.C{% endblock %}
+
+{% block page_title %}Seguimiento de envíos{% endblock %}
+{% block page_description %}Consulta el estado y ubicación de un envío específico{% endblock %}
+
+{% block maincss %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/seguimiento_envio.css') }}">
+{% endblock %}
+
+{% block contenido %}
+<div class="envio-container">
+    <!-- Sidebar de búsqueda -->
+    <div class="busqueda-sidebar">
+        <div class="sidebar-header">
+            <h3 class="sidebar-title">
+                <i class="fas fa-search"></i>
+                Buscar envío
+            </h3>
+            
+            <div class="search-box">
+                <i class="fas fa-hashtag search-icon"></i>
+                <input type="text" 
+                       id="search-nro-envio" 
+                       placeholder="Número de envío"
+                       autocomplete="off">
+            </div>
+            
+            <button class="btn-primary btn-block" id="btn-buscar-envio">
+                <i class="fas fa-search"></i>
+                Buscar
+            </button>
+        </div>
+        
+        <div class="busqueda-info" id="busqueda-info" style="display: none;">
+            <!-- Se muestra información después de buscar -->
+        </div>
+    </div>
+    
+    <!-- Mapa -->
+    <div class="map-container">
+        <div id="google-map" class="map"></div>
+        
+        <!-- Controles del mapa -->
+        <div class="map-controls">
+            <button class="btn-map-control" id="btn-zoom-in" title="Acercar">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="btn-map-control" id="btn-zoom-out" title="Alejar">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button class="btn-map-control" id="btn-center-route" title="Centrar ruta">
+                <i class="fas fa-crosshairs"></i>
+            </button>
+        </div>
+        
+        <!-- Información de la ruta -->
+        <div class="route-info" id="route-info" style="display: none;">
+            <div class="route-info-content">
+                <span class="route-distance" id="route-distance"></span>
+                <span class="route-time" id="route-time"></span>
+            </div>
+        </div>
+        
+        <!-- Mensaje inicial -->
+        <div class="no-busqueda" id="no-busqueda">
+            <i class="fas fa-map-marked-alt"></i>
+            <h4>Buscar un envío</h4>
+            <p>Ingrese el número de envío en el panel izquierdo para ver su información y ruta</p>
+        </div>
+        
+        <!-- Loading overlay -->
+        <div class="loading-overlay" id="loading-overlay" style="display: none;">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Cargando información del envío...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ticket de información del envío -->
+    <div class="envio-ticket" id="envio-ticket" style="display: none;">
+        <div class="ticket-header">
+            <div class="ticket-title">
+                <i class="fas fa-ticket-alt"></i>
+                <h4>Detalle del envío</h4>
+            </div>
+            <button class="btn-close-ticket" id="btn-close-ticket">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="ticket-body" id="ticket-body">
+            <!-- El contenido se genera dinámicamente -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZoobTeKCRt0-Fifbh7DSI6MamaBVbngU&callback=initMap&libraries=places" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', filename='js/seguimiento_envio.js') }}"></script>
+{% endblock %}

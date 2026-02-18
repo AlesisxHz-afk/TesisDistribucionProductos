@@ -16,6 +16,8 @@ from src.routes import distribucion_almacen_producto_route
 from src.routes import almacen_route
 from src.routes import vehiculo_route
 from src.routes import conductor_route
+from src.routes import vehiculo_conductor_route
+from src.routes import reportes_route
 
 main = Blueprint("main", __name__, url_prefix="/main")
 
@@ -28,6 +30,8 @@ main.register_blueprint(distribucion_almacen_producto_route.main)
 main.register_blueprint(almacen_route.main)
 main.register_blueprint(vehiculo_route.main)
 main.register_blueprint(conductor_route.main)
+main.register_blueprint(vehiculo_conductor_route.main)
+main.register_blueprint(reportes_route.main)
 
 @main.route("/")
 def mainhtml():

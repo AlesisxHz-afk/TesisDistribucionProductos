@@ -1,0 +1,181 @@
+{% extends "main.html" %}
+
+{% block title %}Gestión de Vehículo-Conductor - Alaya S.A.C{% endblock %}
+
+{% block page_title %}Gestión de Vehículo-Conductor{% endblock %}
+{% block page_description %}Administra las asignaciones de vehículos a conductores{% endblock %}
+
+{% block maincss %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vehiculo_conductor.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+{% endblock %}
+
+{% block contenido %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Lista de asignaciones</h3>
+        
+        <div class="header-actions">
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-asignaciones" placeholder="Buscar por conductor, placa o estado...">
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" id="btn-nueva-asignacion">
+                <i class="fas fa-plus"></i> Nueva asignación
+            </button>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table" id="tabla-asignaciones">
+                <thead>
+                    <tr>
+                        <!-- ID oculto con CSS -->
+                        <th style="display: none;">ID</th>
+                        <th>Conductor</th>
+                        <th>DNI Conductor</th>
+                        <th>Vehículo (Placa)</th>
+                        <th>Marca / Modelo</th>
+                        <!-- Fecha oculta con CSS -->
+                        <th style="display: none;">Fecha Asignación</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-asignaciones-body">
+                    <!-- Las asignaciones se cargarán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Contenedor de paginación -->
+        <div class="pagination-container" id="pagination-container">
+            <div class="pagination-info" id="pagination-info">
+                Mostrando 0 de 0 asignaciones
+            </div>
+            <div class="pagination-controls">
+                <button class="btn-pagination btn-first" id="btn-first">
+                    <i class="fas fa-angle-double-left"></i>
+                </button>
+                <button class="btn-pagination btn-prev" id="btn-prev">
+                    <i class="fas fa-angle-left"></i>
+                </button>
+                
+                <div class="pagination-pages" id="pagination-pages">
+                    <!-- Los números de página se generarán aquí -->
+                </div>
+                
+                <button class="btn-pagination btn-next" id="btn-next">
+                    <i class="fas fa-angle-right"></i>
+                </button>
+                <button class="btn-pagination btn-last" id="btn-last">
+                    <i class="fas fa-angle-double-right"></i>
+                </button>
+            </div>
+            <div class="pagination-size">
+                <select id="page-size" class="form-control">
+                    <option value="5" selected>5 por página</option>
+                    <option value="10">10 por página</option>
+                    <option value="25">25 por página</option>
+                    <option value="50">50 por página</option>
+                    <option value="100">100 por página</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar/editar asignación -->
+<div class="modal fade" id="modal-asignacion" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-titulo">Nueva asignación</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="form-asignacion">
+                    <input type="hidden" id="vehiculo_conductor_id" name="vehiculo_conductor_id">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="conductor_id">Conductor *</label>
+                                <select class="form-control" id="conductor_id" name="conductor_id" required>
+                                    <option value="">Seleccione un conductor</option>
+                                    <!-- Los conductores se cargarán dinámicamente -->
+                                </select>
+                                <div class="invalid-feedback">Por favor seleccione un conductor</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="vehiculo_id">Vehículo *</label>
+                                <select class="form-control" id="vehiculo_id" name="vehiculo_id" required>
+                                    <option value="">Seleccione un vehículo</option>
+                                    <!-- Los vehículos se cargarán dinámicamente -->
+                                </select>
+                                <div class="invalid-feedback">Por favor seleccione un vehículo</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Campos ocultos para fecha y estado -->
+                    <input type="hidden" id="fecha_asignacion" name="fecha_asignacion">
+                    <input type="hidden" id="estado_asignacion" name="estado_asignacion">
+                    
+                    <!-- Información adicional del conductor y vehículo (solo lectura) -->
+                    <div class="row mt-3" id="info-adicional" style="display: none;">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle"></i> Detalles de la selección:</h6>
+                                <div id="conductor-info"></div>
+                                <div id="vehiculo-info"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-guardar-asignacion">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación (se mantiene, aunque usaremos SweetAlert) -->
+<div class="modal fade" id="modal-confirmacion" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmación</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="mensaje-confirmacion"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btn-confirmar-accion">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="{{ url_for('static', filename='js/vehiculo_conductor.js') }}"></script>
+{% endblock %}
