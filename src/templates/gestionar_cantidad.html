@@ -1,0 +1,127 @@
+{% extends "main.html" %}
+
+{% block title %}Gestión de Cantidad de Productos - Alaya S.A.C{% endblock %}
+
+{% block page_title %}Gestión de cantidad de productos{% endblock %}
+{% block page_description %}Administra el stock global de los productos (suma, resta o edita){% endblock %}
+
+{% block maincss %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gestionar_cantidad.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+{% endblock %}
+
+{% block contenido %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Stock global de productos</h3>
+        
+        <div class="header-actions">
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-productos" placeholder="Buscar producto por nombre, tipo o variedad...">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table" id="tabla-productos">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Variedad</th>
+                        <th>Cantidad Actual (kg)</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-productos-body">
+                    <!-- Los productos se cargarán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Contenedor de paginación -->
+        <div class="pagination-container" id="pagination-container">
+            <div class="pagination-info" id="pagination-info">
+                Mostrando 0 de 0 productos
+            </div>
+            <div class="pagination-controls">
+                <button class="btn-pagination btn-first" id="btn-first">
+                    <i class="fas fa-angle-double-left"></i>
+                </button>
+                <button class="btn-pagination btn-prev" id="btn-prev">
+                    <i class="fas fa-angle-left"></i>
+                </button>
+                
+                <div class="pagination-pages" id="pagination-pages">
+                    <!-- Los números de página se generarán aquí -->
+                </div>
+                
+                <button class="btn-pagination btn-next" id="btn-next">
+                    <i class="fas fa-angle-right"></i>
+                </button>
+                <button class="btn-pagination btn-last" id="btn-last">
+                    <i class="fas fa-angle-double-right"></i>
+                </button>
+            </div>
+            <div class="pagination-size">
+                <select id="page-size" class="form-control">
+                    <option value="5" selected>5 por página</option>
+                    <option value="10">10 por página</option>
+                    <option value="25">25 por página</option>
+                    <option value="50">50 por página</option>
+                    <option value="100">100 por página</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Gestionar Cantidad (Sumar, Restar o Editar) -->
+<div class="modal fade" id="modal-gestion-cantidad" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal-titulo">Gestionar Cantidad: <span id="modal-producto-nombre"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modal-producto-id">
+                <input type="hidden" id="modal-accion" value="editar"> <!-- 'sumar', 'restar', 'editar' -->
+                
+                <div class="form-group" id="grupo-cantidad-actual">
+                    <label for="cantidad-actual">Cantidad Actual (kg)</label>
+                    <input type="text" class="form-control" id="cantidad-actual" readonly>
+                </div>
+
+                <div class="form-group" id="grupo-cantidad-nueva" style="display: none;">
+                    <label for="cantidad-nueva" id="label-cantidad-nueva">Nueva Cantidad (kg)</label>
+                    <input type="number" step="0.01" min="0" class="form-control" id="cantidad-nueva" placeholder="Ingrese la cantidad">
+                </div>
+
+                <div class="form-group" id="grupo-cantidad-operacion" style="display: none;">
+                    <label for="cantidad-operacion" id="label-cantidad-operacion">Cantidad a (kg)</label>
+                    <input type="number" step="0.01" min="0.01" class="form-control" id="cantidad-operacion" placeholder="Ingrese la cantidad">
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btn-guardar-cantidad">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="{{ url_for('static', filename='js/gestionar_cantidad.js') }}"></script>
+{% endblock %}

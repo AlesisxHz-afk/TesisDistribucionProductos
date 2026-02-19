@@ -22,10 +22,16 @@ def allowed_file(filename):
 def mainproducto():
     return render_template('productos.html')
 
+@main.route('/gestionar_cantidad')
+def gestionar_cantidad():
+    """Renderiza la página de gestión de cantidad de productos (stock global)"""
+    return render_template('gestionar_cantidad.html')
+
 @main.route('/galeria')
 def galeria():
     return render_template('galeria.html')
 
+# ... (el resto de las rutas de producto_route.py se mantienen igual)
 @main.route('/obtener_productos', methods=['GET'])
 def obtener_productos_route():
     try:
