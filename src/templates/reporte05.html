@@ -1,0 +1,105 @@
+{% extends "main.html" %}
+
+{% block title %}Reporte de Movimiento de Productos - Alaya S.A.C{% endblock %}
+
+{% block page_title %}Reporte de Movimiento de Productos{% endblock %}
+{% block page_description %}Análisis de entradas y salidas por almacén{% endblock %}
+
+{% block maincss %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reporte05.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block contenido %}
+<div class="reports-container">
+    <!-- Filtros -->
+    <div class="card filters-card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-filter"></i> Filtros de Movimiento
+            </h3>
+            <div class="header-actions">
+                <button class="btn btn-primary" id="btn-actualizar">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+                <button class="btn btn-success" id="btn-exportar">
+                    <i class="fas fa-download"></i> Exportar
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="filters-grid">
+                <div class="form-group">
+                    <label for="estado-envio">
+                        <i class="fas fa-truck"></i> Estado de Envío
+                    </label>
+                    <select class="form-control" id="estado-envio">
+                        <option value="">Todos</option>
+                        <option value="PENDIENTE">Pendiente</option>
+                        <option value="EN_RUTA">En Ruta</option>
+                        <option value="ENTREGADO">Entregado</option>
+                        <option value="CANCELADO">Cancelado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="fecha-movimiento">
+                        <i class="fas fa-calendar-alt"></i> Rango de Fecha
+                    </label>
+                    <input type="text" class="form-control" id="fecha-movimiento" placeholder="Seleccionar rango...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de movimientos -->
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title">
+                <i class="fas fa-table"></i> Últimos Movimientos de Productos (últimos 20 registros)
+            </h4>
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-movimiento" placeholder="Buscar producto o almacén...">
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table" id="tabla-movimiento">
+                    <thead>
+                        <tr>
+                            <th>N° Envío</th>
+                            <th>Producto</th>
+                            <th>Almacén Origen/Destino</th>
+                            <th>Fecha Envío</th>
+                            <th>Hora Salida</th>
+                            <th>Hora Llegada</th>
+                            <th>Estado</th>
+                            <th>Demanda (kg)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-movimiento-body">
+                        <!-- Datos dinámicos - solo últimos 20 -->
+                    </tbody>
+                </table>
+                <div class="pagination-info" id="pagination-info" style="display: none;">
+                    <p class="text-muted">Mostrando últimos 20 registros de un total de <span id="total-registros">0</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    <script src="{{ url_for('static', filename='js/reporte05.js') }}"></script>
+{% endblock %}

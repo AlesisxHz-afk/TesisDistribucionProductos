@@ -1,0 +1,110 @@
+{% extends "main.html" %}
+
+{% block title %}Reporte de Inventario - Alaya S.A.C{% endblock %}
+
+{% block page_title %}Reporte de Inventario de Vehículos{% endblock %}
+{% block page_description %}Análisis del parque automotor y disponibilidad de vehículos{% endblock %}
+
+{% block maincss %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reporte07.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block contenido %}
+<div class="reports-container">
+    <!-- Filtros -->
+    <div class="card filters-card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-truck"></i> Filtros de Inventario
+            </h3>
+            <div class="header-actions">
+                <button class="btn btn-primary" id="btn-actualizar">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+                <button class="btn btn-success" id="btn-exportar">
+                    <i class="fas fa-download"></i> Exportar
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="filters-grid">
+                <div class="form-group">
+                    <label for="tipo-vehiculo">
+                        <i class="fas fa-tag"></i> Tipo de Vehículo
+                    </label>
+                    <select class="form-control" id="tipo-vehiculo">
+                        <option value="">Todos los tipos</option>
+                        <option value="Camion">Camión</option>
+                        <option value="Furgoneta">Furgoneta</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="estado-vehiculo">
+                        <i class="fas fa-toggle-on"></i> Estado
+                    </label>
+                    <select class="form-control" id="estado-vehiculo">
+                        <option value="">Todos</option>
+                        <option value="ACTIVO">Activos</option>
+                        <option value="INACTIVO">Inactivos</option>
+                        <option value="MANTENIMIENTO">En Mantenimiento</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="anio-fabricacion">
+                        <i class="fas fa-calendar-alt"></i> Año Fabricación
+                    </label>
+                    <select class="form-control" id="anio-fabricacion">
+                        <option value="">Todos los años</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de vehículos -->
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title">
+                <i class="fas fa-table"></i> Inventario de Vehículos
+            </h4>
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-vehiculos" placeholder="Buscar vehículo...">
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table" id="tabla-vehiculos">
+                    <thead>
+                        <tr>
+                            <th>Placa</th>
+                            <th>Marca / Modelo</th>
+                            <th>Tipo</th>
+                            <th>Año</th>
+                            <th>Capacidad (kg)</th>
+                            <th>Estado</th>
+                            <th>Conductor Asignado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-vehiculos-body">
+                        <!-- Datos dinámicos -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="{{ url_for('static', filename='js/reporte07.js') }}"></script>
+{% endblock %}
