@@ -5,13 +5,18 @@ import hashlib
 import os
 from src.services import vehiculo_service
 from werkzeug.utils import secure_filename
-from datetime import datetime
+from datetime import datetime, date
 
 main = Blueprint("vehiculo", __name__, url_prefix="/main/vehiculo")
 
 @main.route("/gestionar_vehiculos")
 def mainvehiculo():
     return render_template('vehiculos.html')
+
+@main.route("/vista_planificar_rutas")
+def vista_planificar_rutas():
+    hoy = date.today().strftime('%Y-%m-%d')
+    return render_template('planificar_rutas.html', hoy=hoy)
 
 @main.route("/obtener_vehiculos", methods=["GET"])
 def obtener_vehiculos():
@@ -232,4 +237,131 @@ def filtrar_vehiculos():
             "success": False,
             "message": "Error interno del servidor",
             "error": str(e)
+        }), 500
+
+
+# ============================================================================
+# RUTAS PARA PLANIFICACIÓN DE RUTAS
+# ============================================================================
+
+@main.route("/obtener_envios_pendientes", methods=["GET"])
+def obtener_envios_pendientes():
+    """Obtiene envíos pendientes para una fecha"""
+    try:
+        fecha_str = request.args.get('fecha')
+        
+        if fecha_str:
+            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+        else:
+            fecha = date.today()
+        
+        envios = vehiculo_service.obtener_envios_pendientes(fecha)
+        
+        return jsonify({
+            'success': True,
+            'data': {
+                'fecha': fecha.strftime('%Y-%m-%d'),
+                'total': len(envios),
+                'envios': envios
+            }
+        }), 200
+        
+    except Exception as e:
+        print(f"Error en obtener_envios_pendientes: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@main.route("/planificar_rutas", methods=["POST"])
+def planificar_rutas_post():
+    """Planifica rutas para una fecha"""
+    try:
+        data = request.get_json()
+        fecha_str = data.get('fecha')
+        
+        if not fecha_str:
+            return jsonify({
+                'success': False,
+                'error': 'Fecha no proporcionada'
+            }), 400
+        
+        fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+        
+        resultado = vehiculo_service.planificar_rutas(fecha)
+        
+        return jsonify(resultado), 200 if resultado.get('success') else 500
+        
+    except Exception as e:
+        print(f"Error en planificar_rutas: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@main.route("/guardar_planificacion", methods=["POST"])
+def guardar_planificacion():
+    """Guarda la planificación de rutas"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'No se recibieron datos'
+            }), 400
+        
+        resultado = vehiculo_service.guardar_planificacion_rutas(data)
+        
+        return jsonify(resultado), 200 if resultado.get('success') else 500
+        
+    except Exception as e:
+        print(f"Error en guardar_planificacion: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@main.route("/estadisticas_rutas", methods=["GET"])
+def estadisticas_rutas():
+    """Obtiene estadísticas de rutas"""
+    try:
+        fecha_str = request.args.get('fecha')
+        
+        if fecha_str:
+            fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+        else:
+            fecha = date.today()
+        
+        resultado = vehiculo_service.obtener_estadisticas_rutas(fecha)
+        
+        return jsonify(resultado), 200 if resultado.get('success') else 500
+        
+    except Exception as e:
+        print(f"Error en estadisticas_rutas: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@main.route("/vehiculos_conductores_disponibles", methods=["GET"])
+def vehiculos_conductores_disponibles():
+    """Obtiene vehículos con conductores disponibles"""
+    try:
+        vc_disponible = vehiculo_service.obtener_vehiculo_conductor_disponible()
+        
+        return jsonify({
+            'success': True,
+            'data': vc_disponible
+        }), 200
+        
+    except Exception as e:
+        print(f"Error en vehiculos_conductores_disponibles: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
         }), 500

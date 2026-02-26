@@ -27,6 +27,10 @@ def gestionar_cantidad():
     """Renderiza la página de gestión de cantidad de productos (stock global)"""
     return render_template('gestionar_cantidad.html')
 
+@main.route('/predecir_stock')
+def predecir_stock():
+    return render_template('predecir_stock.html')
+
 @main.route('/galeria')
 def galeria():
     return render_template('galeria.html')
@@ -281,4 +285,97 @@ def obtener_productos_activos_con_stock():
         
     except Exception as e:
         print(f"Error en obtener_productos_activos_con_stock: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# ===== NUEVAS RUTAS PARA PREDICCIÓN DE STOCK =====
+
+@main.route('/predecir_stock_api', methods=['GET'])
+def predecir_stock_api():
+    """API para predecir stock usando el modelo entrenado"""
+    try:
+        anio = request.args.get('anio', type=int)
+        mes = request.args.get('mes', type=int)
+        
+        if not anio or not mes:
+            return jsonify({"success": False, "error": "Año y mes son requeridos"}), 400
+        
+        resultado = producto_service.predecir_stock_optimo(anio, mes)
+        
+        if "error" in resultado:
+            return jsonify({"success": False, "error": resultado["error"]}), 400
+        
+        return jsonify({
+            "success": True,
+            "predicciones": resultado.get("predicciones", []),
+            "total": len(resultado.get("predicciones", []))
+        }), 200
+        
+    except Exception as e:
+        print(f"Error en predecir_stock_api: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@main.route('/guardar_predicciones', methods=['POST'])
+def guardar_predicciones():
+    """Guarda las predicciones en la tabla distribucion_almacen_producto"""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({"success": False, "error": "No se recibieron datos"}), 400
+        
+        anio = data.get('anio')
+        mes = data.get('mes')
+        predicciones = data.get('predicciones', [])
+        
+        print(f"Recibido: anio={anio} (tipo: {type(anio)}), mes={mes} (tipo: {type(mes)})")
+        print(f"Total predicciones: {len(predicciones)}")
+        
+        if not anio or not mes:
+            return jsonify({"success": False, "error": "Año y mes son requeridos"}), 400
+        
+        if not predicciones:
+            return jsonify({"success": False, "error": "No hay predicciones para guardar"}), 400
+        
+        resultado = producto_service.guardar_predicciones_db(anio, mes, predicciones)
+        
+        if "error" in resultado:
+            return jsonify({"success": False, "error": resultado["error"]}), 400
+        
+        return jsonify({
+            "success": True,
+            "mensaje": resultado.get("mensaje", "Predicciones guardadas exitosamente"),
+            "guardados": resultado.get("guardados", 0),
+            "total_envios": resultado.get("total_envios", 0)
+        }), 200
+        
+    except Exception as e:
+        print(f"Error en guardar_predicciones: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
+    
+@main.route('/obtener_detalle_envios/<int:producto_id>', methods=['GET'])
+def obtener_detalle_envios(producto_id):
+    """Obtiene el detalle de envíos de un producto para un año y mes específicos"""
+    try:
+        anio = request.args.get('anio', type=int)
+        mes = request.args.get('mes', type=int)
+        
+        if not anio or not mes:
+            return jsonify({"success": False, "error": "Año y mes son requeridos"}), 400
+        
+        resultado = producto_service.obtener_detalle_envios_producto(producto_id, anio, mes)
+        
+        if "error" in resultado:
+            return jsonify({"success": False, "error": resultado["error"]}), 400
+        
+        return jsonify({
+            "success": True,
+            "envios": resultado.get("envios", [])
+        }), 200
+        
+    except Exception as e:
+        print(f"Error en obtener_detalle_envios: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500

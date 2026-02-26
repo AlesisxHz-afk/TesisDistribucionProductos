@@ -1,8 +1,18 @@
-from ..models.models import db, vehiculo
-from sqlalchemy import text
+from ..models.models import db, vehiculo, vehiculoconductor, conductor, distribucionalmacenproducto, almacen, producto
+from sqlalchemy import text, and_, or_
 import hashlib
 import os
 from werkzeug.utils import secure_filename
+import math
+import random
+import numpy as np
+from datetime import datetime, timedelta, date, time
+import pickle
+import joblib
+
+# ============================================================================
+# FUNCIONES EXISTENTES (SIN MODIFICAR)
+# ============================================================================
 
 def obtener_vehiculos():
     """
@@ -139,7 +149,7 @@ def crear_vehiculo(placa, modelo, marca, cantidad_carga, tipo_vehiculo, anio_fab
         if tipo_vehiculo not in tipos_permitidos:
             return None, f"El tipo de vehículo debe ser uno de: {', '.join(tipos_permitidos)}"
         
-        # Validar estados permitidos (CORREGIDO: ACTIVO, EN_USO, INACTIVO)
+        # Validar estados permitidos
         estados_permitidos = ['ACTIVO', 'EN_USO', 'INACTIVO']
         if estado not in estados_permitidos:
             return None, f"El estado debe ser uno de: {', '.join(estados_permitidos)}"
@@ -192,7 +202,7 @@ def actualizar_vehiculo(vehiculo_id, placa, modelo, marca, cantidad_carga, tipo_
         if tipo_vehiculo not in tipos_permitidos:
             return None, f"El tipo de vehículo debe ser uno de: {', '.join(tipos_permitidos)}"
         
-        # Validar estados permitidos (CORREGIDO: ACTIVO, EN_USO, INACTIVO)
+        # Validar estados permitidos
         estados_permitidos = ['ACTIVO', 'EN_USO', 'INACTIVO']
         if estado not in estados_permitidos:
             return None, f"El estado debe ser uno de: {', '.join(estados_permitidos)}"
@@ -232,7 +242,7 @@ def cambiar_estado_vehiculo(vehiculo_id, nuevo_estado):
         if not veh:
             return False, "Vehículo no encontrado"
         
-        # Validar estados permitidos (CORREGIDO: ACTIVO, EN_USO, INACTIVO)
+        # Validar estados permitidos
         estados_permitidos = ['ACTIVO', 'EN_USO', 'INACTIVO']
         if nuevo_estado not in estados_permitidos:
             return False, f"El estado debe ser uno de: {', '.join(estados_permitidos)}"
@@ -276,3 +286,533 @@ def eliminar_vehiculo(vehiculo_id):
     except Exception as e:
         db.session.rollback()
         return False, f"Error al eliminar vehículo: {str(e)}"
+
+
+# ============================================================================
+# NUEVAS FUNCIONES PARA PLANIFICACIÓN DE RUTAS
+# ============================================================================
+
+def cargar_modelo_planificacion_rutas():
+    """Carga el modelo PKT de planificación de rutas entrenado"""
+    try:
+        modelos_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'pkt', 'planificacion_rutas.pkl')
+        
+        if os.path.exists(modelos_path):
+            with open(modelos_path, 'rb') as f:
+                modelo_data = pickle.load(f)
+            print(f"Modelo PKT cargado: {modelos_path}")
+            return modelo_data
+        else:
+            print(f"No se encontró modelo PKT en {modelos_path}")
+            return None
+    except Exception as e:
+        print(f"Error cargando modelo PKT: {e}")
+        return None
+
+
+def calcular_distancia(lat1, lon1, lat2, lon2):
+    """Calcula distancia en km usando fórmula de Haversine"""
+    try:
+        R = 6371  # Radio de la Tierra en km
+        
+        lat1, lon1, lat2, lon2 = map(float, [lat1, lon1, lat2, lon2])
+        
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+        
+        a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
+        c = 2 * math.asin(math.sqrt(a))
+        
+        return R * c
+    except Exception as e:
+        print(f"Error calculando distancia: {e}")
+        return random.uniform(50, 200)
+
+
+def calcular_tiempo_estimado(distancia_km):
+    """Calcula tiempo estimado en horas basado en distancia"""
+    velocidad_promedio = 60  # km/h
+    tiempo_horas = distancia_km / velocidad_promedio
+    return round(tiempo_horas, 2)
+
+
+def sumar_tiempo(hora_base_h, hora_base_m, minutos_extra):
+    """
+    Suma minutos a una hora base y retorna (hora, minuto) válidos (0-23, 0-59).
+    """
+    total_minutos = hora_base_h * 60 + hora_base_m + int(minutos_extra)
+    # Limitar a 23:59 como máximo
+    total_minutos = min(total_minutos, 23 * 60 + 59)
+    hora = total_minutos // 60
+    minuto = total_minutos % 60
+    return hora, minuto
+
+
+def generar_numero_envio():
+    """Genera un número de envío único"""
+    import string
+    
+    fecha = datetime.now().strftime("%Y%m%d")
+    random_chars = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    numero = f"ENV-{fecha}-{random_chars}"
+    
+    # Verificar que no exista
+    intentos = 0
+    while distribucionalmacenproducto.query.filter_by(nro_envio=numero).first() and intentos < 10:
+        random_chars = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        numero = f"ENV-{fecha}-{random_chars}"
+        intentos += 1
+    
+    return numero
+
+
+def obtener_vehiculo_conductor_disponible():
+    """Obtiene un vehículo_conductor en estado ACTIVO"""
+    try:
+        query = text("""
+            SELECT 
+                vc.vehiculo_conductor_id,
+                vc.vehiculo_id,
+                vc.conductor_id,
+                v.placa,
+                v.cantidad_carga,
+                v.tipo_vehiculo,
+                c.nombre,
+                c.apellido_paterno,
+                c.apellido_materno,
+                c.dni
+            FROM vehiculo_conductor vc
+            INNER JOIN vehiculo v ON vc.vehiculo_id = v.vehiculo_id
+            INNER JOIN conductor c ON vc.conductor_id = c.conductor_id
+            WHERE vc.estado = 'ACTIVO'
+            AND v.estado = 'ACTIVO'
+            AND c.estado = 'ACTIVO'
+            LIMIT 10
+        """)
+        
+        result = db.session.execute(query)
+        disponibles = result.fetchall()
+        
+        if disponibles:
+            seleccionado = random.choice(disponibles)
+            
+            return {
+                'vehiculo_conductor_id': seleccionado[0],
+                'vehiculo_id': seleccionado[1],
+                'conductor_id': seleccionado[2],
+                'placa': seleccionado[3],
+                'capacidad_carga': float(seleccionado[4]) if seleccionado[4] else 0,
+                'tipo_vehiculo': seleccionado[5],
+                'conductor_nombre': f"{seleccionado[6]} {seleccionado[7]} {seleccionado[8]}"
+            }
+        
+        return None
+    except Exception as e:
+        print(f"Error obteniendo vehículo_conductor: {e}")
+        return None
+
+
+def obtener_envios_pendientes(fecha=None):
+    """Obtiene los envíos pendientes para una fecha específica"""
+    try:
+        if not fecha:
+            fecha = date.today()
+        
+        query = text("""
+            SELECT 
+                d.asignacion_id,
+                p.producto_id,
+                p.nombre as producto_nombre,
+                p.tipo as producto_tipo,
+                p.variedad as producto_variedad,
+                p.temperatura_optima,
+                p.humedad_optima,
+                a.almacen_id,
+                a.nombre as almacen_nombre,
+                a.direccion as almacen_direccion,
+                a.latitud as almacen_lat,
+                a.longitud as almacen_lon,
+                a.tipo_almacen,
+                d.demanda,
+                d.fecha_envio,
+                d.estado_envio,
+                d.nro_envio
+            FROM distribucion_almacen_producto d
+            INNER JOIN producto p ON d.producto_id = p.producto_id
+            INNER JOIN almacen a ON d.almacen_id = a.almacen_id
+            WHERE d.fecha_envio = :fecha
+            AND (d.estado_envio IS NULL OR d.estado_envio = 'PENDIENTE')
+            AND d.vehiculo_conductor_id IS NULL
+            ORDER BY a.almacen_id
+        """)
+        
+        result = db.session.execute(query, {'fecha': fecha})
+        envios = result.fetchall()
+        
+        envios_lista = []
+        for envio in envios:
+            envios_lista.append({
+                'asignacion_id': envio[0],
+                'producto_id': envio[1],
+                'producto_nombre': envio[2],
+                'producto_tipo': envio[3],
+                'producto_variedad': envio[4],
+                'temperatura_optima': float(envio[5]) if envio[5] else 0,
+                'humedad_optima': float(envio[6]) if envio[6] else 0,
+                'almacen_id': envio[7],
+                'almacen_nombre': envio[8],
+                'almacen_direccion': envio[9],
+                'almacen_lat': float(envio[10]) if envio[10] else 0,
+                'almacen_lon': float(envio[11]) if envio[11] else 0,
+                'tipo_almacen': envio[12],
+                'demanda': float(envio[13]) if envio[13] else 0,
+                'fecha_envio': envio[14].strftime('%Y-%m-%d') if envio[14] else '',
+                'estado_envio': envio[15] if envio[15] else 'PENDIENTE',
+                'nro_envio': envio[16]
+            })
+        
+        return envios_lista
+    except Exception as e:
+        print(f"Error obteniendo envíos pendientes: {e}")
+        return []
+
+
+def determinar_nivel_riesgo_con_modelo(modelo_data, distancia_km, temperatura_optima, humedad_optima):
+    """
+    Usa las métricas del modelo PKT para determinar el nivel de riesgo de una ruta.
+    Si no hay modelo, usa lógica de distancia por defecto.
+    """
+    try:
+        if modelo_data and 'metricas' in modelo_data:
+            metricas = modelo_data['metricas']
+            eficiencia_promedio = metricas.get('eficiencia_promedio', 0.7)
+            
+            # Calcular score de riesgo basado en distancia y condiciones del producto
+            score_distancia = min(distancia_km / 300.0, 1.0)  # Normalizar distancia
+            
+            # Productos con temperatura muy baja o muy alta son más sensibles
+            score_temp = abs(temperatura_optima - 15) / 30.0
+            score_temp = min(score_temp, 1.0)
+            
+            # Humedad alta aumenta riesgo
+            score_hum = humedad_optima / 100.0
+            
+            # Score combinado ponderado
+            score_total = (score_distancia * 0.5) + (score_temp * 0.3) + (score_hum * 0.2)
+            
+            # Ajustar con eficiencia del modelo
+            score_ajustado = score_total * (1.0 / max(eficiencia_promedio, 0.1))
+            
+            if score_ajustado < 0.35:
+                return 'BAJO'
+            elif score_ajustado < 0.65:
+                return 'MEDIO'
+            else:
+                return 'ALTO'
+        else:
+            # Fallback por distancia
+            if distancia_km < 80:
+                return 'BAJO'
+            elif distancia_km < 200:
+                return 'MEDIO'
+            else:
+                return 'ALTO'
+    except Exception as e:
+        print(f"Error determinando nivel de riesgo: {e}")
+        return 'MEDIO'
+
+
+def analizar_rutas_con_modelo_pkt(envios):
+    """Analiza las rutas usando el modelo PKT de configuración"""
+    try:
+        modelo_data = cargar_modelo_planificacion_rutas()
+        
+        rutas_analizadas = []
+        
+        # Punto de origen: Lima como centro de distribución
+        origen_lat = -12.0464
+        origen_lon = -77.0428
+        
+        for envio in envios:
+            # Calcular distancia
+            distancia = calcular_distancia(
+                origen_lat, origen_lon,
+                envio['almacen_lat'], envio['almacen_lon']
+            )
+            
+            # Si la distancia es 0 (coordenadas iguales al origen), dar un mínimo
+            if distancia < 1:
+                distancia = random.uniform(10, 50)
+            
+            # Calcular tiempo estimado
+            tiempo_estimado = calcular_tiempo_estimado(distancia)
+            
+            # Determinar nivel de riesgo usando modelo PKT
+            nivel_riesgo = determinar_nivel_riesgo_con_modelo(
+                modelo_data,
+                distancia,
+                envio.get('temperatura_optima', 15),
+                envio.get('humedad_optima', 70)
+            )
+            
+            # Calcular gasto estimado (S/ por km + costo fijo)
+            costo_por_km = 2.5
+            costo_fijo = random.uniform(15, 40)
+            gasto_estimado = round(distancia * costo_por_km + costo_fijo, 2)
+            
+            rutas_analizadas.append({
+                'asignacion_id': envio['asignacion_id'],
+                'producto_nombre': envio['producto_nombre'],
+                'producto_tipo': envio.get('producto_tipo', ''),
+                'almacen_nombre': envio['almacen_nombre'],
+                'almacen_direccion': envio.get('almacen_direccion', ''),
+                'temperatura_optima': envio.get('temperatura_optima', 0),
+                'humedad_optima': envio.get('humedad_optima', 0),
+                'demanda': envio.get('demanda', 0),
+                'distancia_km': round(distancia, 2),
+                'tiempo_estimado_horas': tiempo_estimado,
+                'nivel_riesgo': nivel_riesgo,
+                'gasto_estimado': gasto_estimado,
+                'lat': envio['almacen_lat'],
+                'lon': envio['almacen_lon']
+            })
+        
+        return rutas_analizadas
+    except Exception as e:
+        print(f"Error analizando rutas: {e}")
+        return []
+
+
+def planificar_rutas(fecha_envio):
+    """Planifica las rutas para una fecha específica"""
+    try:
+        print(f"Planificando rutas para fecha: {fecha_envio}")
+        
+        # 1. Obtener envíos pendientes
+        envios = obtener_envios_pendientes(fecha_envio)
+        
+        if not envios:
+            return {
+                'success': False,
+                'message': f'No hay envíos pendientes para la fecha {fecha_envio}'
+            }
+        
+        print(f"Envíos encontrados: {len(envios)}")
+        
+        # 2. Analizar rutas con modelo PKT
+        rutas_analizadas = analizar_rutas_con_modelo_pkt(envios)
+        
+        if not rutas_analizadas:
+            return {
+                'success': False,
+                'message': 'No se pudieron analizar las rutas'
+            }
+        
+        # 3. Ordenar por distancia para una planificación eficiente
+        rutas_analizadas.sort(key=lambda x: x['distancia_km'])
+        
+        rutas_agrupadas = []
+        
+        # Hora base de inicio de envíos: 8:00 AM
+        hora_base_h = 8
+        hora_base_m = 0
+        
+        for idx, ruta in enumerate(rutas_analizadas):
+            # Obtener vehículo_conductor disponible
+            vc_disponible = obtener_vehiculo_conductor_disponible()
+            
+            if vc_disponible:
+                # Calcular hora de envío: cada ruta sale con 20 minutos de diferencia
+                offset_envio_minutos = idx * 20
+                hora_envio_h, hora_envio_m = sumar_tiempo(hora_base_h, hora_base_m, offset_envio_minutos)
+                hora_envio = time(hora_envio_h, hora_envio_m, 0)
+                
+                # Calcular hora de llegada: hora_envio + tiempo de viaje en minutos
+                minutos_viaje = int(ruta['tiempo_estimado_horas'] * 60)
+                hora_llegada_h, hora_llegada_m = sumar_tiempo(hora_envio_h, hora_envio_m, minutos_viaje)
+                hora_llegada = time(hora_llegada_h, hora_llegada_m, 0)
+                
+                ruta_info = {
+                    'asignacion_id': ruta['asignacion_id'],
+                    'producto_nombre': ruta['producto_nombre'],
+                    'producto_tipo': ruta.get('producto_tipo', ''),
+                    'almacen_nombre': ruta['almacen_nombre'],
+                    'almacen_direccion': ruta.get('almacen_direccion', ''),
+                    'temperatura_optima': ruta.get('temperatura_optima', 0),
+                    'humedad_optima': ruta.get('humedad_optima', 0),
+                    'demanda': ruta.get('demanda', 0),
+                    'distancia_km': ruta['distancia_km'],
+                    'tiempo_estimado_horas': ruta['tiempo_estimado_horas'],
+                    'nivel_riesgo': ruta['nivel_riesgo'],
+                    'gasto_estimado': ruta['gasto_estimado'],
+                    'lat': ruta['lat'],
+                    'lon': ruta['lon'],
+                    'vehiculo_asignado': {
+                        'vehiculo_conductor_id': vc_disponible['vehiculo_conductor_id'],
+                        'vehiculo_id': vc_disponible['vehiculo_id'],
+                        'conductor_id': vc_disponible['conductor_id'],
+                        'placa': vc_disponible['placa'],
+                        'tipo_vehiculo': vc_disponible.get('tipo_vehiculo', ''),
+                        'conductor': vc_disponible['conductor_nombre']
+                    },
+                    'hora_envio': hora_envio.strftime('%H:%M'),
+                    'hora_llegada': hora_llegada.strftime('%H:%M'),
+                    'nro_envio': generar_numero_envio()
+                }
+                
+                rutas_agrupadas.append(ruta_info)
+        
+        print(f"Rutas planificadas: {len(rutas_agrupadas)}")
+        
+        return {
+            'success': True,
+            'message': f'Se planificaron {len(rutas_agrupadas)} rutas exitosamente',
+            'data': {
+                'fecha': str(fecha_envio),
+                'total_envios': len(envios),
+                'rutas_planificadas': len(rutas_agrupadas),
+                'rutas': rutas_agrupadas
+            }
+        }
+        
+    except Exception as e:
+        print(f"Error en planificar_rutas: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'success': False,
+            'error': str(e)
+        }
+
+
+def guardar_planificacion_rutas(rutas_data):
+    """Guarda la planificación de rutas en la base de datos"""
+    try:
+        rutas = rutas_data.get('rutas', [])
+        fecha_envio = rutas_data.get('fecha')
+        
+        if not rutas:
+            return {
+                'success': False,
+                'message': 'No hay rutas para guardar'
+            }
+        
+        actualizados = 0
+        errores = []
+        
+        for ruta in rutas:
+            try:
+                asignacion_id = ruta['asignacion_id']
+                vehiculo_conductor_id = ruta['vehiculo_asignado']['vehiculo_conductor_id']
+                hora_envio_str = ruta['hora_envio']
+                hora_llegada_str = ruta['hora_llegada']
+                gasto = ruta['gasto_estimado']
+                nro_envio = ruta['nro_envio']
+                
+                # Convertir hora string a time
+                hora_envio_parts = hora_envio_str.split(':')
+                hora_envio_time = time(int(hora_envio_parts[0]), int(hora_envio_parts[1]), 0)
+                
+                hora_llegada_parts = hora_llegada_str.split(':')
+                hora_llegada_time = time(int(hora_llegada_parts[0]), int(hora_llegada_parts[1]), 0)
+                
+                # Actualizar distribución
+                distribucion = distribucionalmacenproducto.query.get(asignacion_id)
+                
+                if distribucion:
+                    distribucion.vehiculo_conductor_id = vehiculo_conductor_id
+                    distribucion.hora_envio = hora_envio_time
+                    distribucion.hora_llegada = hora_llegada_time
+                    distribucion.estado_envio = 'PENDIENTE'
+                    distribucion.gasto = gasto
+                    distribucion.nro_envio = nro_envio
+                    
+                    actualizados += 1
+                else:
+                    errores.append(f"Asignación {asignacion_id} no encontrada")
+                
+            except Exception as e:
+                errores.append(f"Error en ruta {ruta.get('asignacion_id')}: {str(e)}")
+                continue
+        
+        # Actualizar estado de vehículo_conductor, vehículo y conductor a EN_USO
+        vc_ids_procesados = set()
+        for ruta in rutas:
+            vc_id = ruta['vehiculo_asignado']['vehiculo_conductor_id']
+            
+            if vc_id in vc_ids_procesados:
+                continue
+            vc_ids_procesados.add(vc_id)
+            
+            vc = vehiculoconductor.query.get(vc_id)
+            if vc:
+                vc.estado = 'EN_USO'
+                
+                # Actualizar estado del vehículo
+                vehiculo_obj = vehiculo.query.get(vc.vehiculo_id)
+                if vehiculo_obj:
+                    vehiculo_obj.estado = 'EN_USO'
+                
+                # Actualizar estado del conductor
+                conductor_obj = conductor.query.get(vc.conductor_id)
+                if conductor_obj:
+                    conductor_obj.estado = 'EN_USO'
+        
+        db.session.commit()
+        
+        return {
+            'success': True,
+            'message': f'Se guardaron {actualizados} rutas exitosamente',
+            'actualizados': actualizados,
+            'errores': errores if errores else None
+        }
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error guardando planificación: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'success': False,
+            'error': str(e)
+        }
+
+
+def obtener_estadisticas_rutas(fecha=None):
+    """Obtiene estadísticas de rutas para una fecha"""
+    try:
+        if not fecha:
+            fecha = date.today()
+        
+        query = text("""
+            SELECT 
+                COUNT(*) as total_envios,
+                SUM(CASE WHEN estado_envio = 'ASIGNADO' THEN 1 ELSE 0 END) as asignados,
+                SUM(CASE WHEN estado_envio = 'PENDIENTE' THEN 1 ELSE 0 END) as pendientes,
+                SUM(CASE WHEN estado_envio = 'COMPLETADO' THEN 1 ELSE 0 END) as completados,
+                COALESCE(SUM(gasto), 0) as total_gastos
+            FROM distribucion_almacen_producto
+            WHERE fecha_envio = :fecha
+        """)
+        
+        result = db.session.execute(query, {'fecha': fecha})
+        stats = result.fetchone()
+        
+        return {
+            'success': True,
+            'data': {
+                'fecha': fecha.strftime('%Y-%m-%d'),
+                'total_envios': stats[0] if stats[0] else 0,
+                'asignados': stats[1] if stats[1] else 0,
+                'pendientes': stats[2] if stats[2] else 0,
+                'completados': stats[3] if stats[3] else 0,
+                'total_gastos': float(stats[4]) if stats[4] else 0
+            }
+        }
+        
+    except Exception as e:
+        print(f"Error obteniendo estadísticas: {e}")
+        return {
+            'success': False,
+            'error': str(e)
+        }

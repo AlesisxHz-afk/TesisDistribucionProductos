@@ -1,0 +1,87 @@
+{% extends "main.html" %}
+
+{% block title %}Planificar Rutas - Alaya S.A.C{% endblock %}
+
+{% block page_title %}Planificación de Rutas de Envíos{% endblock %}
+{% block page_description %}Organiza y asigna rutas de distribución usando el modelo PKT{% endblock %}
+
+{% block maincss %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/planificar_rutas.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
+
+{% block contenido %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-route" style="margin-right: 10px;"></i>
+            Planificación de Rutas de Envíos
+        </h3>
+        <div class="header-actions">
+            <div class="fecha-selector">
+                <label for="fecha-envio">Fecha de Envío:</label>
+                <input type="date" id="fecha-envio" class="fecha-input" value="{{ hoy }}">
+            </div>
+            <button class="btn btn-primary" id="btn-buscar">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+            <button class="btn btn-success" id="btn-planificar">
+                <i class="fas fa-route"></i> Planificar Rutas
+            </button>
+            <button class="btn btn-info" id="btn-guardar" disabled>
+                <i class="fas fa-save"></i> Guardar Planificación
+            </button>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="rutas-container">
+            <!-- Mapa Google Maps -->
+            <div class="mapa-container" id="mapa-rutas"></div>
+
+            <!-- Panel lateral -->
+            <div class="panel-control-container">
+                <div class="panel-header">
+                    <h4>
+                        <i class="fas fa-truck" style="margin-right: 8px;"></i>
+                        Rutas Planificadas
+                    </h4>
+                    <span class="badge-rutas" id="badge-rutas">0 rutas</span>
+                </div>
+
+                <div id="rutas-lista" class="rutas-lista">
+                    <div class="no-results">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <h4>Sin rutas planificadas</h4>
+                        <p>Selecciona una fecha y haz clic en <strong>"Buscar"</strong> para ver los envíos pendientes, luego en <strong>"Planificar Rutas"</strong> para asignarlos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de detalles -->
+<div class="modal-overlay" id="modal-overlay" style="display:none;">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h5 class="modal-title" id="detalle-ruta-titulo">Detalles de la Ruta</h5>
+            <button type="button" class="close-btn" id="btn-cerrar-modal">&times;</button>
+        </div>
+        <div class="modal-body" id="detalle-ruta-body"></div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btn-cerrar-modal-footer">
+                <i class="fas fa-times" style="margin-right:6px;"></i>Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZoobTeKCRt0-Fifbh7DSI6MamaBVbngU&libraries=directions&callback=initMapCallback" async defer></script>
+    <script src="{{ url_for('static', filename='js/planificar_rutas.js') }}"></script>
+{% endblock %}
