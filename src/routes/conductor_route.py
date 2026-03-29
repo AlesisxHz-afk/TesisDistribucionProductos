@@ -1,8 +1,7 @@
 from flask import Blueprint, make_response, redirect, render_template, request, jsonify
 from src.services import conductor_service
 from ..models.models import *
-import hashlib
-import os
+
 from ..services import conductor_service
 from werkzeug.utils import secure_filename
 import traceback
@@ -82,9 +81,9 @@ def registrar_conductor():
         telefono = data.get("telefono")
         direccion = data.get("direccion")
         fecha_ingreso = data.get("fecha_ingreso")
-        estado = data.get("estado")
+        estado = data.get("estado", "ACTIVO")  # Por defecto ACTIVO si no se envía
         
-        if not all([nombre, apellido_paterno, apellido_materno, dni, fecha_ingreso, estado]):
+        if not all([nombre, apellido_paterno, apellido_materno, dni, fecha_ingreso]):
             return jsonify({"success": False, "error": "Todos los campos obligatorios son requeridos"}), 400
         
         nuevo_conductor, error = conductor_service.crear_conductor(
@@ -130,10 +129,18 @@ def actualizar_conductor(id):
         telefono = data.get("telefono")
         direccion = data.get("direccion")
         fecha_ingreso = data.get("fecha_ingreso")
-        estado = data.get("estado")
         
-        if not all([nombre, apellido_paterno, apellido_materno, dni, fecha_ingreso, estado]):
+        # Validar campos obligatorios (estado ya no es obligatorio en actualización)
+        if not all([nombre, apellido_paterno, apellido_materno, dni, fecha_ingreso]):
             return jsonify({"success": False, "error": "Todos los campos obligatorios son requeridos"}), 400
+        
+        # Obtener el conductor actual para mantener su estado
+        conductor_actual = conductor_service.obtener_conductor_por_id(id)
+        if not conductor_actual['success']:
+            return jsonify({"success": False, "error": "Conductor no encontrado"}), 404
+        
+        # Mantener el estado actual del conductor
+        estado = conductor_actual['conductor']['estado']
         
         conductor_actualizado, error = conductor_service.actualizar_conductor(
             conductor_id=id,
@@ -144,7 +151,7 @@ def actualizar_conductor(id):
             telefono=telefono,
             direccion=direccion,
             fecha_ingreso=fecha_ingreso,
-            estado=estado
+            estado=estado  # Mantener el estado actual
         )
         
         if error:

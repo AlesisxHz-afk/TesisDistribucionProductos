@@ -137,6 +137,11 @@ function renderizarTabla(conductores) {
                 estadoIcono = '<i class="fas fa-file-medical"></i>';
                 estadoTexto = 'Licencia';
                 break;
+            case 'EN_USO':
+                estadoClass = 'estado-enuso';
+                estadoIcono = '<i class="fas fa-truck"></i>';
+                estadoTexto = 'En Uso';
+                break;
             default:
                 estadoClass = 'estado-inactivo';
                 estadoIcono = '<i class="fas fa-question-circle"></i>';
@@ -155,34 +160,47 @@ function renderizarTabla(conductores) {
         const divAcciones = document.createElement('div');
         divAcciones.className = 'acciones-cell';
         
-        // Botón editar
+        // Verificar si el conductor está en uso
+        const esEnUso = cond.estado === 'EN_USO';
+        
+        // Botón editar (deshabilitado si está en uso)
         const btnEditar = document.createElement('button');
-        btnEditar.className = 'btn btn-warning btn-sm';
+        btnEditar.className = esEnUso ? 'btn btn-warning btn-sm disabled' : 'btn btn-warning btn-sm';
         btnEditar.innerHTML = '<i class="fas fa-edit"></i>';
-        btnEditar.title = 'Editar conductor';
-        btnEditar.onclick = () => editarConductor(cond.conductor_id);
+        btnEditar.title = esEnUso ? 'No se puede editar un conductor en uso' : 'Editar conductor';
+        if (!esEnUso) {
+            btnEditar.onclick = () => editarConductor(cond.conductor_id);
+        }
         divAcciones.appendChild(btnEditar);
         
-        // Botón cambiar estado
+        // Botón cambiar estado (deshabilitado si está en uso)
         const btnEstado = document.createElement('button');
         if (cond.estado === 'ACTIVO') {
-            btnEstado.className = 'btn btn-inactivar btn-sm';
+            btnEstado.className = esEnUso ? 'btn btn-inactivar btn-sm disabled' : 'btn btn-inactivar btn-sm';
             btnEstado.innerHTML = '<i class="fas fa-ban"></i>';
-            btnEstado.title = 'Dar de baja';
+            btnEstado.title = esEnUso ? 'No se puede cambiar estado de un conductor en uso' : 'Dar de baja';
+        } else if (cond.estado === 'EN_USO') {
+            btnEstado.className = 'btn btn-secondary btn-sm disabled';
+            btnEstado.innerHTML = '<i class="fas fa-lock"></i>';
+            btnEstado.title = 'No se puede cambiar estado de un conductor en uso';
         } else {
-            btnEstado.className = 'btn btn-success btn-sm';
+            btnEstado.className = esEnUso ? 'btn btn-success btn-sm disabled' : 'btn btn-success btn-sm';
             btnEstado.innerHTML = '<i class="fas fa-check"></i>';
-            btnEstado.title = 'Activar';
+            btnEstado.title = esEnUso ? 'No se puede cambiar estado de un conductor en uso' : 'Activar';
         }
-        btnEstado.onclick = () => cambiarEstadoConductor(cond);
+        if (!esEnUso) {
+            btnEstado.onclick = () => cambiarEstadoConductor(cond);
+        }
         divAcciones.appendChild(btnEstado);
         
-        // Botón eliminar
+        // Botón eliminar (deshabilitado si está en uso)
         const btnEliminar = document.createElement('button');
-        btnEliminar.className = 'btn btn-danger btn-sm';
+        btnEliminar.className = esEnUso ? 'btn btn-danger btn-sm disabled' : 'btn btn-danger btn-sm';
         btnEliminar.innerHTML = '<i class="fas fa-trash"></i>';
-        btnEliminar.title = 'Eliminar conductor';
-        btnEliminar.onclick = () => eliminarConductor(cond.conductor_id);
+        btnEliminar.title = esEnUso ? 'No se puede eliminar un conductor en uso' : 'Eliminar conductor';
+        if (!esEnUso) {
+            btnEliminar.onclick = () => eliminarConductor(cond.conductor_id);
+        }
         divAcciones.appendChild(btnEliminar);
         
         tdAcciones.appendChild(divAcciones);
@@ -362,7 +380,12 @@ function abrirModalNuevoConductor() {
     document.getElementById('dni').value = '';
     document.getElementById('telefono').value = '';
     document.getElementById('direccion').value = '';
-    document.getElementById('estado').value = 'ACTIVO';
+    
+    // Ocultar el campo estado en nuevo conductor también
+    const estadoGroup = document.getElementById('estado-group');
+    if (estadoGroup) {
+        estadoGroup.style.display = 'none';
+    }
     
     // Valor oculto por defecto
     document.getElementById('fecha_ingreso').value = new Date().toISOString().split('T')[0];
@@ -387,6 +410,12 @@ async function editarConductor(id) {
         
         const conductor = data.conductor;
         
+        // Verificar si el conductor está en uso antes de permitir edición
+        if (conductor.estado === 'EN_USO') {
+            mostrarError('No se puede editar un conductor que está actualmente en uso');
+            return;
+        }
+        
         document.getElementById('modal-titulo').textContent = 'Editar conductor';
         document.getElementById('conductor_id').value = conductor.conductor_id;
         document.getElementById('nombre').value = conductor.nombre || '';
@@ -395,7 +424,12 @@ async function editarConductor(id) {
         document.getElementById('dni').value = conductor.dni || '';
         document.getElementById('telefono').value = conductor.telefono || '';
         document.getElementById('direccion').value = conductor.direccion || '';
-        document.getElementById('estado').value = conductor.estado || 'ACTIVO';
+        
+        // Ocultar el campo estado en edición
+        const estadoGroup = document.getElementById('estado-group');
+        if (estadoGroup) {
+            estadoGroup.style.display = 'none';
+        }
         
         // Valor oculto
         document.getElementById('fecha_ingreso').value = conductor.fecha_ingreso || new Date().toISOString().split('T')[0];
@@ -417,7 +451,6 @@ function validarFormulario() {
     const apellidoPaterno = document.getElementById('apellido_paterno').value.trim();
     const apellidoMaterno = document.getElementById('apellido_materno').value.trim();
     const dni = document.getElementById('dni').value.trim();
-    const estado = document.getElementById('estado').value;
     
     if (!nombre) {
         mostrarError('Por favor ingrese los nombres del conductor');
@@ -446,11 +479,6 @@ function validarFormulario() {
         return false;
     }
     
-    if (!estado) {
-        mostrarError('Por favor seleccione el estado del conductor');
-        return false;
-    }
-    
     return true;
 }
 
@@ -473,9 +501,13 @@ async function guardarConductor() {
         dni: document.getElementById('dni').value.trim(),
         telefono: document.getElementById('telefono').value.trim() || null,
         direccion: document.getElementById('direccion').value.trim() || null,
-        fecha_ingreso: document.getElementById('fecha_ingreso').value,
-        estado: document.getElementById('estado').value
+        fecha_ingreso: document.getElementById('fecha_ingreso').value
     };
+    
+    // Si es un nuevo conductor (sin ID), asignar estado ACTIVO por defecto
+    if (!id) {
+        datos.estado = 'ACTIVO';
+    }
     
     const url = id ? `/main/conductor/actualizar_conductor/${id}` : '/main/conductor/registrar';
     const method = id ? 'PUT' : 'POST';
@@ -509,6 +541,12 @@ async function guardarConductor() {
 
 // Función para cambiar estado del conductor
 async function cambiarEstadoConductor(conductor) {
+    // Verificar si el conductor está en uso
+    if (conductor.estado === 'EN_USO') {
+        mostrarError('No se puede cambiar el estado de un conductor que está en uso');
+        return;
+    }
+    
     let nuevoEstado = '';
     let titulo = '';
     let texto = '';
@@ -570,6 +608,12 @@ async function cambiarEstadoConductor(conductor) {
 async function eliminarConductor(id) {
     const conductor = conductoresData.find(c => c.conductor_id == id);
     if (!conductor) return;
+    
+    // Verificar si el conductor está en uso
+    if (conductor.estado === 'EN_USO') {
+        mostrarError('No se puede eliminar un conductor que está actualmente en uso');
+        return;
+    }
     
     const nombreCompleto = construirNombreCompleto(conductor);
     
@@ -685,6 +729,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (form) {
             form.classList.remove('was-validated');
         }
+        // El campo estado permanece oculto siempre
     });
     
     // Permitir Enter en formulario

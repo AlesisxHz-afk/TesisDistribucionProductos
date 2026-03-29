@@ -73,7 +73,7 @@ def crear_almacen(nombre, tipo_almacen, direccion, capacidad, latitud, longitud,
         traceback.print_exc()
         return {"success": False, "error": str(e)}
 
-def actualizar_almacen(almacen_id, nombre, tipo_almacen, direccion, capacidad, latitud, longitud, estado):
+def actualizar_almacen(almacen_id, nombre, tipo_almacen, direccion, capacidad, latitud, longitud, estado=None):
     try:
         alm = almacen.query.get(almacen_id)
         if not alm:
@@ -87,7 +87,9 @@ def actualizar_almacen(almacen_id, nombre, tipo_almacen, direccion, capacidad, l
         alm.capacidad = capacidad
         alm.latitud = latitud
         alm.longitud = longitud
-        alm.estado = estado
+        # Solo actualizar estado si se proporciona
+        if estado is not None:
+            alm.estado = estado
         db.session.commit()
         return {"success": True, "mensaje": "Almacén actualizado exitosamente"}
     except Exception as e:

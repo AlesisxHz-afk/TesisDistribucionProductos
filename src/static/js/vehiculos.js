@@ -145,38 +145,59 @@ function renderizarTabla(vehiculos) {
         const divAcciones = document.createElement('div');
         divAcciones.className = 'acciones-cell';
         
-        // Botón editar
+        // Verificar si el vehículo está EN_USO para deshabilitar acciones
+        const estaEnUso = veh.estado === 'EN_USO';
+        
+        // Botón editar (deshabilitado si está EN_USO)
         const btnEditar = document.createElement('button');
         btnEditar.className = 'btn btn-warning btn-sm';
         btnEditar.innerHTML = '<i class="fas fa-edit"></i>';
-        btnEditar.title = 'Editar vehículo';
-        btnEditar.onclick = () => editarVehiculo(veh.vehiculo_id);
+        btnEditar.title = estaEnUso ? 'No se puede editar vehículo en uso' : 'Editar vehículo';
+        if (estaEnUso) {
+            btnEditar.disabled = true;
+            btnEditar.style.opacity = '0.5';
+            btnEditar.style.cursor = 'not-allowed';
+        } else {
+            btnEditar.onclick = () => editarVehiculo(veh.vehiculo_id);
+        }
         divAcciones.appendChild(btnEditar);
         
-        // Botón cambiar estado
+        // Botón cambiar estado (deshabilitado si está EN_USO)
         const btnEstado = document.createElement('button');
         if (veh.estado === 'ACTIVO') {
             btnEstado.className = 'btn btn-inactivar btn-sm';
             btnEstado.innerHTML = '<i class="fas fa-ban"></i>';
-            btnEstado.title = 'Cambiar a Inactivo';
+            btnEstado.title = estaEnUso ? 'No se puede cambiar estado de vehículo en uso' : 'Cambiar a Inactivo';
         } else if (veh.estado === 'EN_USO') {
             btnEstado.className = 'btn btn-warning btn-sm';
             btnEstado.innerHTML = '<i class="fas fa-truck"></i>';
-            btnEstado.title = 'Vehículo en uso - Cambiar estado';
+            btnEstado.title = 'Vehículo en uso - No se puede cambiar estado';
+            btnEstado.disabled = true;
+            btnEstado.style.opacity = '0.5';
+            btnEstado.style.cursor = 'not-allowed';
         } else { // INACTIVO
             btnEstado.className = 'btn btn-success btn-sm';
             btnEstado.innerHTML = '<i class="fas fa-check"></i>';
-            btnEstado.title = 'Cambiar a Activo';
+            btnEstado.title = estaEnUso ? 'No se puede cambiar estado de vehículo en uso' : 'Cambiar a Activo';
         }
-        btnEstado.onclick = () => cambiarEstadoVehiculo(veh);
+        
+        if (!estaEnUso && veh.estado !== 'EN_USO') {
+            btnEstado.onclick = () => cambiarEstadoVehiculo(veh);
+        }
         divAcciones.appendChild(btnEstado);
         
-        // Botón eliminar
+        // Botón eliminar (deshabilitado si está EN_USO)
         const btnEliminar = document.createElement('button');
         btnEliminar.className = 'btn btn-danger btn-sm';
         btnEliminar.innerHTML = '<i class="fas fa-trash"></i>';
-        btnEliminar.title = 'Eliminar vehículo';
-        btnEliminar.onclick = () => eliminarVehiculo(veh.vehiculo_id);
+        btnEliminar.title = estaEnUso ? 'No se puede eliminar vehículo en uso' : 'Eliminar vehículo';
+        if (estaEnUso) {
+            btnEliminar.disabled = true;
+            btnEliminar.style.opacity = '0.5';
+            btnEliminar.style.cursor = 'not-allowed';
+        } else {
+            btnEliminar.onclick = () => eliminarVehiculo(veh.vehiculo_id);
+        }
         divAcciones.appendChild(btnEliminar);
         
         tdAcciones.appendChild(divAcciones);
@@ -355,7 +376,7 @@ function abrirModalNuevoVehiculo() {
     document.getElementById('tipo_vehiculo').value = '';
     document.getElementById('anio_fabricacion').value = '';
     document.getElementById('cantidad_carga').value = '';
-    document.getElementById('estado').value = 'ACTIVO';
+    // Ya no se incluye el campo estado
     
     form.classList.remove('was-validated');
     
@@ -385,7 +406,7 @@ async function editarVehiculo(id) {
         document.getElementById('tipo_vehiculo').value = vehiculo.tipo_vehiculo || '';
         document.getElementById('anio_fabricacion').value = vehiculo.anio_fabricacion || '';
         document.getElementById('cantidad_carga').value = vehiculo.cantidad_carga || '';
-        document.getElementById('estado').value = vehiculo.estado || 'ACTIVO';
+        // Ya no se incluye el campo estado
         
         $('#modal-vehiculo').modal('show');
     } catch (error) {
@@ -406,7 +427,6 @@ function validarFormulario() {
     const tipo = document.getElementById('tipo_vehiculo').value;
     const anio = document.getElementById('anio_fabricacion').value;
     const carga = document.getElementById('cantidad_carga').value;
-    const estado = document.getElementById('estado').value;
     
     if (!placa) {
         mostrarError('Por favor ingrese la placa del vehículo');
@@ -445,11 +465,6 @@ function validarFormulario() {
         return false;
     }
     
-    if (!estado) {
-        mostrarError('Por favor seleccione el estado del vehículo');
-        return false;
-    }
-    
     return true;
 }
 
@@ -472,7 +487,7 @@ async function guardarVehiculo() {
         tipo_vehiculo: document.getElementById('tipo_vehiculo').value,
         anio_fabricacion: parseInt(document.getElementById('anio_fabricacion').value),
         cantidad_carga: parseFloat(document.getElementById('cantidad_carga').value),
-        estado: document.getElementById('estado').value
+        estado: 'ACTIVO'  // Siempre se guarda como ACTIVO
     };
     
     const url = id ? `/main/vehiculo/actualizar_vehiculo/${id}` : '/main/vehiculo/registrar';
@@ -505,10 +520,15 @@ async function guardarVehiculo() {
     }
 }
 
-// Función para cambiar estado del vehículo (CORREGIDA)
+// Función para cambiar estado del vehículo
 async function cambiarEstadoVehiculo(vehiculo) {
+    // Verificar que no esté EN_USO
+    if (vehiculo.estado === 'EN_USO') {
+        mostrarError('No se puede cambiar el estado de un vehículo que está en uso');
+        return;
+    }
+    
     // Ciclo de estados: ACTIVO -> INACTIVO -> ACTIVO
-    // EN_USO se asigna manualmente (no en el ciclo automático)
     let nuevoEstado = '';
     let titulo = '';
     let texto = '';
@@ -521,46 +541,7 @@ async function cambiarEstadoVehiculo(vehiculo) {
         nuevoEstado = 'ACTIVO';
         titulo = 'Activar vehículo';
         texto = `¿Está seguro que desea cambiar el estado del vehículo con placa "${vehiculo.placa}" de INACTIVO a ACTIVO?`;
-    } else { // EN_USO
-        // Si está EN_USO, preguntar qué hacer
-        Swal.fire({
-            title: 'Vehículo en uso',
-            text: `El vehículo con placa "${vehiculo.placa}" está actualmente EN_USO. ¿Desea marcarlo como inactivo?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, marcar inactivo',
-            cancelButtonText: 'Cancelar',
-            background: '#152a3a',
-            color: '#e0f2fe'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const response = await fetch(`/main/vehiculo/cambiar_estado/${vehiculo.vehiculo_id}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ estado: 'INACTIVO' })
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (response.ok && data.success) {
-                        mostrarExito(data.mensaje || 'Estado cambiado exitosamente');
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1000);
-                    } else {
-                        throw new Error(data.error || 'Error al cambiar el estado del vehículo');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    mostrarError('No se pudo cambiar el estado del vehículo: ' + error.message);
-                }
-            }
-        });
+    } else {
         return;
     }
     
@@ -608,6 +589,12 @@ async function cambiarEstadoVehiculo(vehiculo) {
 async function eliminarVehiculo(id) {
     const vehiculo = vehiculosData.find(v => v.vehiculo_id == id);
     if (!vehiculo) return;
+    
+    // Verificar que no esté EN_USO
+    if (vehiculo.estado === 'EN_USO') {
+        mostrarError('No se puede eliminar un vehículo que está en uso');
+        return;
+    }
     
     Swal.fire({
         title: 'Eliminar vehículo',

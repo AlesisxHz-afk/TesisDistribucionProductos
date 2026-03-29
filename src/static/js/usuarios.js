@@ -110,19 +110,16 @@ function renderizarTabla(usuarios) {
     
     // Ordenar usuarios por apellido paterno de A a Z
     const usuariosOrdenados = [...usuarios].sort((a, b) => {
-        // Obtener apellido paterno de cada usuario (en minúsculas para comparación case-insensitive)
         const apellidoA = (a.ape_paterno || '').toLowerCase();
         const apellidoB = (b.ape_paterno || '').toLowerCase();
         
-        // Si ambos tienen apellido paterno, compararlos
         if (apellidoA && apellidoB) {
             return apellidoA.localeCompare(apellidoB);
         }
         
-        // Si alguno no tiene apellido paterno, manejarlo
         if (!apellidoA && !apellidoB) return 0;
-        if (!apellidoA) return 1; // Los sin apellido van al final
-        if (!apellidoB) return -1; // Los con apellido van primero
+        if (!apellidoA) return 1;
+        if (!apellidoB) return -1;
         
         return 0;
     });
@@ -134,30 +131,25 @@ function renderizarTabla(usuarios) {
     paginatedUsuarios.forEach(user => {
         const tr = document.createElement('tr');
         
-        // Celda de usuario
         const tdUsuario = document.createElement('td');
         tdUsuario.className = 'text-left';
         tdUsuario.textContent = user.usuario || 'Sin usuario';
         tr.appendChild(tdUsuario);
         
-        // Celda de nombre completo - FORMATO: Apellidos, Nombres
         const tdNombre = document.createElement('td');
         tdNombre.className = 'text-left';
         
-        // Construir el nombre completo en formato: "Apellido Paterno Apellido Materno, Nombres"
         const apellidoPaterno = user.ape_paterno || '';
         const apellidoMaterno = user.ape_materno || '';
         const nombres = user.nombres || '';
         
         let nombreCompleto = '';
         if (apellidoPaterno || apellidoMaterno) {
-            // Si tiene al menos un apellido, mostrar primero los apellidos
             nombreCompleto = `${apellidoPaterno} ${apellidoMaterno}`.trim();
             if (nombres) {
                 nombreCompleto += `, ${nombres}`;
             }
         } else if (nombres) {
-            // Si no tiene apellidos pero tiene nombres
             nombreCompleto = nombres;
         } else {
             nombreCompleto = 'Sin nombre';
@@ -166,13 +158,11 @@ function renderizarTabla(usuarios) {
         tdNombre.textContent = nombreCompleto;
         tr.appendChild(tdNombre);
         
-        // Celda de tipo de usuario
         const tdTipo = document.createElement('td');
         tdTipo.className = 'text-left';
         tdTipo.textContent = user.tipo_usuario || 'Sin tipo';
         tr.appendChild(tdTipo);
         
-        // Celda de estado
         const tdEstado = document.createElement('td');
         tdEstado.className = 'text-center';
         const estadoBadge = document.createElement('span');
@@ -183,14 +173,12 @@ function renderizarTabla(usuarios) {
         tdEstado.appendChild(estadoBadge);
         tr.appendChild(tdEstado);
         
-        // Celda de acciones
         const tdAcciones = document.createElement('td');
         tdAcciones.className = 'text-center';
         
         const divAcciones = document.createElement('div');
         divAcciones.className = 'acciones-cell';
         
-        // Botón editar
         const btnEditar = document.createElement('button');
         btnEditar.className = 'btn btn-warning btn-sm';
         btnEditar.innerHTML = '<i class="fas fa-edit"></i>';
@@ -198,7 +186,6 @@ function renderizarTabla(usuarios) {
         btnEditar.onclick = () => editarUsuario(user.usuario_id);
         divAcciones.appendChild(btnEditar);
         
-        // Botón cambiar estado
         const btnEstado = document.createElement('button');
         if (user.estado_usuario) {
             btnEstado.className = 'btn btn-inactivar btn-sm';
@@ -212,7 +199,6 @@ function renderizarTabla(usuarios) {
         btnEstado.onclick = () => cambiarEstadoUsuario(user);
         divAcciones.appendChild(btnEstado);
         
-        // Botón eliminar
         const btnEliminar = document.createElement('button');
         btnEliminar.className = 'btn btn-danger btn-sm';
         btnEliminar.innerHTML = '<i class="fas fa-trash"></i>';
@@ -376,7 +362,7 @@ function buscarConDebounce() {
     
     searchTimeout = setTimeout(() => {
         filtrarUsuarios();
-    }, 300); // 300ms de delay
+    }, 300);
 }
 
 // Función para verificar DNI de conductor
@@ -417,7 +403,6 @@ function mostrarInfoConductor(conductorData) {
             conductorEstado.textContent = conductorData.conductor.estado || 'Sin estado';
             conductorAsignado.textContent = conductorData.tiene_usuario ? 'Ya tiene usuario asignado' : 'Disponible para asignar';
             
-            // Limpiar clases anteriores
             conductorEstado.className = '';
             if (conductorData.conductor.estado !== 'ACTIVO') {
                 conductorEstado.className = 'text-danger';
@@ -450,14 +435,12 @@ function mostrarSeccionConductor() {
         return;
     }
     
-    // Buscar el tipo de usuario seleccionado
     const tipoSeleccionado = tiposUsuarioData.find(t => t.tipo_usuario_id == tipoSelect.value);
     
     if (tipoSeleccionado && esTipoUsuarioConductor(tipoSeleccionado.tipo_usuario)) {
         conductorSection.style.display = 'block';
         esTipoConductor = true;
         
-        // Si ya hay un DNI ingresado, verificar conductor
         if (dniInput && dniInput.value) {
             verificarConductor(dniInput.value).then(data => {
                 mostrarInfoConductor(data);
@@ -489,6 +472,12 @@ function abrirModalNuevoUsuario() {
     document.getElementById('estado_usuario').value = 'true';
     document.getElementById('dni').value = '';
     
+    // Mostrar el campo de estado en nuevo usuario
+    const estadoContainer = document.getElementById('estado-container');
+    if (estadoContainer) {
+        estadoContainer.style.display = 'block';
+    }
+    
     document.getElementById('conductor-section').style.display = 'none';
     document.getElementById('conductor-info').style.display = 'none';
     
@@ -497,7 +486,7 @@ function abrirModalNuevoUsuario() {
     
     if (passwordInput) {
         passwordInput.required = true;
-        passwordInput.value = ''; // Asegurarse de que esté vacío
+        passwordInput.value = '';
     }
     
     if (passwordRequired) {
@@ -535,21 +524,25 @@ async function editarUsuario(id) {
         document.getElementById('ape_paterno').value = usuario.ape_paterno || '';
         document.getElementById('ape_materno').value = usuario.ape_materno || '';
         document.getElementById('tipo_usuario_id').value = usuario.tipo_usuario_id || '';
-        document.getElementById('estado_usuario').value = usuario.estado_usuario ? 'true' : 'false';
+        
+        // Ocultar el campo de estado en edición
+        const estadoContainer = document.getElementById('estado-container');
+        if (estadoContainer) {
+            estadoContainer.style.display = 'none';
+        }
         
         const passwordInput = document.getElementById('password');
         const passwordRequired = document.getElementById('password-required');
         
         if (passwordInput) {
             passwordInput.required = false;
-            passwordInput.value = ''; // Limpiar contraseña en edición
+            passwordInput.value = '';
         }
         
         if (passwordRequired) {
             passwordRequired.style.display = 'none';
         }
         
-        // Verificar si es conductor
         const esConductorResponse = await fetch(`/main/usuario/es_conductor/${usuario.usuario_id}`);
         if (esConductorResponse.ok) {
             const conductorData = await esConductorResponse.json();
@@ -563,7 +556,6 @@ async function editarUsuario(id) {
             document.getElementById('dni').value = '';
         }
         
-        // Mostrar/ocultar sección de conductor según tipo de usuario
         mostrarSeccionConductor();
         
         $('#modal-usuario').modal('show');
@@ -578,7 +570,6 @@ function validarFormulario() {
     const form = document.getElementById('form-usuario');
     if (!form) return false;
     
-    // Validar campos básicos
     const nombreUsuario = document.getElementById('nombre_usuario').value.trim();
     const nombres = document.getElementById('nombres').value.trim();
     const apePaterno = document.getElementById('ape_paterno').value.trim();
@@ -610,7 +601,6 @@ function validarFormulario() {
         return false;
     }
     
-    // Validar contraseña para nuevo usuario
     const usuarioId = document.getElementById('usuario_id').value;
     const password = document.getElementById('password').value.trim();
     if (!usuarioId && !password) {
@@ -634,13 +624,11 @@ async function guardarUsuario() {
     const id = document.getElementById('usuario_id').value;
     const tipoUsuarioId = document.getElementById('tipo_usuario_id').value;
     
-    // Obtener el nombre del tipo de usuario para verificar si es conductor
     const tipoSeleccionado = tiposUsuarioData.find(t => t.tipo_usuario_id == tipoUsuarioId);
     const esConductor = tipoSeleccionado && esTipoUsuarioConductor(tipoSeleccionado.tipo_usuario);
     
     let dni = null;
     
-    // Validar DNI si es conductor
     if (esConductor) {
         dni = document.getElementById('dni').value.trim();
         if (!dni || dni.length !== 8 || !/^\d+$/.test(dni)) {
@@ -648,7 +636,6 @@ async function guardarUsuario() {
             return;
         }
         
-        // Verificar conductor
         const conductorData = await verificarConductor(dni);
         if (!conductorData || !conductorData.existe) {
             mostrarError('El conductor con este DNI no existe en la base de datos');
@@ -660,13 +647,11 @@ async function guardarUsuario() {
             return;
         }
         
-        // Si es nuevo usuario o se está cambiando a conductor
         if (!id && conductorData.tiene_usuario) {
             mostrarError('El conductor ya tiene un usuario asignado');
             return;
         }
         
-        // Si es edición y se está cambiando de conductor
         if (id && conductorData.tiene_usuario && conductorData.conductor.usuario_id != id) {
             mostrarError('El conductor ya tiene un usuario asignado a otra cuenta');
             return;
@@ -680,11 +665,14 @@ async function guardarUsuario() {
         paterno: document.getElementById('ape_paterno').value.trim(),
         materno: document.getElementById('ape_materno').value.trim(),
         tipo_usuario_id: parseInt(tipoUsuarioId),
-        estado_usuario: document.getElementById('estado_usuario').value === 'true',
         dni: dni
     };
     
-    // Si es edición y no se cambió la contraseña, no enviar password
+    // Solo incluir estado_usuario para nuevos usuarios
+    if (!id) {
+        datos.estado_usuario = document.getElementById('estado_usuario').value === 'true';
+    }
+    
     if (id && !datos.password) {
         delete datos.password;
     }
@@ -695,7 +683,7 @@ async function guardarUsuario() {
     try {
         const formData = new FormData();
         for (const key in datos) {
-            if (datos[key] !== null && datos[key] !== undefined) {
+            if (datos[key] !== null && datos[key] !== undefined && datos[key] !== '') {
                 formData.append(key, datos[key]);
             }
         }
@@ -720,7 +708,7 @@ async function guardarUsuario() {
     }
 }
 
-// Función para cambiar estado (dar de baja/activar)
+// Función para cambiar estado
 async function cambiarEstadoUsuario(user) {
     const accion = user.estado_usuario ? 'dar de baja' : 'activar';
     const titulo = user.estado_usuario ? 'Dar de baja usuario' : 'Activar usuario';
@@ -826,29 +814,24 @@ function mostrarError(mensaje) {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Cargar datos iniciales
     cargarTiposUsuario();
     cargarUsuarios();
     
-    // Botón nuevo usuario
     const btnNuevoUsuario = document.getElementById('btn-nuevo-usuario');
     if (btnNuevoUsuario) {
         btnNuevoUsuario.addEventListener('click', abrirModalNuevoUsuario);
     }
     
-    // Botón guardar usuario
     const btnGuardarUsuario = document.getElementById('btn-guardar-usuario');
     if (btnGuardarUsuario) {
         btnGuardarUsuario.addEventListener('click', guardarUsuario);
     }
     
-    // Búsqueda con debounce
     const searchInput = document.getElementById('search-usuarios');
     if (searchInput) {
         searchInput.addEventListener('input', buscarConDebounce);
     }
     
-    // Controles de paginación
     const btnFirst = document.getElementById('btn-first');
     const btnPrev = document.getElementById('btn-prev');
     const btnNext = document.getElementById('btn-next');
@@ -859,7 +842,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnNext) btnNext.addEventListener('click', () => cambiarPagina(currentPage + 1));
     if (btnLast) btnLast.addEventListener('click', () => cambiarPagina(totalPages));
     
-    // Cambiar tamaño de página
     const pageSizeSelect = document.getElementById('page-size');
     if (pageSizeSelect) {
         pageSizeSelect.addEventListener('change', function() {
@@ -869,7 +851,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Mostrar/ocultar sección de conductor según tipo de usuario
     const tipoUsuarioSelect = document.getElementById('tipo_usuario_id');
     if (tipoUsuarioSelect) {
         tipoUsuarioSelect.addEventListener('change', function() {
@@ -877,7 +858,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Verificar DNI en tiempo real
     const dniInput = document.getElementById('dni');
     if (dniInput) {
         dniInput.addEventListener('input', async function() {
@@ -891,7 +871,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Limpiar modal al cerrar
     $('#modal-usuario').on('hidden.bs.modal', function() {
         const form = document.getElementById('form-usuario');
         if (form) {
@@ -906,9 +885,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         conductorSeleccionado = null;
         esTipoConductor = false;
+        
+        // Restaurar el estado container a su estado normal al cerrar
+        const estadoContainer = document.getElementById('estado-container');
+        if (estadoContainer) {
+            estadoContainer.style.display = 'block';
+        }
     });
     
-    // Permitir Enter en formulario
     const formUsuario = document.getElementById('form-usuario');
     if (formUsuario) {
         formUsuario.addEventListener('keypress', function(e) {

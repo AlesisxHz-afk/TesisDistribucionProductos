@@ -18,7 +18,7 @@ async function cargarRoles() {
         const data = await response.json();
         if (data.success) {
             rolesData = data.roles;
-            filtrarRoles(); // Esto ahora actualizará la paginación también
+            filtrarRoles();
         } else {
             throw new Error(data.error || 'Error al cargar los roles');
         }
@@ -48,7 +48,6 @@ function renderizarTabla(roles) {
         return;
     }
     
-    // Calcular índices para la paginación
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = Math.min(startIndex + pageSize, roles.length);
     const paginatedRoles = roles.slice(startIndex, endIndex);
@@ -56,19 +55,16 @@ function renderizarTabla(roles) {
     paginatedRoles.forEach(rol => {
         const tr = document.createElement('tr');
         
-        // Nombre del rol (alineado a la izquierda)
         const tdNombre = document.createElement('td');
         tdNombre.className = 'text-left';
         tdNombre.textContent = rol.tipo_usuario;
         tr.appendChild(tdNombre);
         
-        // Descripción (alineado a la izquierda)
         const tdDescripcion = document.createElement('td');
         tdDescripcion.className = 'text-left';
         tdDescripcion.textContent = rol.descripcion || '-';
         tr.appendChild(tdDescripcion);
         
-        // Estado
         const tdEstado = document.createElement('td');
         tdEstado.className = 'text-center';
         const estadoBadge = document.createElement('span');
@@ -79,14 +75,12 @@ function renderizarTabla(roles) {
         tdEstado.appendChild(estadoBadge);
         tr.appendChild(tdEstado);
         
-        // Acciones (centrado)
         const tdAcciones = document.createElement('td');
         tdAcciones.className = 'text-center';
         
         const divAcciones = document.createElement('div');
         divAcciones.className = 'acciones-cell';
         
-        // Botón Editar (color amarillo)
         const btnEditar = document.createElement('button');
         btnEditar.className = 'btn btn-warning btn-sm';
         btnEditar.innerHTML = '<i class="fas fa-edit"></i>';
@@ -94,7 +88,6 @@ function renderizarTabla(roles) {
         btnEditar.onclick = () => editarRol(rol.tipo_usuario_id);
         divAcciones.appendChild(btnEditar);
         
-        // Botón Cambiar Estado (color naranja para dar de baja, verde para activar)
         const btnEstado = document.createElement('button');
         if (rol.estado_rol) {
             btnEstado.className = 'btn btn-inactivar btn-sm';
@@ -108,7 +101,6 @@ function renderizarTabla(roles) {
         btnEstado.onclick = () => cambiarEstadoRol(rol);
         divAcciones.appendChild(btnEstado);
         
-        // Botón Eliminar (color rojo)
         const btnEliminar = document.createElement('button');
         btnEliminar.className = 'btn btn-danger btn-sm';
         btnEliminar.innerHTML = '<i class="fas fa-trash"></i>';
@@ -122,13 +114,10 @@ function renderizarTabla(roles) {
         tbody.appendChild(tr);
     });
     
-    // Actualizar información de paginación
     actualizarInfoPaginacion(roles.length);
-    // Actualizar controles de paginación
     actualizarControlesPaginacion(roles.length);
 }
 
-// Función para actualizar la información de paginación
 function actualizarInfoPaginacion(totalItems) {
     const infoElement = document.getElementById('pagination-info');
     const startIndex = (currentPage - 1) * pageSize + 1;
@@ -141,31 +130,25 @@ function actualizarInfoPaginacion(totalItems) {
     }
 }
 
-// Función para actualizar los controles de paginación
 function actualizarControlesPaginacion(totalItems) {
     totalPages = Math.ceil(totalItems / pageSize);
     
-    // Habilitar/deshabilitar botones
     document.getElementById('btn-first').disabled = currentPage === 1;
     document.getElementById('btn-prev').disabled = currentPage === 1;
     document.getElementById('btn-next').disabled = currentPage === totalPages || totalPages === 0;
     document.getElementById('btn-last').disabled = currentPage === totalPages || totalPages === 0;
     
-    // Generar números de página
     const pagesContainer = document.getElementById('pagination-pages');
     pagesContainer.innerHTML = '';
     
     if (totalPages <= 1) return;
     
-    // Calcular qué páginas mostrar
     let startPage, endPage;
     
     if (totalPages <= 5) {
-        // Menos de 5 páginas, mostrar todas
         startPage = 1;
         endPage = totalPages;
     } else {
-        // Más de 5 páginas, mostrar páginas alrededor de la actual
         if (currentPage <= 3) {
             startPage = 1;
             endPage = 5;
@@ -178,7 +161,6 @@ function actualizarControlesPaginacion(totalItems) {
         }
     }
     
-    // Agregar botones de página
     for (let i = startPage; i <= endPage; i++) {
         const pageButton = document.createElement('button');
         pageButton.className = `btn-pagination ${i === currentPage ? 'btn-page-active' : 'btn-page'}`;
@@ -187,7 +169,6 @@ function actualizarControlesPaginacion(totalItems) {
         pagesContainer.appendChild(pageButton);
     }
     
-    // Agregar indicador de páginas omitidas al inicio si es necesario
     if (startPage > 1) {
         const ellipsisStart = document.createElement('span');
         ellipsisStart.className = 'pagination-ellipsis';
@@ -201,7 +182,6 @@ function actualizarControlesPaginacion(totalItems) {
         pagesContainer.insertBefore(firstPageButton, ellipsisStart);
     }
     
-    // Agregar indicador de páginas omitidas al final si es necesario
     if (endPage < totalPages) {
         const ellipsisEnd = document.createElement('span');
         ellipsisEnd.className = 'pagination-ellipsis';
@@ -216,21 +196,18 @@ function actualizarControlesPaginacion(totalItems) {
     }
 }
 
-// Función para cambiar de página
 function cambiarPagina(page) {
     if (page < 1 || page > totalPages) return;
     
     currentPage = page;
     renderizarTabla(filteredRoles);
     
-    // Hacer scroll suave hacia la parte superior de la tabla
     const tabla = document.getElementById('tabla-roles');
     if (tabla) {
         tabla.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
 
-// Función para filtrar roles
 function filtrarRoles() {
     const searchTerm = document.getElementById('search-roles').value.toLowerCase();
     filteredRoles = rolesData.filter(rol => {
@@ -238,12 +215,10 @@ function filtrarRoles() {
                (rol.descripcion && rol.descripcion.toLowerCase().includes(searchTerm));
     });
     
-    // Resetear a la primera página al filtrar
     currentPage = 1;
     renderizarTabla(filteredRoles);
 }
 
-// Función para abrir modal de nuevo rol
 function abrirModalNuevoRol() {
     document.getElementById('modal-titulo').textContent = 'Nuevo Rol';
     document.getElementById('tipo_usuario_id').value = '';
@@ -252,15 +227,13 @@ function abrirModalNuevoRol() {
     document.getElementById('estado_rol').value = 'true';
     document.getElementById('estado-group').style.display = 'none';
     
-    // Resetear validación
     const form = document.getElementById('form-rol');
     form.classList.remove('was-validated');
     
-    // Mostrar modal usando Bootstrap
     $('#modal-rol').modal('show');
 }
 
-// Función para abrir modal de edición
+// Función de edición MODIFICADA - Estado oculto
 async function editarRol(id) {
     try {
         const response = await fetch(`/main/tipo_usuario/obtener_rol/${id}`);
@@ -279,10 +252,10 @@ async function editarRol(id) {
         document.getElementById('tipo_usuario_id').value = rol.tipo_usuario_id;
         document.getElementById('nombre_rol').value = rol.tipo_usuario;
         document.getElementById('descripcion').value = rol.descripcion || '';
-        document.getElementById('estado_rol').value = rol.estado_rol ? 'true' : 'false';
-        document.getElementById('estado-group').style.display = 'block';
+        // ELIMINADO: document.getElementById('estado_rol').value = rol.estado_rol ? 'true' : 'false';
+        // MANTENER OCULTO EL CAMPO DE ESTADO
+        document.getElementById('estado-group').style.display = 'none';
         
-        // Mostrar modal usando Bootstrap
         $('#modal-rol').modal('show');
     } catch (error) {
         console.error('Error:', error);
@@ -290,11 +263,9 @@ async function editarRol(id) {
     }
 }
 
-// Función para guardar rol
 async function guardarRol() {
     const form = document.getElementById('form-rol');
     
-    // Validar formulario
     if (!form.checkValidity()) {
         form.classList.add('was-validated');
         return;
@@ -334,17 +305,12 @@ async function guardarRol() {
     }
 }
 
-// Función para cambiar estado (dar de baja/activar)
 async function cambiarEstadoRol(rol) {
-    const accion = rol.estado_rol ? 'dar de baja' : 'activar';
-    const titulo = rol.estado_rol ? 'Dar de baja rol' : 'Activar rol';
-    const texto = rol.estado_rol ? 
-        `¿Está seguro que desea dar de baja el rol "${rol.tipo_usuario}"?` :
-        `¿Está seguro que desea activar el rol "${rol.tipo_usuario}"?`;
-    
     Swal.fire({
-        title: titulo,
-        text: texto,
+        title: rol.estado_rol ? 'Dar de baja rol' : 'Activar rol',
+        text: rol.estado_rol ? 
+            `¿Está seguro que desea dar de baja el rol "${rol.tipo_usuario}"?` :
+            `¿Está seguro que desea activar el rol "${rol.tipo_usuario}"?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -376,7 +342,6 @@ async function cambiarEstadoRol(rol) {
     });
 }
 
-// Función para eliminar rol
 async function eliminarRol(id) {
     const rol = rolesData.find(r => r.tipo_usuario_id == id);
     
@@ -414,7 +379,6 @@ async function eliminarRol(id) {
     });
 }
 
-// Funciones auxiliares para mostrar mensajes
 function mostrarExito(mensaje) {
     Swal.fire({
         icon: 'success',
@@ -450,41 +414,32 @@ function mostrarAdvertencia(titulo, mensaje) {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Cargar roles al iniciar
     cargarRoles();
     
-    // Botón nuevo rol
     document.getElementById('btn-nuevo-rol').addEventListener('click', abrirModalNuevoRol);
-    
-    // Botón guardar rol
     document.getElementById('btn-guardar-rol').addEventListener('click', guardarRol);
     
-    // Buscador de roles
     const searchInput = document.getElementById('search-roles');
     if (searchInput) {
         searchInput.addEventListener('input', filtrarRoles);
     }
     
-    // Controles de paginación
     document.getElementById('btn-first').addEventListener('click', () => cambiarPagina(1));
     document.getElementById('btn-prev').addEventListener('click', () => cambiarPagina(currentPage - 1));
     document.getElementById('btn-next').addEventListener('click', () => cambiarPagina(currentPage + 1));
     document.getElementById('btn-last').addEventListener('click', () => cambiarPagina(totalPages));
     
-    // Cambiar tamaño de página
     document.getElementById('page-size').addEventListener('change', function() {
         pageSize = parseInt(this.value);
         currentPage = 1;
         renderizarTabla(filteredRoles);
     });
     
-    // Limpiar modal al cerrar
     $('#modal-rol').on('hidden.bs.modal', function() {
         const form = document.getElementById('form-rol');
         form.classList.remove('was-validated');
     });
     
-    // Permitir Enter en formulario
     document.getElementById('form-rol').addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();

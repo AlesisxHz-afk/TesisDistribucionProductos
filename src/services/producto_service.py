@@ -197,18 +197,23 @@ def obtener_productos_filtrados(filtros=None):
             "message": "Error al obtener productos filtrados"
         }
 
-def crear_producto(nombre, tipo, variedad, descripcion, temperatura_optima, humedad_optima, cant_productos_act, estado_producto, foto=None):
+def crear_producto(nombre, tipo, variedad, descripcion, temperatura_optima, humedad_optima, cant_productos_act, estado_producto=None, foto=None):
     """
     Crea un nuevo producto en el sistema
+    El estado por defecto es 'ACTIVO' si no se proporciona
     """
     try:
-        # Validar que tipo sea uno de los permitidos (exactamente como están en BD)
+        # Validar que tipo sea uno de los permitidos
         if tipo not in ['Fruta', 'Verdura', 'Tubérculo']:
             return None, "El tipo de producto debe ser Fruta, Verdura o Tubérculo"
         
-        # Validar que variedad sea uno de los permitidos (exactamente como están en BD)
+        # Validar que variedad sea uno de los permitidos
         if variedad not in ['Orgánico', 'Convencional']:
             return None, "La variedad debe ser Orgánico o Convencional"
+        
+        # Si no se proporciona estado o es None, usar 'ACTIVO'
+        if estado_producto is None or estado_producto == '':
+            estado_producto = 'ACTIVO'
         
         nuevo_producto = producto(
             nombre=nombre,
@@ -257,9 +262,10 @@ def crear_producto(nombre, tipo, variedad, descripcion, temperatura_optima, hume
         db.session.rollback()
         return None, f"Error al crear el producto: {str(e)}"
 
-def actualizar_producto(producto_id, nombre, tipo, variedad, descripcion, temperatura_optima, humedad_optima, cant_productos_act, estado_producto, foto=None):
+def actualizar_producto(producto_id, nombre, tipo, variedad, descripcion, temperatura_optima, humedad_optima, cant_productos_act, estado_producto=None, foto=None):
     """
     Actualiza un producto existente
+    Si no se proporciona estado, mantiene el estado actual
     """
     try:
         prod = producto.query.get(producto_id)
@@ -267,11 +273,11 @@ def actualizar_producto(producto_id, nombre, tipo, variedad, descripcion, temper
         if not prod:
             return None, "Producto no encontrado"
         
-        # Validar que tipo sea uno de los permitidos (exactamente como están en BD)
+        # Validar que tipo sea uno de los permitidos
         if tipo not in ['Fruta', 'Verdura', 'Tubérculo']:
             return None, "El tipo de producto debe ser Fruta, Verdura o Tubérculo"
         
-        # Validar que variedad sea uno de los permitidos (exactamente como están en BD)
+        # Validar que variedad sea uno de los permitidos
         if variedad not in ['Orgánico', 'Convencional']:
             return None, "La variedad debe ser Orgánico o Convencional"
         
@@ -282,7 +288,10 @@ def actualizar_producto(producto_id, nombre, tipo, variedad, descripcion, temper
         prod.temperatura_optima = temperatura_optima
         prod.humedad_optima = humedad_optima
         prod.cant_productos_act = cant_productos_act
-        prod.estado_producto = estado_producto
+        
+        # Solo actualizar el estado si se proporciona un valor
+        if estado_producto is not None and estado_producto != '':
+            prod.estado_producto = estado_producto
         
         if foto:
             foto_filename = f"{producto_id}.jpg"
@@ -644,7 +653,7 @@ def predecir_stock_optimo(anio, mes):
                 # Indicadores temporales
                 es_fin_mes = 1 if dia >= 25 else 0
                 es_inicio_mes = 1 if dia <= 5 else 0
-                es_temporada_alta = 1 if mes in [11, 12, 1] else 0
+                es_temporada_alta = 1 if mes in [11,12,1] else 0
                 
                 # Features de demanda
                 demanda_lag_1 = demanda_prom
@@ -970,13 +979,13 @@ def guardar_predicciones_db(anio, mes, predicciones):
                         dia=dia,
                         mes=mes,
                         anio=anio,
-                        fecha_envio=fecha_envio_completa,  # Fecha completa
+                        fecha_envio=fecha_envio_completa,
                         hora_envio=None,
                         hora_llegada=None,
-                        estado_envio='PENDIENTE',  # Cambiado a PENDIENTE
+                        estado_envio='PENDIENTE',
                         demanda=cantidades[j],
                         gasto=None,
-                        nro_envio=None  # NULL
+                        nro_envio=None
                     )
                     
                     db.session.add(nueva_distribucion)
@@ -1050,11 +1059,9 @@ def obtener_detalle_envios_producto(producto_id, anio, mes):
         
         envios_lista = []
         for envio in envios:
-            # Usar fecha_envio si existe
             if envio.fecha_envio:
                 fecha = envio.fecha_envio.strftime('%Y-%m-%d')
             else:
-                # Fallback si no hay fecha
                 fecha = f"{anio}-{mes:02d}-{envio.dia:02d}" if envio.dia else f"{anio}-{mes:02d}-01"
             
             envios_lista.append({

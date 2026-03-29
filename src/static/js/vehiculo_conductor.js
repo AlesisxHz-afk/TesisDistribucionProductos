@@ -63,6 +63,7 @@ function llenarSelectConductores() {
     const select = document.getElementById('conductor_id');
     if (!select) return;
     
+    const currentValue = select.value;
     select.innerHTML = '<option value="">Seleccione un conductor</option>';
     
     conductoresList.forEach(cond => {
@@ -71,6 +72,11 @@ function llenarSelectConductores() {
         option.textContent = `${cond.nombre} ${cond.apellido_paterno} ${cond.apellido_materno} - DNI: ${cond.dni}`;
         select.appendChild(option);
     });
+    
+    // Restaurar el valor seleccionado si existe
+    if (currentValue) {
+        select.value = currentValue;
+    }
 }
 
 // Función para cargar vehículos (para el select)
@@ -98,6 +104,7 @@ function llenarSelectVehiculos() {
     const select = document.getElementById('vehiculo_id');
     if (!select) return;
     
+    const currentValue = select.value;
     select.innerHTML = '<option value="">Seleccione un vehículo</option>';
     
     vehiculosList.forEach(veh => {
@@ -106,6 +113,11 @@ function llenarSelectVehiculos() {
         option.textContent = `${veh.marca} ${veh.modelo} - Placa: ${veh.placa}`;
         select.appendChild(option);
     });
+    
+    // Restaurar el valor seleccionado si existe
+    if (currentValue) {
+        select.value = currentValue;
+    }
 }
 
 // Función para mostrar información adicional al seleccionar
@@ -270,12 +282,19 @@ function renderizarTabla(asignaciones) {
         const divAcciones = document.createElement('div');
         divAcciones.className = 'acciones-cell';
         
-        // Botón editar
+        // Botón editar - Deshabilitado si estado es EN_USO
         const btnEditar = document.createElement('button');
         btnEditar.className = 'btn btn-warning btn-sm';
         btnEditar.innerHTML = '<i class="fas fa-edit"></i>';
-        btnEditar.title = 'Editar asignación';
-        btnEditar.onclick = () => editarAsignacion(asig.vehiculo_conductor_id);
+        if (asig.estado === 'EN_USO') {
+            btnEditar.classList.add('btn-secondary');
+            btnEditar.classList.remove('btn-warning');
+            btnEditar.title = 'No se puede editar (En uso)';
+            btnEditar.disabled = true;
+        } else {
+            btnEditar.title = 'Editar asignación';
+            btnEditar.onclick = () => editarAsignacion(asig.vehiculo_conductor_id);
+        }
         divAcciones.appendChild(btnEditar);
         
         // Botón cambiar estado (solo si no está EN_USO)
@@ -513,10 +532,29 @@ async function editarAsignacion(id) {
         
         const asignacion = data.asignacion;
         
+        // Verificar si la asignación está EN_USO
+        if (asignacion.estado === 'EN_USO') {
+            mostrarError('No se puede editar una asignación que está "En uso".');
+            return;
+        }
+        
         document.getElementById('modal-titulo').textContent = 'Editar asignación';
         document.getElementById('vehiculo_conductor_id').value = asignacion.vehiculo_conductor_id;
-        document.getElementById('conductor_id').value = asignacion.conductor_id;
-        document.getElementById('vehiculo_id').value = asignacion.vehiculo_id;
+        
+        // Asegurar que los selects tengan los valores cargados antes de asignar
+        if (conductoresList.length === 0) {
+            await cargarConductores();
+        }
+        if (vehiculosList.length === 0) {
+            await cargarVehiculos();
+        }
+        
+        // Asignar valores a los selects
+        const conductorSelect = document.getElementById('conductor_id');
+        const vehiculoSelect = document.getElementById('vehiculo_id');
+        
+        conductorSelect.value = asignacion.conductor_id;
+        vehiculoSelect.value = asignacion.vehiculo_id;
         
         // En edición, la fecha y estado se mantienen como estaban
         document.getElementById('fecha_asignacion').value = asignacion.fecha_asignacion;
@@ -574,6 +612,14 @@ async function guardarAsignacion() {
     }
     
     const id = document.getElementById('vehiculo_conductor_id').value;
+    const estadoActual = document.getElementById('estado_asignacion').value;
+    
+    // Validar si está EN_USO (no debería poder editarse, pero validamos por si acaso)
+    if (id && estadoActual === 'EN_USO') {
+        mostrarError('No se puede editar una asignación que está "En uso".');
+        $('#modal-asignacion').modal('hide');
+        return;
+    }
     
     const datos = {
         conductor_id: parseInt(document.getElementById('conductor_id').value),
@@ -804,6 +850,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (infoDiv) {
             infoDiv.style.display = 'none';
         }
+        
+        // Limpiar valores de los selects
+        const conductorSelect = document.getElementById('conductor_id');
+        const vehiculoSelect = document.getElementById('vehiculo_id');
+        if (conductorSelect) conductorSelect.value = '';
+        if (vehiculoSelect) vehiculoSelect.value = '';
     });
     
     // Permitir Enter en formulario

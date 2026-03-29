@@ -53,7 +53,7 @@ function renderizarTabla(productos) {
     if (productos.length === 0) {
         const tr = document.createElement('tr');
         const td = document.createElement('td');
-        td.colSpan = 7; // Cambiado a 7 columnas (Nombre, Tipo, Variedad, Foto, Descripción, Estado, Acciones)
+        td.colSpan = 7;
         td.className = 'no-results';
         td.innerHTML = `
             <i class="fas fa-box-open"></i>
@@ -147,10 +147,9 @@ function renderizarTabla(productos) {
         tdEstado.className = 'text-center';
         const estadoBadge = document.createElement('span');
         
-        // Asignar clase según estado
         let estadoClass = '';
         let estadoIcono = '';
-        let estadoTexto = prod.estado_producto || 'INACTIVO';
+        let estadoTexto = prod.estado_producto || 'ACTIVO';
         
         switch(prod.estado_producto) {
             case 'ACTIVO':
@@ -169,9 +168,9 @@ function renderizarTabla(productos) {
                 estadoTexto = 'Sin stock';
                 break;
             default:
-                estadoClass = 'estado-inactivo';
-                estadoIcono = '<i class="fas fa-question-circle"></i>';
-                estadoTexto = prod.estado_producto || 'Desconocido';
+                estadoClass = 'estado-activo';
+                estadoIcono = '<i class="fas fa-check-circle"></i>';
+                estadoTexto = 'Activo';
         }
         
         estadoBadge.className = estadoClass;
@@ -391,7 +390,6 @@ function abrirModalNuevoProducto() {
     document.getElementById('temperatura_optima').value = '';
     document.getElementById('humedad_optima').value = '';
     document.getElementById('cant_productos_act').value = '';
-    document.getElementById('estado_producto').value = 'ACTIVO';
     document.getElementById('foto_producto').value = '';
     
     // Ocultar vista previa
@@ -429,7 +427,6 @@ async function editarProducto(id) {
         document.getElementById('temperatura_optima').value = producto.temperatura_optima || '';
         document.getElementById('humedad_optima').value = producto.humedad_optima || '';
         document.getElementById('cant_productos_act').value = producto.cant_productos_act || '';
-        document.getElementById('estado_producto').value = producto.estado_producto || 'ACTIVO';
         document.getElementById('foto_producto').value = '';
         
         // Ocultar vista previa
@@ -522,6 +519,7 @@ async function guardarProducto() {
         }
     }
     
+    // Datos del producto (sin incluir el estado)
     const datos = {
         nombre: document.getElementById('nombre').value.trim(),
         tipo: document.getElementById('tipo').value,
@@ -529,8 +527,8 @@ async function guardarProducto() {
         descripcion: document.getElementById('descripcion').value.trim() || '',
         temperatura_optima: parseFloat(document.getElementById('temperatura_optima').value),
         humedad_optima: parseFloat(document.getElementById('humedad_optima').value),
-        cant_productos_act: parseFloat(document.getElementById('cant_productos_act').value),
-        estado_producto: document.getElementById('estado_producto').value
+        cant_productos_act: parseFloat(document.getElementById('cant_productos_act').value)
+        // NOTA: No se incluye estado, el backend lo establecerá como ACTIVO por defecto
     };
     
     const url = id ? `/main/producto/actualizar_producto/${id}` : '/main/producto/registrar';

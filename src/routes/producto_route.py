@@ -126,10 +126,10 @@ def registrar_producto():
         temperatura_optima = request.form.get("temperatura_optima")
         humedad_optima = request.form.get("humedad_optima")
         cant_productos_act = request.form.get("cant_productos_act")
-        estado_producto = request.form.get("estado_producto")
+        # estado_producto ya no se recibe del formulario
         foto = request.files.get("foto") if 'foto' in request.files else None
         
-        if not all([nombre, tipo, variedad, temperatura_optima, humedad_optima, cant_productos_act, estado_producto]):
+        if not all([nombre, tipo, variedad, temperatura_optima, humedad_optima, cant_productos_act]):
             return jsonify({"success": False, "error": "Todos los campos obligatorios son requeridos"}), 400
         
         try:
@@ -139,6 +139,7 @@ def registrar_producto():
         except ValueError:
             return jsonify({"success": False, "error": "Los valores numéricos deben ser válidos"}), 400
         
+        # No se envía estado, se usará ACTIVO por defecto en el servicio
         nuevo_producto, error = producto_service.crear_producto(
             nombre=nombre,
             tipo=tipo,
@@ -147,7 +148,7 @@ def registrar_producto():
             temperatura_optima=temperatura_optima,
             humedad_optima=humedad_optima,
             cant_productos_act=cant_productos_act,
-            estado_producto=estado_producto,
+            estado_producto=None,  # Se usará ACTIVO por defecto
             foto=foto
         )
         
@@ -181,9 +182,10 @@ def actualizar_producto(id):
         temperatura_optima = data.get("temperatura_optima")
         humedad_optima = data.get("humedad_optima")
         cant_productos_act = data.get("cant_productos_act")
-        estado_producto = data.get("estado_producto")
+        # estado_producto ya no se recibe
+        foto = request.files.get("foto") if request.files and 'foto' in request.files else None
         
-        if not all([nombre, tipo, variedad, temperatura_optima, humedad_optima, cant_productos_act, estado_producto]):
+        if not all([nombre, tipo, variedad, temperatura_optima, humedad_optima, cant_productos_act]):
             return jsonify({"success": False, "error": "Todos los campos obligatorios son requeridos"}), 400
         
         try:
@@ -193,8 +195,7 @@ def actualizar_producto(id):
         except ValueError:
             return jsonify({"success": False, "error": "Los valores numéricos deben ser válidos"}), 400
         
-        foto = request.files.get("foto") if request.files and 'foto' in request.files else None
-        
+        # No se envía estado, se mantiene el estado actual
         producto_actualizado, error = producto_service.actualizar_producto(
             producto_id=id,
             nombre=nombre,
@@ -204,7 +205,7 @@ def actualizar_producto(id):
             temperatura_optima=temperatura_optima,
             humedad_optima=humedad_optima,
             cant_productos_act=cant_productos_act,
-            estado_producto=estado_producto,
+            estado_producto=None,  # Mantener estado actual
             foto=foto
         )
         

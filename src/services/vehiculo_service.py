@@ -138,6 +138,7 @@ def obtener_vehiculos_filtrados(filtros=None):
 def crear_vehiculo(placa, modelo, marca, cantidad_carga, tipo_vehiculo, anio_fabricacion, estado):
     """
     Crea un nuevo vehículo en el sistema
+    NOTA: El parámetro estado se ignora, siempre se guarda como 'ACTIVO'
     """
     try:
         # Validar que la placa no exista
@@ -145,14 +146,9 @@ def crear_vehiculo(placa, modelo, marca, cantidad_carga, tipo_vehiculo, anio_fab
             return None, "Ya existe un vehículo con esa placa"
         
         # Validar tipos permitidos
-        tipos_permitidos = ['Camión', 'Camioneta', 'Furgón', 'Tráiler', 'Volquete', 'Otro']
+        tipos_permitidos = ['Camión', 'Camioneta', 'Furgón', 'Tráiler', 'Volquete', 'Otro', 'Camion', 'Furgoneta']
         if tipo_vehiculo not in tipos_permitidos:
             return None, f"El tipo de vehículo debe ser uno de: {', '.join(tipos_permitidos)}"
-        
-        # Validar estados permitidos
-        estados_permitidos = ['ACTIVO', 'EN_USO', 'INACTIVO']
-        if estado not in estados_permitidos:
-            return None, f"El estado debe ser uno de: {', '.join(estados_permitidos)}"
         
         # Validar año de fabricación
         if anio_fabricacion < 1900 or anio_fabricacion > 2025:
@@ -162,6 +158,7 @@ def crear_vehiculo(placa, modelo, marca, cantidad_carga, tipo_vehiculo, anio_fab
         if cantidad_carga <= 0:
             return None, "La capacidad de carga debe ser mayor a 0"
         
+        # Siempre se guarda como ACTIVO
         nuevo_vehiculo = vehiculo(
             placa=placa.upper(),
             modelo=modelo,
@@ -169,7 +166,7 @@ def crear_vehiculo(placa, modelo, marca, cantidad_carga, tipo_vehiculo, anio_fab
             cantidad_carga=cantidad_carga,
             tipo_vehiculo=tipo_vehiculo,
             anio_fabricacion=anio_fabricacion,
-            estado=estado
+            estado='ACTIVO'  # Forzar estado ACTIVO
         )
         
         db.session.add(nuevo_vehiculo)
@@ -185,6 +182,7 @@ def crear_vehiculo(placa, modelo, marca, cantidad_carga, tipo_vehiculo, anio_fab
 def actualizar_vehiculo(vehiculo_id, placa, modelo, marca, cantidad_carga, tipo_vehiculo, anio_fabricacion, estado):
     """
     Actualiza un vehículo existente
+    NOTA: El parámetro estado se ignora, no se actualiza el estado del vehículo
     """
     try:
         veh = vehiculo.query.get(vehiculo_id)
@@ -192,20 +190,19 @@ def actualizar_vehiculo(vehiculo_id, placa, modelo, marca, cantidad_carga, tipo_
         if not veh:
             return None, "Vehículo no encontrado"
         
+        # No permitir actualizar si está EN_USO
+        if veh.estado == 'EN_USO':
+            return None, "No se puede editar un vehículo que está en uso"
+        
         # Validar que la placa no exista en otro vehículo
         placa_existente = vehiculo.query.filter(vehiculo.placa == placa, vehiculo.vehiculo_id != vehiculo_id).first()
         if placa_existente:
             return None, "Ya existe otro vehículo con esa placa"
         
         # Validar tipos permitidos
-        tipos_permitidos = ['Camión', 'Camioneta', 'Furgón', 'Tráiler', 'Volquete', 'Otro']
+        tipos_permitidos = ['Camión', 'Camioneta', 'Furgón', 'Tráiler', 'Volquete', 'Otro', 'Camion', 'Furgoneta']
         if tipo_vehiculo not in tipos_permitidos:
             return None, f"El tipo de vehículo debe ser uno de: {', '.join(tipos_permitidos)}"
-        
-        # Validar estados permitidos
-        estados_permitidos = ['ACTIVO', 'EN_USO', 'INACTIVO']
-        if estado not in estados_permitidos:
-            return None, f"El estado debe ser uno de: {', '.join(estados_permitidos)}"
         
         # Validar año de fabricación
         if anio_fabricacion < 1900 or anio_fabricacion > 2025:
@@ -221,7 +218,7 @@ def actualizar_vehiculo(vehiculo_id, placa, modelo, marca, cantidad_carga, tipo_
         veh.cantidad_carga = cantidad_carga
         veh.tipo_vehiculo = tipo_vehiculo
         veh.anio_fabricacion = anio_fabricacion
-        veh.estado = estado
+        # No se actualiza el estado, se mantiene el actual
         
         db.session.commit()
         
@@ -242,8 +239,12 @@ def cambiar_estado_vehiculo(vehiculo_id, nuevo_estado):
         if not veh:
             return False, "Vehículo no encontrado"
         
+        # No permitir cambiar estado si está EN_USO
+        if veh.estado == 'EN_USO':
+            return False, "No se puede cambiar el estado de un vehículo que está en uso"
+        
         # Validar estados permitidos
-        estados_permitidos = ['ACTIVO', 'EN_USO', 'INACTIVO']
+        estados_permitidos = ['ACTIVO', 'INACTIVO']  # EN_USO no se puede asignar manualmente
         if nuevo_estado not in estados_permitidos:
             return False, f"El estado debe ser uno de: {', '.join(estados_permitidos)}"
         
@@ -266,6 +267,10 @@ def eliminar_vehiculo(vehiculo_id):
         
         if not veh:
             return False, "Vehículo no encontrado"
+        
+        # No permitir eliminar si está EN_USO
+        if veh.estado == 'EN_USO':
+            return False, "No se puede eliminar un vehículo que está en uso"
         
         # Verificar si tiene asignaciones activas
         from ..models.models import vehiculoconductor

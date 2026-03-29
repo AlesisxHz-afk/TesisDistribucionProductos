@@ -245,18 +245,6 @@ const modalContent = {
     </div>
     
     <div class="modal-content-section">
-      <h5><i class="fas fa-truck me-2"></i>Áreas de Entrega</h5>
-      <p>Realizamos entregas en las siguientes zonas:</p>
-      <ul class="legal-list">
-        <li><strong>Lambayeque:</strong> Chiclayo, Lambayeque, Ferreñafe, Olmos y distritos aledaños</li>
-        <li><strong>La Libertad:</strong> Trujillo, Chepén, Pacasmayo (consultar disponibilidad)</li>
-        <li><strong>Piura:</strong> Piura, Sullana (consultar disponibilidad)</li>
-        <li><strong>Otras zonas:</strong> Consultar disponibilidad y condiciones de envío</li>
-      </ul>
-      <p class="mt-3"><small><i class="fas fa-info-circle text-success me-1"></i> Los costos de envío varían según la ubicación y volumen del pedido.</small></p>
-    </div>
-    
-    <div class="modal-content-section">
       <h5><i class="fas fa-comment-dots me-2"></i>Formulario de Contacto</h5>
       <p>Para consultas específicas, puede utilizar nuestro formulario de contacto en línea o escribirnos directamente a nuestro correo electrónico.</p>
       <p>Nos comprometemos a responder todas las consultas en un plazo máximo de 24 horas hábiles.</p>

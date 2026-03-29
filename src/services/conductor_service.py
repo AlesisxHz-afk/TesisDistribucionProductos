@@ -144,7 +144,7 @@ def crear_conductor(nombre, apellido_paterno, apellido_materno, dni, telefono, d
             return None, "El DNI ingresado ya está registrado en el sistema"
         
         # Validar estados permitidos
-        estados_permitidos = ['ACTIVO', 'INACTIVO', 'VACACIONES', 'LICENCIA']
+        estados_permitidos = ['ACTIVO', 'INACTIVO', 'VACACIONES', 'LICENCIA', 'EN_USO']
         if estado not in estados_permitidos:
             return None, f"El estado debe ser uno de: {', '.join(estados_permitidos)}"
         
@@ -184,13 +184,17 @@ def actualizar_conductor(conductor_id, nombre, apellido_paterno, apellido_matern
         if not cond:
             return None, "Conductor no encontrado"
         
+        # No permitir editar si está en uso
+        if cond.estado == 'EN_USO':
+            return None, "No se puede editar un conductor que está actualmente en uso"
+        
         # Validar que el DNI no esté duplicado (excepto el del mismo conductor)
         existe_conductor = conductor.query.filter(conductor.dni == dni, conductor.conductor_id != conductor_id).first()
         if existe_conductor:
             return None, "El DNI ingresado ya está registrado en el sistema"
         
         # Validar estados permitidos
-        estados_permitidos = ['ACTIVO', 'INACTIVO', 'VACACIONES', 'LICENCIA']
+        estados_permitidos = ['ACTIVO', 'INACTIVO', 'VACACIONES', 'LICENCIA', 'EN_USO']
         if estado not in estados_permitidos:
             return None, f"El estado debe ser uno de: {', '.join(estados_permitidos)}"
         
@@ -205,7 +209,9 @@ def actualizar_conductor(conductor_id, nombre, apellido_paterno, apellido_matern
         cond.telefono = telefono
         cond.direccion = direccion
         cond.fecha_ingreso = fecha_ingreso
-        cond.estado = estado
+        # Solo actualizar el estado si no es EN_USO
+        if cond.estado != 'EN_USO':
+            cond.estado = estado
         
         db.session.commit()
         
@@ -225,6 +231,14 @@ def cambiar_estado_conductor(conductor_id, nuevo_estado):
         
         if not cond:
             return False, "Conductor no encontrado"
+        
+        # No permitir cambiar estado si está en uso
+        if cond.estado == 'EN_USO':
+            return False, "No se puede cambiar el estado de un conductor que está en uso"
+        
+        # No permitir cambiar a EN_USO desde esta función
+        if nuevo_estado == 'EN_USO':
+            return False, "No se puede cambiar a estado EN_USO manualmente"
         
         # Validar estados permitidos
         estados_permitidos = ['ACTIVO', 'INACTIVO', 'VACACIONES', 'LICENCIA']
@@ -250,6 +264,10 @@ def eliminar_conductor(conductor_id):
         
         if not cond:
             return False, "Conductor no encontrado"
+        
+        # No permitir eliminar si está en uso
+        if cond.estado == 'EN_USO':
+            return False, "No se puede eliminar un conductor que está actualmente en uso"
         
         # Verificar si el conductor tiene registros relacionados
         from ..models.models import vehiculoconductor, conductorubicacion

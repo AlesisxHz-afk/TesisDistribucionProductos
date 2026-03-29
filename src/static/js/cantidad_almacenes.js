@@ -134,7 +134,7 @@ function renderizarTabla(almacenes) {
         // Botón Gestionar (+)
         const btnGestionar = document.createElement('button');
         btnGestionar.className = 'btn btn-success btn-sm';
-        btnGestionar.innerHTML = '<i class="fas fa-plus"></i> Gestionar';
+        btnGestionar.innerHTML = '<i class="fas fa-plus"></i>';
         btnGestionar.title = 'Agregar o quitar productos';
         btnGestionar.onclick = () => abrirModalGestion(alm.almacen_id);
         divAcciones.appendChild(btnGestionar);
@@ -258,7 +258,7 @@ function renderizarProductosEnAlmacen(productos) {
         
         const btnQuitar = document.createElement('button');
         btnQuitar.className = 'btn btn-warning btn-sm';
-        btnQuitar.innerHTML = '<i class="fas fa-minus"></i> Quitar';
+        btnQuitar.innerHTML = '<i class="fas fa-minus"></i>';
         btnQuitar.title = 'Quitar cantidad';
         btnQuitar.onclick = () => quitarProductoAlmacen(
             item.almacen_capacidad_id, 

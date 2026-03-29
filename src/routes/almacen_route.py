@@ -72,7 +72,12 @@ def registrar_almacen():
         capacidad = data.get("capacidad")
         latitud = data.get("latitud")
         longitud = data.get("longitud")
-        estado = data.get("estado", "ACTIVO")
+        # Estado por defecto ACTIVO
+        estado = "ACTIVO"
+        # Opcional: si se envía estado, usarlo (para mantener compatibilidad)
+        if "estado" in data and data["estado"]:
+            estado = data.get("estado")
+        
         if not isinstance(capacidad, (int, float)) or capacidad <= 0:
             return jsonify({"success": False, "error": "La capacidad debe ser un número positivo"}), 400
         if latitud < -90 or latitud > 90:
@@ -95,7 +100,7 @@ def actualizar_almacen(id):
         data = request.get_json()
         if not data:
             return jsonify({"success": False, "error": "No se recibieron datos"}), 400
-        campos_requeridos = ["nombre", "tipo_almacen", "direccion", "capacidad", "latitud", "longitud", "estado"]
+        campos_requeridos = ["nombre", "tipo_almacen", "direccion", "capacidad", "latitud", "longitud"]
         for campo in campos_requeridos:
             if campo not in data or data[campo] is None or data[campo] == "":
                 return jsonify({"success": False, "error": f"El campo {campo} es requerido"}), 400
@@ -105,7 +110,9 @@ def actualizar_almacen(id):
         capacidad = data.get("capacidad")
         latitud = data.get("latitud")
         longitud = data.get("longitud")
-        estado = data.get("estado")
+        # Mantener estado actual si no se envía, o usar el enviado
+        estado = data.get("estado") if "estado" in data else None
+        
         if not isinstance(capacidad, (int, float)) or capacidad <= 0:
             return jsonify({"success": False, "error": "La capacidad debe ser un número positivo"}), 400
         if latitud < -90 or latitud > 90:

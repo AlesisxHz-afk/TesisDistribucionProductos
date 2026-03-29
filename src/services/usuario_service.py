@@ -74,8 +74,8 @@ def crear_usuario(username, password, nombres, paterno, materno, foto=None, tipo
         nombres=nombres,
         ape_paterno=paterno,
         ape_materno=materno,
-        estado_usuario=True,  # Siempre activo cuando se crea
-        foto_usuario=None,  # Temporalmente None
+        estado_usuario=True,
+        foto_usuario=None,
         tipo_usuario_id=tipo_usuario_id
     )
     
@@ -83,6 +83,8 @@ def crear_usuario(username, password, nombres, paterno, materno, foto=None, tipo
         db.session.add(nuevo_usuario)
         db.session.flush()  # Para obtener el ID sin commit
         usuario_id = nuevo_usuario.usuario_id
+        
+        print(f"📝 Usuario creado temporalmente con ID: {usuario_id}")
         
         # **SIEMPRE usar .jpg como extensión**
         foto_filename = f"{usuario_id}.jpg"
@@ -104,10 +106,15 @@ def crear_usuario(username, password, nombres, paterno, materno, foto=None, tipo
         foto_path = os.path.join(upload_folder, foto_filename)
         print(f"📁 Ruta completa del archivo: {foto_path}")
         
-        if foto:
+        # Verificar si hay foto proporcionada
+        if foto and hasattr(foto, 'filename') and foto.filename:
+            # Hay foto, guardarla
+            guardar_foto_usuario(foto, foto_path)
+        elif foto and isinstance(foto, str) and foto.startswith('data:image'):
+            # Es base64, guardarlo
             guardar_foto_usuario(foto, foto_path)
         else:
-            # Usar foto por defecto
+            # No hay foto, usar la foto por defecto
             default_foto_path = os.path.join(src_dir, 'static', 'images', 'usuario', 'userdefault.jpg')
             
             if os.path.exists(default_foto_path):
@@ -121,9 +128,12 @@ def crear_usuario(username, password, nombres, paterno, materno, foto=None, tipo
         
         # Actualizar el usuario con el nombre de la foto
         nuevo_usuario.foto_usuario = foto_filename
-        db.session.commit()
         
+        # NO HACER COMMIT AQUÍ - Dejar que la función llamadora haga commit
+        # Esto es importante para que la función llamadora pueda vincular el conductor
         print(f"✅ Usuario creado con ID: {usuario_id}, Foto: {nuevo_usuario.foto_usuario}")
+        print(f"⚠️  Usuario NO COMMIT - esperando confirmación externa")
+        
         return nuevo_usuario, None
     except Exception as e:
         db.session.rollback()

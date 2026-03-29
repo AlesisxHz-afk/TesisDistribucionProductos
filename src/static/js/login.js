@@ -51,7 +51,7 @@ function showSuccessMessage(title, text, htmlContent = null, showLottie = false)
         title: title,
         text: finalHtml === text ? text : null,
         html: finalHtml !== text ? finalHtml : null,
-        icon: showLottie ? null : 'success', // No mostrar icono si usamos Lottie
+        icon: showLottie ? null : 'success',
         iconColor: '#4CAF50',
         showConfirmButton: true,
         confirmButtonText: 'Continuar',
@@ -64,9 +64,7 @@ function showSuccessMessage(title, text, htmlContent = null, showLottie = false)
             htmlContainer: 'custom-swal-html'
         },
         didOpen: () => {
-            // Si se mostró Lottie, cargar la animación
             if (showLottie) {
-                // Cargar la librería Lottie y la animación
                 if (typeof lottie === 'undefined') {
                     const script = document.createElement('script');
                     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js';
@@ -266,6 +264,9 @@ function resetRegisterForm() {
     const dniInput = document.getElementById('registerDNI');
     if (dniInput) dniInput.value = '';
     
+    // Limpiar archivo de foto
+    if (fileInput) fileInput.value = '';
+    
     // Actualizar botones superiores
     if (switchButtons.length >= 2) {
         switchButtons[0].classList.add('active');
@@ -300,6 +301,27 @@ function setupPasswordToggle() {
             }
         });
     }
+}
+
+// Función para validar formato de imagen
+function validarFormatoImagen(file) {
+    if (!file) return true; // Si no hay archivo, es válido (opcional)
+    
+    const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp'];
+    const extensionesPermitidas = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+    
+    // Validar por tipo MIME
+    if (!tiposPermitidos.includes(file.type)) {
+        return false;
+    }
+    
+    // Validar por extensión
+    const extension = file.name.split('.').pop().toLowerCase();
+    if (!extensionesPermitidas.includes(extension)) {
+        return false;
+    }
+    
+    return true;
 }
 
 // Función para verificar si un usuario ya existe
@@ -651,6 +673,7 @@ function handleImagePreview() {
     const file = fileInput.files[0];
     if (!file || !imagePreview || !previewContainer) return;
     
+    // Validar tamaño máximo (5 MB)
     if (file.size > 5 * 1024 * 1024) {
         showErrorMessage(
             'Archivo Demasiado Grande',
@@ -677,24 +700,31 @@ function handleImagePreview() {
         return;
     }
     
-    if (!file.type.match('image.*')) {
+    // Validar formato de imagen
+    if (!validarFormatoImagen(file)) {
         showErrorMessage(
             'Formato de Archivo Inválido',
             null,
             `
             <div style="text-align: center; padding: 20px 0;">
                 <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; border: 2px solid #f44336;">
-                    <i class="fas fa-file-excel" style="font-size: 30px; color: #f44336;"></i>
+                    <i class="fas fa-file-image" style="font-size: 30px; color: #f44336;"></i>
                 </div>
-                <h3 style="color: #333; margin-bottom: 10px; font-weight: 600;">Tipo de Archivo No Soportado</h3>
+                <h3 style="color: #333; margin-bottom: 10px; font-weight: 600;">Formato No Soportado</h3>
                 <p style="color: #666; margin-bottom: 10px; line-height: 1.5;">
-                    Solo se permiten archivos de imagen (JPG, PNG, GIF, etc.).
+                    El archivo seleccionado no es una imagen válida o tiene un formato no soportado.
                 </p>
                 <div style="background: #F5F5F5; padding: 12px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #f44336;">
-                    <p style="color: #666; margin: 0; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-images" style="color: #f44336;"></i>
-                        <span>Formatos aceptados: JPG, JPEG, PNG, GIF, WebP</span>
-                    </p>
+                    <div style="color: #666; font-size: 13px;">
+                        <p style="margin: 0 0 8px 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-check-circle" style="color: #4CAF50;"></i>
+                            <span>Formatos aceptados: <strong>JPG, JPEG, PNG, GIF, WebP, BMP</strong></span>
+                        </p>
+                        <p style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-info-circle" style="color: #2196F3;"></i>
+                            <span>Tamaño máximo: <strong>5 MB</strong></span>
+                        </p>
+                    </div>
                 </div>
             </div>
             `
@@ -758,8 +788,8 @@ if (loginFormElement) {
                 showSuccessMessage(
                     '¡Bienvenido al Sistema!',
                     null,
-                    null, // Pasamos null para que use el HTML por defecto de Lottie
-                    true  // Activamos Lottie
+                    null,
+                    true
                 ).then(() => {
                     window.location.href = response.url;
                 });
@@ -824,7 +854,7 @@ if (registerFormElement) {
         const esConductor = esConductorInput.value === "true";
         const dni = document.getElementById('registerDNI').value.trim();
         
-        // Validaciones básicas
+        // Validaciones básicas (foto NO es obligatoria)
         if (!username || !password || !nombres || !paterno || !materno) {
             showWarningMessage(
                 'Campos Obligatorios',
@@ -910,6 +940,32 @@ if (registerFormElement) {
             return;
         }
         
+        // Si hay foto, validar formato
+        if (foto && !validarFormatoImagen(foto)) {
+            showErrorMessage(
+                'Formato de Foto Inválido',
+                null,
+                `
+                <div style="text-align: center; padding: 20px 0;">
+                    <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; border: 2px solid #f44336;">
+                        <i class="fas fa-file-image" style="font-size: 30px; color: #f44336;"></i>
+                    </div>
+                    <h3 style="color: #333; margin-bottom: 10px; font-weight: 600;">Formato No Soportado</h3>
+                    <p style="color: #666; margin-bottom: 10px; line-height: 1.5;">
+                        La foto seleccionada no tiene un formato válido.
+                    </p>
+                    <div style="background: #F5F5F5; padding: 12px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #f44336;">
+                        <p style="color: #666; margin: 0; font-size: 13px;">
+                            <i class="fas fa-info-circle" style="color: #2196F3;"></i>
+                            Formatos aceptados: JPG, JPEG, PNG, GIF, WebP, BMP
+                        </p>
+                    </div>
+                </div>
+                `
+            );
+            return;
+        }
+        
         // Verificar si el usuario ya existe
         const usuarioValido = await verificarUsuarioBackend(username);
         if (!usuarioValido) {
@@ -931,7 +987,8 @@ if (registerFormElement) {
             formData.append('nombres', nombres);
             formData.append('paterno', paterno);
             formData.append('materno', materno);
-            formData.append('es_conductor', esConductor);
+            formData.append('tipo_usuario_id', esConductor ? '4' : '1');
+            formData.append('estado_usuario', 'true');
             if (foto) formData.append('foto', foto);
             if (esConductor) formData.append('dni', dni);
             

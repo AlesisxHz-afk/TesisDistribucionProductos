@@ -4,9 +4,6 @@ from ..models.models import *
 import hashlib
 import os
 from ..services import usuario_service
-from werkzeug.utils import secure_filename
-from auth import require_role
-from datetime import datetime
 
 main = Blueprint("usuario", __name__, url_prefix="/usuario")
 
@@ -130,7 +127,14 @@ def registrar_usuario():
         tipo_usuario_id = request.form.get("tipo_usuario_id")
         estado_usuario = request.form.get("estado_usuario") == "true"
         dni = request.form.get("dni")
-        foto = request.files.get("foto") if 'foto' in request.files else None
+        
+        # MODIFICACIÓN: foto puede ser None o no existir en request.files
+        foto = None
+        if 'foto' in request.files:
+            foto_file = request.files['foto']
+            # Verificar si realmente se seleccionó un archivo (no vacío)
+            if foto_file and foto_file.filename:
+                foto = foto_file
         
         if not all([username, password, nombres, paterno, materno, tipo_usuario_id]):
             return jsonify({"success": False, "error": "Todos los campos obligatorios son requeridos"}), 400
@@ -141,10 +145,11 @@ def registrar_usuario():
         if usuario_service.verificar_usuario_existente(username):
             return jsonify({"success": False, "error": f"El nombre de usuario '{username}' ya está registrado. Por favor, utiliza otro."}), 400
         
-        # Verificar si el tipo de usuario es CONDUCTOR (por el nombre del tipo)
-        tipo_usuario = tipousuario.query.get(tipo_usuario_id)
-        es_conductor_tipo = tipo_usuario and 'CONDUCTOR' in tipo_usuario.tipo_usuario.upper()
+        # Verificar si el tipo de usuario es CONDUCTOR (ID 2)
+        # Asumimos que el ID para conductores es 2, si no, ajusta según tu BD
+        es_conductor_tipo = tipo_usuario_id == '4' or (tipo_usuario_id and int(tipo_usuario_id) == 4)
         
+        conductor_data = None
         if es_conductor_tipo:
             if not dni:
                 return jsonify({"success": False, "error": "DNI es requerido para conductores"}), 400
@@ -162,6 +167,7 @@ def registrar_usuario():
             if conductor_data.estado != "ACTIVO":
                 return jsonify({"success": False, "error": f"El conductor está {conductor_data.estado}"}), 400
         
+        # Crear el usuario
         nuevo_usuario, error = usuario_service.crear_usuario(
             username=username,
             password=password,
@@ -169,7 +175,7 @@ def registrar_usuario():
             paterno=paterno,
             materno=materno,
             foto=foto,
-            tipo_usuario_id=tipo_usuario_id
+            tipo_usuario_id=int(tipo_usuario_id) if tipo_usuario_id else 1
         )
         
         if error:
@@ -178,30 +184,41 @@ def registrar_usuario():
         # Actualizar estado del usuario
         nuevo_usuario.estado_usuario = estado_usuario
         
-        # Vincular conductor si es tipo CONDUCTOR
+        # IMPORTANTE: Vincular conductor si es tipo CONDUCTOR
         if es_conductor_tipo and conductor_data:
-            conductor_data.usuario_id = nuevo_usuario.usuario_id
+            print(f"🔗 Vinculando conductor {conductor_data.dni} con usuario ID {nuevo_usuario.usuario_id}")
             
             # Actualizar datos del conductor con los del usuario
             conductor_data.nombre = nombres
             conductor_data.apellido_paterno = paterno
             conductor_data.apellido_materno = materno
+            conductor_data.usuario_id = nuevo_usuario.usuario_id
             
             try:
                 db.session.commit()
+                print(f"✅ Conductor vinculado exitosamente. usuario_id: {conductor_data.usuario_id}")
             except Exception as e:
                 db.session.rollback()
+                # Si falla la vinculación, eliminar el usuario creado
                 db.session.delete(nuevo_usuario)
                 db.session.commit()
                 return jsonify({"success": False, "error": f"Error al vincular conductor: {str(e)}"}), 400
         else:
-            db.session.commit()
+            # Solo guardar el usuario si no es conductor
+            try:
+                db.session.commit()
+                print(f"✅ Usuario registrado exitosamente sin vinculación de conductor")
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({"success": False, "error": f"Error al guardar usuario: {str(e)}"}), 400
         
         return jsonify({
             "success": True,
             "mensaje": "Usuario registrado exitosamente",
             "usuario_id": nuevo_usuario.usuario_id,
-            "username": username
+            "username": username,
+            "es_conductor": es_conductor_tipo,
+            "conductor_vinculado": conductor_data is not None
         }), 201
         
     except Exception as e:
@@ -215,7 +232,27 @@ def registrar_usuario():
 def actualizar_usuario(id):
     """Actualiza un usuario existente"""
     try:
-        data = request.get_json()
+        # Verificar si la solicitud es JSON o FormData
+        if request.is_json:
+            data = request.get_json()
+        else:
+            # Si es FormData, obtener los datos
+            data = {}
+            if request.form.get('username'):
+                data['username'] = request.form.get('username')
+            if request.form.get('nombres'):
+                data['nombres'] = request.form.get('nombres')
+            if request.form.get('paterno'):
+                data['paterno'] = request.form.get('paterno')
+            if request.form.get('materno'):
+                data['materno'] = request.form.get('materno')
+            if request.form.get('tipo_usuario_id'):
+                data['tipo_usuario_id'] = int(request.form.get('tipo_usuario_id'))
+            if request.form.get('password'):
+                data['password'] = request.form.get('password')
+            if request.form.get('dni'):
+                data['dni'] = request.form.get('dni')
+        
         if not data:
             return jsonify({"success": False, "error": "No se recibieron datos"}), 400
         
@@ -238,8 +275,8 @@ def actualizar_usuario(id):
             user.usuario = data['username']
         if 'tipo_usuario_id' in data:
             user.tipo_usuario_id = data['tipo_usuario_id']
-        if 'estado_usuario' in data:
-            user.estado_usuario = data['estado_usuario']
+        
+        # NOTA: NO actualizamos estado_usuario en edición
         
         if 'password' in data and data['password']:
             h = hashlib.new("sha256")

@@ -711,7 +711,6 @@ function abrirModalNuevoAlmacen() {
     document.getElementById('capacidad').value = '';
     document.getElementById('latitud').value = '';
     document.getElementById('longitud').value = '';
-    document.getElementById('estado').value = '';
     
     form.classList.remove('was-validated');
     
@@ -749,7 +748,6 @@ async function editarAlmacen(id) {
         document.getElementById('capacidad').value = almacen.capacidad || '';
         document.getElementById('latitud').value = almacen.latitud || '';
         document.getElementById('longitud').value = almacen.longitud || '';
-        document.getElementById('estado').value = almacen.estado || '';
         
         $('#modal-almacen').modal('show');
         
@@ -777,7 +775,6 @@ function validarFormulario() {
     const capacidad = document.getElementById('capacidad').value.trim();
     const latitud = document.getElementById('latitud').value.trim();
     const longitud = document.getElementById('longitud').value.trim();
-    const estado = document.getElementById('estado').value;
     
     if (!nombre) {
         mostrarError('Por favor ingrese el nombre del almacén');
@@ -824,11 +821,6 @@ function validarFormulario() {
         return false;
     }
     
-    if (!estado) {
-        mostrarError('Por favor seleccione el estado');
-        return false;
-    }
-    
     return true;
 }
 
@@ -850,8 +842,7 @@ async function guardarAlmacen() {
         direccion: document.getElementById('direccion').value.trim(),
         capacidad: parseFloat(document.getElementById('capacidad').value),
         latitud: parseFloat(document.getElementById('latitud').value),
-        longitud: parseFloat(document.getElementById('longitud').value),
-        estado: document.getElementById('estado').value
+        longitud: parseFloat(document.getElementById('longitud').value)
     };
     
     const url = id ? `/main/almacen/actualizar_almacen/${id}` : '/main/almacen/registrar';
