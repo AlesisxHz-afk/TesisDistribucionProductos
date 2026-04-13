@@ -125,12 +125,9 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="variedad">Variedad *</label>
-                                <select class="form-control" id="variedad" name="variedad" required>
-                                    <option value="">Seleccione variedad</option>
-                                    <option value="Orgánico">Orgánico</option>
-                                    <option value="Convencional">Convencional</option>
-                                </select>
-                                <div class="invalid-feedback">Por favor seleccione la variedad</div>
+                                <input type="text" class="form-control" id="variedad" name="variedad" 
+                                       placeholder="Ingrese la variedad del producto" required maxlength="255">
+                                <div class="invalid-feedback">Por favor ingrese la variedad del producto</div>
                             </div>
                         </div>
                     </div>

@@ -149,18 +149,13 @@ INSERT INTO producto (
     estado_producto,
     foto_producto
 ) VALUES
-(1, 'Papa', 'Tuberculo', 'Orgánico', 'Papa blanca de uso multiple.', 1000, 8500, 1000000, 'ACTIVO', '1.jpg'),
-(2, 'Camote', 'Tuberculo', 'Convencional', 'Camote amarillo dulce, ideal para postres.', 1300, 8500, 1200000, 'ACTIVO', '2.jpg'),
-(3, 'Papaya', 'Fruta', 'Orgánico', 'Papaya madura, lista para jugos.', 1000, 9000, 4257700, 'ACTIVO', '3.jpg'),
-(4, 'Tomate', 'Verdura', 'Convencional', 'Tomate jugoso, ideal para ensaladas.', 1000, 9000, 1400000, 'ACTIVO', '4.jpg'),
-(5, 'Lechuga', 'Verdura', 'Orgánico', 'Lechuga fresca y crocante.', 100, 9500, 1200000, 'ACTIVO', '5.jpg'),
-(6, 'Zanahoria', 'Verdura', 'Convencional', 'Zanahoria mediana para consumo directo.', 100, 9500, 1200000, 'ACTIVO', '6.jpg'),
-(7, 'Mango', 'Fruta', 'Orgánico', 'Mango dulce de exportacion.', 1200, 8500, 4451400, 'ACTIVO', '7.jpg'),
-(8, 'Platano de Isla', 'Fruta', 'Convencional', 'Platano maduro, sabor intenso.', 1300, 9000, 1100000, 'ACTIVO', '8.jpg'),
-(9, 'Mandarina', 'Fruta', 'Orgánico', 'Mandarina jugosa y aromatica.', 500, 9000, 1200000, 'ACTIVO', '9.jpg'),
-(10, 'Uva', 'Fruta', 'Convencional', 'Uva Red Globe, racimos grandes.', 0, 9500, 1300000, 'ACTIVO', '10.jpg'),
-(11, 'Palta', 'Fruta', 'Orgánico', 'Palta Hass seleccionada.', 500, 9000, 1100000, 'ACTIVO', '11.jpg'),
-(12, 'Yuca', 'Tuberculo', 'Convencional', 'Yuca fresca para cocina.', 1000, 8500, 1100000, 'ACTIVO', '12.jpg'),
-(13, 'Granadilla', 'Fruta', 'Orgánico', 'Granadilla dulce para postres.', 800, 9000, 1000000, 'ACTIVO', '13.jpg'),
-(14, 'Arandano', 'Fruta', 'Convencional', 'Arandano fresco en caja de 1kg.', 50, 9500, 1200000, 'ACTIVO', '14.jpg'),
-(15, 'Fresa', 'Fruta', 'Orgánico', 'Fresa fresca, caja de 500g.', 50, 9500, 1400000, 'ACTIVO', '15.jpg');
+(1, 'Arandano', 'Fruta', 'Biloxi Orgánico', 'Arándano variedad Biloxi orgánico premium.', 5.00, 95.00, 120.00, 'ACTIVO', '1.jpg'),
+(2, 'Arandano', 'Fruta', 'Ventura Convencional', 'Arándano Ventura para consumo local.', 6.00, 92.00, 110.00, 'ACTIVO', '2.jpg'),
+(3, 'Arandano', 'Fruta', 'Emerald Exportación', 'Arándano de exportación calidad extra.', 4.00, 97.00, 130.00, 'ACTIVO', '3.jpg'),
+(4, 'Arandano', 'Fruta', 'Sekoya Premium', 'Arándano Sekoya de gran tamaño y dulzura.', 4.50, 96.00, 125.00, 'ACTIVO', '4.jpg'),
+(5, 'Arandano', 'Fruta', 'Congelado Industrial', 'Arándano congelado para industria alimentaria.', 3.00, 98.00, 200.00, 'ACTIVO', '5.jpg'),
+(6, 'Palta', 'Fruta', 'Hass Orgánica', 'Palta Hass orgánica premium para exportación.', 5.00, 90.00, 110.00, 'ACTIVO', '6.jpg'),
+(7, 'Palta', 'Fruta', 'Fuerte Convencional', 'Palta Fuerte de consumo local.', 6.00, 88.00, 105.00, 'ACTIVO', '7.jpg'),
+(8, 'Palta', 'Fruta', 'Zutano Exportación', 'Palta Zutano seleccionada para exportación.', 5.50, 89.00, 115.00, 'ACTIVO', '8.jpg'),
+(9, 'Palta', 'Fruta', 'Bacon Verde', 'Palta Bacon de textura suave.', 5.20, 87.00, 100.00, 'ACTIVO', '9.jpg'),
+(10, 'Palta', 'Fruta', 'Reed Premium', 'Palta Reed de gran tamaño y calidad superior.', 5.00, 91.00, 120.00, 'ACTIVO', '10.jpg');

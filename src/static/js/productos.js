@@ -450,7 +450,7 @@ function validarFormulario() {
     // Validar campos obligatorios
     const nombre = document.getElementById('nombre').value.trim();
     const tipo = document.getElementById('tipo').value;
-    const variedad = document.getElementById('variedad').value;
+    const variedad = document.getElementById('variedad').value.trim();
     const temperatura = document.getElementById('temperatura_optima').value;
     const humedad = document.getElementById('humedad_optima').value;
     const cantidad = document.getElementById('cant_productos_act').value;
@@ -466,7 +466,7 @@ function validarFormulario() {
     }
     
     if (!variedad) {
-        mostrarError('Por favor seleccione la variedad del producto');
+        mostrarError('Por favor ingrese la variedad del producto');
         return false;
     }
     
@@ -523,7 +523,7 @@ async function guardarProducto() {
     const datos = {
         nombre: document.getElementById('nombre').value.trim(),
         tipo: document.getElementById('tipo').value,
-        variedad: document.getElementById('variedad').value,
+        variedad: document.getElementById('variedad').value.trim(),
         descripcion: document.getElementById('descripcion').value.trim() || '',
         temperatura_optima: parseFloat(document.getElementById('temperatura_optima').value),
         humedad_optima: parseFloat(document.getElementById('humedad_optima').value),

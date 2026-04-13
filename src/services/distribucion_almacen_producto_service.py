@@ -595,7 +595,7 @@ def registrar_distribucion_productos_excel():
     """
     try:
         # Ruta del archivo Excel
-        excel_path = "src/static/uploads/distribucion_almacen_producto.xlsx"
+        excel_path = "src/static/uploads/uwu.xlsx"
         
         # Verificar si el archivo existe
         if not os.path.exists(excel_path):

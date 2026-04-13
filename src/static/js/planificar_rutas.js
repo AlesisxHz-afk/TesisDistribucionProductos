@@ -12,8 +12,9 @@ var currentFecha = '';
 var selectedRutaIndex = null;
 
 // Coordenadas del centro de distribución (Lima)
-var ORIGEN_LAT = -12.0464;
-var ORIGEN_LON = -77.0428;
+var ORIGEN_LAT = -6.04631499293515;
+var ORIGEN_LON = -80.04408509300606;
+hola = '-6.04631499293515, -80.04408509300606'
 var ORIGEN_NOMBRE = 'Centro de Distribución, Lima, Perú';
 
 // ----------------------------------------------------------------
