@@ -931,7 +931,7 @@ async function eliminarAlmacen(id) {
     
     Swal.fire({
         title: 'Eliminar almacén',
-        text: `¿Está seguro que desea eliminar permanentemente el almacén "${almacen.nombre}"? Esta acción no se puede deshacer.`,
+        html: `¿Está seguro que desea eliminar permanentemente el almacén "<strong>${almacen.nombre}</strong>"?<br><br><span style="color: #ff6b6b;">Esta acción no se puede deshacer.</span>`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -950,14 +950,35 @@ async function eliminarAlmacen(id) {
                 const data = await response.json();
                 
                 if (response.ok && data.success) {
-                    mostrarExito(data.mensaje || 'Almacén eliminado exitosamente');
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Eliminado!',
+                        text: data.mensaje,
+                        background: '#152a3a',
+                        color: '#e0f2fe',
+                        confirmButtonColor: '#40e0d0'
+                    });
                     cargarAlmacenes();
                 } else {
-                    throw new Error(data.error || 'Error al eliminar el almacén');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No se puede eliminar',
+                        text: data.error,
+                        background: '#152a3a',
+                        color: '#e0f2fe',
+                        confirmButtonColor: '#40e0d0'
+                    });
                 }
             } catch (error) {
                 console.error('Error:', error);
-                mostrarError('No se pudo eliminar el almacén: ' + error.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo conectar con el servidor',
+                    background: '#152a3a',
+                    color: '#e0f2fe',
+                    confirmButtonColor: '#40e0d0'
+                });
             }
         }
     });

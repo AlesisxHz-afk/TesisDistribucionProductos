@@ -656,13 +656,23 @@ async function eliminarProducto(id) {
                     // Recargar la página después de eliminar
                     setTimeout(() => {
                         location.reload();
-                    }, 1000);
+                    }, 1500);
                 } else {
-                    throw new Error(data.error || 'Error al eliminar el producto');
+                    // Mostrar el mensaje de error que viene del backend
+                    const errorMessage = data.error || 'No se pudo eliminar el producto';
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No se puede eliminar',
+                        text: errorMessage,
+                        background: '#152a3a',
+                        color: '#e0f2fe',
+                        confirmButtonColor: '#40e0d0'
+                    });
                 }
             } catch (error) {
                 console.error('Error:', error);
-                mostrarError('No se pudo eliminar el producto: ' + error.message);
+                mostrarError('Ocurrió un error al intentar eliminar el producto');
             }
         }
     });

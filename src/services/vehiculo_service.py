@@ -417,12 +417,59 @@ def obtener_vehiculo_conductor_disponible():
         return None
 
 
+def obtener_vehiculo_conductor_por_id(vehiculo_conductor_id):
+    """Obtiene un vehículo_conductor específico por su ID"""
+    try:
+        query = text("""
+            SELECT 
+                vc.vehiculo_conductor_id,
+                vc.vehiculo_id,
+                vc.conductor_id,
+                v.placa,
+                v.cantidad_carga,
+                v.tipo_vehiculo,
+                c.nombre,
+                c.apellido_paterno,
+                c.apellido_materno,
+                c.dni
+            FROM vehiculo_conductor vc
+            INNER JOIN vehiculo v ON vc.vehiculo_id = v.vehiculo_id
+            INNER JOIN conductor c ON vc.conductor_id = c.conductor_id
+            WHERE vc.vehiculo_conductor_id = :vc_id
+            AND vc.estado = 'ACTIVO'
+            AND v.estado = 'ACTIVO'
+            AND c.estado = 'ACTIVO'
+        """)
+        
+        result = db.session.execute(query, {'vc_id': vehiculo_conductor_id})
+        seleccionado = result.fetchone()
+        
+        if seleccionado:
+            return {
+                'vehiculo_conductor_id': seleccionado[0],
+                'vehiculo_id': seleccionado[1],
+                'conductor_id': seleccionado[2],
+                'placa': seleccionado[3],
+                'capacidad_carga': float(seleccionado[4]) if seleccionado[4] else 0,
+                'tipo_vehiculo': seleccionado[5],
+                'conductor_nombre': f"{seleccionado[6]} {seleccionado[7]} {seleccionado[8]}"
+            }
+        
+        return None
+    except Exception as e:
+        print(f"Error obteniendo vehículo_conductor por ID: {e}")
+        return None
+
+
 def obtener_envios_pendientes(fecha=None):
-    """Obtiene los envíos pendientes para una fecha específica"""
+    """Obtiene los envíos pendientes para una fecha específica (incluye los que ya tienen vehículo asignado)"""
     try:
         if not fecha:
             fecha = date.today()
         
+        print(f"Buscando envíos pendientes para fecha: {fecha}")
+        
+        # NO filtrar por vehiculo_conductor_id - traer todos los pendientes
         query = text("""
             SELECT 
                 d.asignacion_id,
@@ -441,18 +488,19 @@ def obtener_envios_pendientes(fecha=None):
                 d.demanda,
                 d.fecha_envio,
                 d.estado_envio,
-                d.nro_envio
+                d.nro_envio,
+                d.vehiculo_conductor_id
             FROM distribucion_almacen_producto d
             INNER JOIN producto p ON d.producto_id = p.producto_id
             INNER JOIN almacen a ON d.almacen_id = a.almacen_id
             WHERE d.fecha_envio = :fecha
-            AND (d.estado_envio IS NULL OR d.estado_envio = 'PENDIENTE')
-            AND d.vehiculo_conductor_id IS NULL
-            ORDER BY a.almacen_id
+            AND d.estado_envio = 'PENDIENTE'
         """)
         
         result = db.session.execute(query, {'fecha': fecha})
         envios = result.fetchall()
+        
+        print(f"Envíos encontrados: {len(envios)}")
         
         envios_lista = []
         for envio in envios:
@@ -473,12 +521,15 @@ def obtener_envios_pendientes(fecha=None):
                 'demanda': float(envio[13]) if envio[13] else 0,
                 'fecha_envio': envio[14].strftime('%Y-%m-%d') if envio[14] else '',
                 'estado_envio': envio[15] if envio[15] else 'PENDIENTE',
-                'nro_envio': envio[16]
+                'nro_envio': envio[16],
+                'vehiculo_conductor_id': envio[17]  # Incluir para saber si ya tiene asignación
             })
         
         return envios_lista
     except Exception as e:
         print(f"Error obteniendo envíos pendientes: {e}")
+        import traceback
+        traceback.print_exc()
         return []
 
 
@@ -579,7 +630,9 @@ def analizar_rutas_con_modelo_pkt(envios):
                 'nivel_riesgo': nivel_riesgo,
                 'gasto_estimado': gasto_estimado,
                 'lat': envio['almacen_lat'],
-                'lon': envio['almacen_lon']
+                'lon': envio['almacen_lon'],
+                'nro_envio': envio.get('nro_envio'),
+                'vehiculo_conductor_id_actual': envio.get('vehiculo_conductor_id')  # Guardar el ID actual si existe
             })
         
         return rutas_analizadas
@@ -593,7 +646,7 @@ def planificar_rutas(fecha_envio):
     try:
         print(f"Planificando rutas para fecha: {fecha_envio}")
         
-        # 1. Obtener envíos pendientes
+        # 1. Obtener envíos pendientes (incluye los que ya tienen vehículo)
         envios = obtener_envios_pendientes(fecha_envio)
         
         if not envios:
@@ -623,10 +676,19 @@ def planificar_rutas(fecha_envio):
         hora_base_m = 0
         
         for idx, ruta in enumerate(rutas_analizadas):
-            # Obtener vehículo_conductor disponible
-            vc_disponible = obtener_vehiculo_conductor_disponible()
+            # Verificar si el envío ya tiene vehículo asignado
+            vehiculo_conductor_id_actual = ruta.get('vehiculo_conductor_id_actual')
+            vc_info = None
             
-            if vc_disponible:
+            if vehiculo_conductor_id_actual and vehiculo_conductor_id_actual != 0:
+                # Si ya tiene vehículo, obtener esa información
+                vc_info = obtener_vehiculo_conductor_por_id(vehiculo_conductor_id_actual)
+            
+            # Si no tiene vehículo o no se encontró, asignar uno nuevo
+            if not vc_info:
+                vc_info = obtener_vehiculo_conductor_disponible()
+            
+            if vc_info:
                 # Calcular hora de envío: cada ruta sale con 20 minutos de diferencia
                 offset_envio_minutos = idx * 20
                 hora_envio_h, hora_envio_m = sumar_tiempo(hora_base_h, hora_base_m, offset_envio_minutos)
@@ -653,16 +715,17 @@ def planificar_rutas(fecha_envio):
                     'lat': ruta['lat'],
                     'lon': ruta['lon'],
                     'vehiculo_asignado': {
-                        'vehiculo_conductor_id': vc_disponible['vehiculo_conductor_id'],
-                        'vehiculo_id': vc_disponible['vehiculo_id'],
-                        'conductor_id': vc_disponible['conductor_id'],
-                        'placa': vc_disponible['placa'],
-                        'tipo_vehiculo': vc_disponible.get('tipo_vehiculo', ''),
-                        'conductor': vc_disponible['conductor_nombre']
+                        'vehiculo_conductor_id': vc_info['vehiculo_conductor_id'],
+                        'vehiculo_id': vc_info['vehiculo_id'],
+                        'conductor_id': vc_info['conductor_id'],
+                        'placa': vc_info['placa'],
+                        'tipo_vehiculo': vc_info.get('tipo_vehiculo', ''),
+                        'conductor': vc_info['conductor_nombre']
                     },
                     'hora_envio': hora_envio.strftime('%H:%M'),
                     'hora_llegada': hora_llegada.strftime('%H:%M'),
-                    'nro_envio': generar_numero_envio()
+                    'nro_envio': ruta.get('nro_envio') or generar_numero_envio(),  # Mantener el nro_envio existente o crear uno nuevo
+                    'es_reaasignacion': bool(vehiculo_conductor_id_actual and vehiculo_conductor_id_actual != 0)  # Indicar si es una reasignación
                 }
                 
                 rutas_agrupadas.append(ruta_info)
@@ -741,6 +804,7 @@ def guardar_planificacion_rutas(rutas_data):
                 continue
         
         # Actualizar estado de vehículo_conductor, vehículo y conductor a EN_USO
+        # Solo para los que no estaban ya en uso
         vc_ids_procesados = set()
         for ruta in rutas:
             vc_id = ruta['vehiculo_asignado']['vehiculo_conductor_id']
@@ -750,17 +814,17 @@ def guardar_planificacion_rutas(rutas_data):
             vc_ids_procesados.add(vc_id)
             
             vc = vehiculoconductor.query.get(vc_id)
-            if vc:
+            if vc and vc.estado != 'EN_USO':
                 vc.estado = 'EN_USO'
                 
                 # Actualizar estado del vehículo
                 vehiculo_obj = vehiculo.query.get(vc.vehiculo_id)
-                if vehiculo_obj:
+                if vehiculo_obj and vehiculo_obj.estado != 'EN_USO':
                     vehiculo_obj.estado = 'EN_USO'
                 
                 # Actualizar estado del conductor
                 conductor_obj = conductor.query.get(vc.conductor_id)
-                if conductor_obj:
+                if conductor_obj and conductor_obj.estado != 'EN_USO':
                     conductor_obj.estado = 'EN_USO'
         
         db.session.commit()

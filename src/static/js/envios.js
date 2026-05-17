@@ -49,6 +49,7 @@ async function cargarDatosSelects() {
         if (responseAlmacenes.ok) {
             const data = await responseAlmacenes.json();
             almacenes = data.almacenes || [];
+            console.log('Almacenes cargados:', almacenes.length);
         } else {
             console.warn('No se pudieron cargar los almacenes');
         }
@@ -58,6 +59,7 @@ async function cargarDatosSelects() {
         if (responseProductos.ok) {
             const data = await responseProductos.json();
             productos = data.productos || [];
+            console.log('Productos cargados:', productos.length);
         } else {
             console.warn('No se pudieron cargar los productos');
         }
@@ -67,11 +69,172 @@ async function cargarDatosSelects() {
         if (responseVehiculos.ok) {
             const data = await responseVehiculos.json();
             vehiculosConductores = data.vehiculos_conductores || [];
+            console.log('Vehículos-conductores cargados:', vehiculosConductores.length);
         } else {
             console.warn('No se pudieron cargar los vehículos-conductores');
         }
     } catch (error) {
         console.error('Error cargando datos para selects:', error);
+    }
+}
+
+// Función para llenar los selects
+function llenarSelects() {
+    console.log('Llenando selects...');
+    
+    // Llenar select de almacenes
+    const selectAlmacen = document.getElementById('almacen_id');
+    if (selectAlmacen) {
+        selectAlmacen.innerHTML = '<option value="">Seleccione almacén</option>';
+        almacenes.forEach(alm => {
+            const option = document.createElement('option');
+            option.value = alm.almacen_id;
+            option.textContent = `${alm.nombre} (Cap: ${parseFloat(alm.capacidad).toFixed(2)} kg)`;
+            option.dataset.capacidad = alm.capacidad;
+            selectAlmacen.appendChild(option);
+        });
+        console.log('Select almacenes llenado con:', almacenes.length, 'opciones');
+    } else {
+        console.error('No se encontró el elemento almacen_id');
+    }
+    
+    // Llenar select de productos
+    const selectProducto = document.getElementById('producto_id');
+    if (selectProducto) {
+        selectProducto.innerHTML = '<option value="">Seleccione producto</option>';
+        productos.forEach(prod => {
+            const option = document.createElement('option');
+            option.value = prod.producto_id;
+            option.textContent = `${prod.nombre} (Stock: ${parseFloat(prod.cant_productos_act).toFixed(2)} kg)`;
+            option.dataset.stock = prod.cant_productos_act;
+            selectProducto.appendChild(option);
+        });
+        console.log('Select productos llenado con:', productos.length, 'opciones');
+    } else {
+        console.error('No se encontró el elemento producto_id');
+    }
+    
+    // Llenar select de vehículos-conductores
+    const selectVehiculo = document.getElementById('vehiculo_conductor_id');
+    if (selectVehiculo) {
+        selectVehiculo.innerHTML = '<option value="">Seleccione vehículo y conductor</option>';
+        vehiculosConductores.forEach(vc => {
+            const option = document.createElement('option');
+            option.value = vc.vehiculo_conductor_id;
+            option.textContent = `${vc.placa} - ${vc.conductor_nombre} (Cap: ${vc.cantidad_carga} kg)`;
+            option.dataset.capacidad = vc.cantidad_carga;
+            option.dataset.conductorId = vc.conductor_id;
+            selectVehiculo.appendChild(option);
+        });
+        console.log('Select vehículos llenado con:', vehiculosConductores.length, 'opciones');
+    } else {
+        console.error('No se encontró el elemento vehiculo_conductor_id');
+    }
+}
+
+function generarNroEnvio() {
+    const fecha = new Date();
+    const año = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `ENV-${año}${mes}${dia}-${random}`;
+}
+
+function abrirModalNuevoEnvio() {
+    console.log('Abriendo modal nuevo envío...');
+    
+    const modalTitulo = document.getElementById('modal-titulo');
+    const form = document.getElementById('form-envio');
+    
+    if (!modalTitulo || !form) {
+        console.error('No se encontraron elementos del modal');
+        return;
+    }
+    
+    modalTitulo.textContent = 'Nuevo envío';
+    
+    // Generar número de envío
+    const nroEnvio = generarNroEnvio();
+    
+    // Limpiar formulario
+    document.getElementById('asignacion_id').value = '';
+    document.getElementById('nro_envio').value = nroEnvio;
+    document.getElementById('fecha_envio').value = '';
+    document.getElementById('hora_envio').value = '';
+    document.getElementById('almacen_id').value = '';
+    document.getElementById('producto_id').value = '';
+    document.getElementById('vehiculo_conductor_id').value = '';
+    document.getElementById('demanda').value = '';
+    document.getElementById('original_producto_id').value = '';
+    document.getElementById('original_almacen_id').value = '';
+    document.getElementById('original_demanda').value = '';
+    
+    // Ocultar info de validación
+    const validacionInfo = document.getElementById('validacion-info');
+    if (validacionInfo) {
+        validacionInfo.style.display = 'none';
+    }
+    
+    form.classList.remove('was-validated');
+    
+    // Llenar selects (asegurarse que los datos estén cargados)
+    if (almacenes.length === 0 || productos.length === 0 || vehiculosConductores.length === 0) {
+        console.log('Datos no cargados, cargando...');
+        cargarDatosSelects().then(() => {
+            llenarSelects();
+            $('#modal-envio').modal('show');
+        });
+    } else {
+        llenarSelects();
+        $('#modal-envio').modal('show');
+    }
+}
+
+async function editarEnvio(id) {
+    try {
+        const response = await fetch(`/main/distribucion_almacen_producto/obtener_envio/${id}`);
+        if (!response.ok) {
+            throw new Error('Error al obtener el envío');
+        }
+        
+        const data = await response.json();
+        if (!data.success) {
+            throw new Error(data.error || 'Error al obtener el envío');
+        }
+        
+        const envio = data.envio;
+        
+        // Cargar datos para selects
+        if (almacenes.length === 0 || productos.length === 0 || vehiculosConductores.length === 0) {
+            await cargarDatosSelects();
+        }
+        llenarSelects();
+        
+        document.getElementById('modal-titulo').textContent = 'Editar envío';
+        document.getElementById('asignacion_id').value = envio.asignacion_id;
+        document.getElementById('nro_envio').value = envio.nro_envio;
+        document.getElementById('fecha_envio').value = envio.fecha_envio;
+        document.getElementById('hora_envio').value = envio.hora_envio;
+        document.getElementById('almacen_id').value = envio.almacen_id;
+        document.getElementById('producto_id').value = envio.producto_id;
+        document.getElementById('vehiculo_conductor_id').value = envio.vehiculo_conductor_id;
+        document.getElementById('demanda').value = envio.demanda;
+        
+        // Guardar valores originales
+        document.getElementById('original_producto_id').value = envio.producto_id;
+        document.getElementById('original_almacen_id').value = envio.almacen_id;
+        document.getElementById('original_demanda').value = envio.demanda;
+        
+        const validacionInfo = document.getElementById('validacion-info');
+        if (validacionInfo) {
+            validacionInfo.style.display = 'none';
+        }
+        
+        $('#modal-envio').modal('show');
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarError('No se pudo cargar el envío para editar');
     }
 }
 
@@ -418,147 +581,6 @@ function buscarConDebounce() {
     }, 300);
 }
 
-// ==================== FUNCIONES DEL MODAL ====================
-
-function llenarSelects() {
-    // Llenar select de almacenes
-    const selectAlmacen = document.getElementById('almacen_id');
-    if (selectAlmacen) {
-        selectAlmacen.innerHTML = '<option value="">Seleccione almacén</option>';
-        almacenes.forEach(alm => {
-            const option = document.createElement('option');
-            option.value = alm.almacen_id;
-            option.textContent = `${alm.nombre} (Cap: ${parseFloat(alm.capacidad).toFixed(2)} kg)`;
-            option.dataset.capacidad = alm.capacidad;
-            selectAlmacen.appendChild(option);
-        });
-    }
-    
-    // Llenar select de productos
-    const selectProducto = document.getElementById('producto_id');
-    if (selectProducto) {
-        selectProducto.innerHTML = '<option value="">Seleccione producto</option>';
-        productos.forEach(prod => {
-            const option = document.createElement('option');
-            option.value = prod.producto_id;
-            option.textContent = `${prod.nombre} (Stock: ${parseFloat(prod.cant_productos_act).toFixed(2)} kg)`;
-            option.dataset.stock = prod.cant_productos_act;
-            selectProducto.appendChild(option);
-        });
-    }
-    
-    // Llenar select de vehículos-conductores
-    const selectVehiculo = document.getElementById('vehiculo_conductor_id');
-    if (selectVehiculo) {
-        selectVehiculo.innerHTML = '<option value="">Seleccione vehículo y conductor</option>';
-        vehiculosConductores.forEach(vc => {
-            const option = document.createElement('option');
-            option.value = vc.vehiculo_conductor_id;
-            option.textContent = `${vc.placa} - ${vc.conductor_nombre} (Cap: ${vc.cantidad_carga} kg)`;
-            option.dataset.capacidad = vc.cantidad_carga;
-            option.dataset.conductorId = vc.conductor_id;
-            selectVehiculo.appendChild(option);
-        });
-    }
-}
-
-function abrirModalNuevoEnvio() {
-    const modalTitulo = document.getElementById('modal-titulo');
-    const form = document.getElementById('form-envio');
-    
-    if (!modalTitulo || !form) return;
-    
-    modalTitulo.textContent = 'Nuevo envío';
-    
-    // Generar número de envío
-    const nroEnvio = generarNroEnvio();
-    
-    // Limpiar formulario
-    document.getElementById('asignacion_id').value = '';
-    document.getElementById('nro_envio').value = nroEnvio;
-    document.getElementById('fecha_envio').value = '';
-    document.getElementById('hora_envio').value = '';
-    document.getElementById('almacen_id').value = '';
-    document.getElementById('producto_id').value = '';
-    document.getElementById('vehiculo_conductor_id').value = '';
-    document.getElementById('demanda').value = '';
-    document.getElementById('dia').value = '';
-    document.getElementById('mes').value = '';
-    document.getElementById('anio').value = '';
-    document.getElementById('original_producto_id').value = '';
-    document.getElementById('original_almacen_id').value = '';
-    document.getElementById('original_demanda').value = '';
-    
-    // Ocultar info de validación
-    document.getElementById('validacion-info').style.display = 'none';
-    
-    form.classList.remove('was-validated');
-    
-    // Llenar selects
-    llenarSelects();
-    
-    $('#modal-envio').modal('show');
-}
-
-async function editarEnvio(id) {
-    try {
-        const response = await fetch(`/main/distribucion_almacen_producto/obtener_envio/${id}`);
-        if (!response.ok) {
-            throw new Error('Error al obtener el envío');
-        }
-        
-        const data = await response.json();
-        if (!data.success) {
-            throw new Error(data.error || 'Error al obtener el envío');
-        }
-        
-        const envio = data.envio;
-        
-        // Cargar datos para selects
-        await cargarDatosSelects();
-        llenarSelects();
-        
-        document.getElementById('modal-titulo').textContent = 'Editar envío';
-        document.getElementById('asignacion_id').value = envio.asignacion_id;
-        document.getElementById('nro_envio').value = envio.nro_envio;
-        document.getElementById('fecha_envio').value = envio.fecha_envio;
-        document.getElementById('hora_envio').value = envio.hora_envio;
-        document.getElementById('almacen_id').value = envio.almacen_id;
-        document.getElementById('producto_id').value = envio.producto_id;
-        document.getElementById('vehiculo_conductor_id').value = envio.vehiculo_conductor_id;
-        document.getElementById('demanda').value = envio.demanda;
-        
-        // Extraer día, mes, año de la fecha
-        if (envio.fecha_envio) {
-            const fecha = new Date(envio.fecha_envio);
-            document.getElementById('dia').value = fecha.getDate();
-            document.getElementById('mes').value = fecha.getMonth() + 1;
-            document.getElementById('anio').value = fecha.getFullYear();
-        }
-        
-        // Guardar valores originales
-        document.getElementById('original_producto_id').value = envio.producto_id;
-        document.getElementById('original_almacen_id').value = envio.almacen_id;
-        document.getElementById('original_demanda').value = envio.demanda;
-        
-        document.getElementById('validacion-info').style.display = 'none';
-        
-        $('#modal-envio').modal('show');
-    } catch (error) {
-        console.error('Error:', error);
-        mostrarError('No se pudo cargar el envío para editar');
-    }
-}
-
-function generarNroEnvio() {
-    const fecha = new Date();
-    const año = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    return `ENV-${año}${mes}${dia}-${random}`;
-}
-
 // ==================== FUNCIONES DE VALIDACIÓN Y GUARDADO ====================
 
 async function validarFormulario() {
@@ -641,11 +663,13 @@ async function validarEnvioServidor() {
         const validacionMensaje = document.getElementById('validacion-mensaje');
         
         if (result.success) {
-            validacionInfo.style.display = 'none';
+            if (validacionInfo) validacionInfo.style.display = 'none';
             return true;
         } else {
-            validacionInfo.style.display = 'block';
-            validacionMensaje.textContent = result.error || 'Error de validación';
+            if (validacionInfo) {
+                validacionInfo.style.display = 'block';
+                if (validacionMensaje) validacionMensaje.textContent = result.error || 'Error de validación';
+            }
             return false;
         }
     } catch (error) {
@@ -664,20 +688,15 @@ async function guardarEnvio() {
     }
     
     const id = document.getElementById('asignacion_id').value;
-    
-    // Extraer día, mes, año de la fecha
     const fechaEnvio = document.getElementById('fecha_envio').value;
-    const fecha = new Date(fechaEnvio);
     
+    // Ya no necesitas extraer día/mes/año aquí, el backend los derivará de fecha_envio
     const datos = {
         almacen_id: parseInt(document.getElementById('almacen_id').value),
         producto_id: parseInt(document.getElementById('producto_id').value),
         vehiculo_conductor_id: parseInt(document.getElementById('vehiculo_conductor_id').value),
         fecha_envio: fechaEnvio,
         hora_envio: document.getElementById('hora_envio').value,
-        dia: fecha.getDate(),
-        mes: fecha.getMonth() + 1,
-        anio: fecha.getFullYear(),
         demanda: parseFloat(document.getElementById('demanda').value),
         estado_envio: 'PENDIENTE',
         nro_envio: document.getElementById('nro_envio').value
@@ -1602,6 +1621,8 @@ function mostrarError(mensaje) {
 // ==================== EVENT LISTENERS ====================
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM cargado, inicializando...');
+    
     // Cargar datos iniciales
     cargarEnvios();
     cargarDatosSelects();
@@ -1610,12 +1631,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnNuevoEnvio = document.getElementById('btn-nuevo-envio');
     if (btnNuevoEnvio) {
         btnNuevoEnvio.addEventListener('click', abrirModalNuevoEnvio);
+        console.log('Botón nuevo envío configurado');
+    } else {
+        console.error('No se encontró el botón btn-nuevo-envio');
     }
     
     // Botón guardar envío
     const btnGuardarEnvio = document.getElementById('btn-guardar-envio');
     if (btnGuardarEnvio) {
         btnGuardarEnvio.addEventListener('click', guardarEnvio);
+        console.log('Botón guardar envío configurado');
+    } else {
+        console.error('No se encontró el botón btn-guardar-envio');
     }
     
     // Búsqueda con debounce
@@ -1642,19 +1669,6 @@ document.addEventListener('DOMContentLoaded', function() {
             pageSize = parseInt(this.value);
             currentPage = 1;
             renderizarTabla(filteredEnvios);
-        });
-    }
-    
-    // Actualizar día, mes, año al cambiar fecha
-    const fechaInput = document.getElementById('fecha_envio');
-    if (fechaInput) {
-        fechaInput.addEventListener('change', function() {
-            if (this.value) {
-                const fecha = new Date(this.value);
-                document.getElementById('dia').value = fecha.getDate();
-                document.getElementById('mes').value = fecha.getMonth() + 1;
-                document.getElementById('anio').value = fecha.getFullYear();
-            }
         });
     }
     

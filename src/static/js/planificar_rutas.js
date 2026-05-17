@@ -1,12 +1,5 @@
-// ================================================================
-//  PLANIFICAR RUTAS - JS
-//  - Google Maps Directions API (rutas reales)
-//  - Hora de envío editable por ruta
-//  - Link de Google Maps por cada ruta
-// ================================================================
-
 var map = null;
-var directionsRenderers = [];   // Un renderer por ruta
+var directionsRenderers = [];   
 var rutasPlanificadas = [];
 var currentFecha = '';
 var selectedRutaIndex = null;

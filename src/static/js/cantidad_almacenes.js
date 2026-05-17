@@ -263,7 +263,8 @@ function renderizarProductosEnAlmacen(productos) {
         btnQuitar.onclick = () => quitarProductoAlmacen(
             item.almacen_capacidad_id, 
             item.producto_id, 
-            item.cant_productos_act
+            item.cant_productos_act,
+            item.producto_nombre
         );
         
         tdAcciones.appendChild(btnQuitar);
@@ -288,7 +289,14 @@ async function cargarProductosDisponibles(almacenId) {
                 const option = document.createElement('option');
                 option.value = prod.producto_id;
                 const stock = parseFloat(prod.cant_productos_act) || 0;
-                option.textContent = `${prod.nombre} (Stock: ${stock.toFixed(2)} kg)`;
+                
+                // Mostrar nombre y variedad si existe
+                let textoProducto = prod.nombre;
+                if (prod.variedad && prod.variedad.trim() !== '') {
+                    textoProducto = `${prod.nombre} - ${prod.variedad}`;
+                }
+                
+                option.textContent = `${textoProducto} (Stock: ${stock.toFixed(2)} kg)`;
                 option.dataset.stock = stock;
                 select.appendChild(option);
             });
@@ -305,7 +313,7 @@ async function cargarProductosDisponibles(almacenId) {
     }
 }
 
-// Función para agregar producto al almacén (MODIFICADA - recarga la página)
+// Función para agregar producto al almacén
 async function agregarProductoAlmacen() {
     const almacenId = document.getElementById('modal-almacen-id').value;
     const productoId = document.getElementById('select-producto').value;
@@ -386,7 +394,7 @@ async function agregarProductoAlmacen() {
                 timer: 1500,
                 showConfirmButton: false
             }).then(() => {
-                location.reload(); // Recargar la página
+                location.reload();
             });
         } else {
             throw new Error(data.error || 'Error al agregar el producto');
@@ -398,95 +406,174 @@ async function agregarProductoAlmacen() {
     }
 }
 
-// Función para quitar producto del almacén (MODIFICADA - recarga la página)
-async function quitarProductoAlmacen(almacenCapacidadId, productoId, cantidadActual) {
+// Función para quitar producto del almacén (usando modal de Bootstrap)
+function quitarProductoAlmacen(almacenCapacidadId, productoId, cantidadActual, nombreProducto) {
     const almacenId = document.getElementById('modal-almacen-id').value;
     const cantidadActualNum = parseFloat(cantidadActual) || 0;
+    const nombreProd = nombreProducto || 'este producto';
     
-    // Usar prompt nativo del navegador
-    const cantidadInput = window.prompt(
-        `Cantidad actual: ${cantidadActualNum.toFixed(2)} kg\n\nIngrese la cantidad a quitar (kg):`,
-        ''
-    );
+    // Crear el modal dinámicamente
+    const modalId = 'modalQuitarProducto_' + Date.now();
+    const modalHtml = `
+        <div class="modal fade" id="${modalId}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" style="color: #40e0d0;">
+                            <i class="fas fa-minus-circle"></i> Quitar producto
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true" style="color: #e0f2fe;">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="margin-bottom: 20px;">
+                            <p><strong>Producto:</strong> ${nombreProd}</p>
+                            <p><strong>Cantidad actual en almacén:</strong> ${cantidadActualNum.toFixed(2)} kg</p>
+                        </div>
+                        <div class="form-group">
+                            <label style="color: #a5d8ff; font-weight: 600;">
+                                Cantidad a quitar (kg):
+                            </label>
+                            <input type="number" 
+                                   id="cantidadQuitarInput_${modalId}" 
+                                   class="form-control" 
+                                   step="0.01" 
+                                   min="0.01" 
+                                   max="${cantidadActualNum}"
+                                   placeholder="Ejemplo: 5.50"
+                                   style="font-size: 16px; padding: 10px;">
+                            <small class="form-text text-muted">Ingrese la cantidad en kilogramos</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button type="button" class="btn btn-danger" id="btnConfirmarQuitar_${modalId}">
+                            <i class="fas fa-check"></i> Quitar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
     
-    // Si el usuario cancela
-    if (cantidadInput === null) {
-        return;
-    }
+    // Eliminar modal existente si hay
+    $('body').find('.modal-quitar-temp').remove();
     
-    // Validar
-    if (!cantidadInput.trim()) {
-        mostrarError('Debe ingresar una cantidad');
-        return;
-    }
+    // Agregar modal al body
+    $('body').append(`<div class="modal-quitar-temp">${modalHtml}</div>`);
     
-    const valorLimpio = cantidadInput.replace(',', '.');
-    const cantidadQuitar = parseFloat(valorLimpio);
+    // Mostrar modal
+    $(`#${modalId}`).modal('show');
     
-    if (isNaN(cantidadQuitar) || cantidadQuitar <= 0) {
-        mostrarError('Debe ingresar una cantidad válida mayor a 0');
-        return;
-    }
-    
-    if (cantidadQuitar > cantidadActualNum) {
-        mostrarError(`No puede quitar más de ${cantidadActualNum.toFixed(2)} kg`);
-        return;
-    }
-    
-    try {
-        // Mostrar loading
-        Swal.fire({
-            title: 'Procesando...',
-            text: 'Quitando producto del almacén',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            showConfirmButton: false,
-            didOpen: () => {
-                Swal.showLoading();
-            },
-            background: '#152a3a',
-            color: '#e0f2fe'
-        });
-        
-        const response = await fetch('/main/almacen/quitar_producto', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                almacen_capacidad_id: almacenCapacidadId,
-                almacen_id: parseInt(almacenId),
-                producto_id: parseInt(productoId),
-                cantidad: cantidadQuitar
-            })
-        });
-        
-        const data = await response.json();
-        Swal.close();
-        
-        if (data.success) {
-            // Cerrar el modal
-            $('#modal-gestion-producto').modal('hide');
-            
-            // Mostrar mensaje de éxito y recargar la página
-            Swal.fire({
-                icon: 'success',
-                title: 'Éxito',
-                text: 'Cantidad quitada exitosamente. La página se recargará.',
-                background: '#152a3a',
-                color: '#e0f2fe',
-                confirmButtonColor: '#40e0d0',
-                timer: 1500,
-                showConfirmButton: false
-            }).then(() => {
-                location.reload(); // Recargar la página
-            });
-        } else {
-            throw new Error(data.error || 'Error al quitar el producto');
+    // Enfocar el input después de mostrar el modal
+    setTimeout(() => {
+        const input = document.getElementById(`cantidadQuitarInput_${modalId}`);
+        if (input) {
+            input.focus();
+            input.select();
         }
-    } catch (error) {
-        Swal.close();
-        console.error('Error:', error);
-        mostrarError(error.message);
-    }
+    }, 500);
+    
+    // Manejar confirmación
+    $(`#btnConfirmarQuitar_${modalId}`).off('click').on('click', async function() {
+        const input = document.getElementById(`cantidadQuitarInput_${modalId}`);
+        let cantidad = input.value.trim();
+        
+        if (!cantidad) {
+            mostrarError('Por favor ingrese una cantidad');
+            input.focus();
+            return;
+        }
+        
+        // Reemplazar coma por punto
+        cantidad = cantidad.replace(',', '.');
+        const cantidadNum = parseFloat(cantidad);
+        
+        if (isNaN(cantidadNum) || cantidadNum <= 0) {
+            mostrarError('Ingrese una cantidad válida mayor a 0');
+            input.focus();
+            return;
+        }
+        
+        if (cantidadNum > cantidadActualNum) {
+            mostrarError(`No puede quitar más de ${cantidadActualNum.toFixed(2)} kg`);
+            input.focus();
+            return;
+        }
+        
+        // Cerrar modal
+        $(`#${modalId}`).modal('hide');
+        
+        try {
+            // Mostrar loading
+            Swal.fire({
+                title: 'Procesando...',
+                text: 'Quitando producto del almacén',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+                background: '#152a3a',
+                color: '#e0f2fe'
+            });
+            
+            const response = await fetch('/main/almacen/quitar_producto', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    almacen_capacidad_id: almacenCapacidadId,
+                    almacen_id: parseInt(almacenId),
+                    producto_id: parseInt(productoId),
+                    cantidad: cantidadNum
+                })
+            });
+            
+            const data = await response.json();
+            Swal.close();
+            
+            if (data.success) {
+                // Mostrar mensaje de éxito
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    html: `Se quitaron <strong>${cantidadNum.toFixed(2)} kg</strong> de ${nombreProd} exitosamente.`,
+                    background: '#152a3a',
+                    color: '#e0f2fe',
+                    confirmButtonColor: '#40e0d0',
+                    confirmButtonText: 'OK'
+                });
+                
+                // Recargar la página
+                location.reload();
+            } else {
+                throw new Error(data.error || 'Error al quitar el producto');
+            }
+        } catch (error) {
+            Swal.close();
+            console.error('Error:', error);
+            mostrarError(error.message);
+        }
+    });
+    
+    // Manejar Enter en el input
+    $(`#cantidadQuitarInput_${modalId}`).off('keypress').on('keypress', function(e) {
+        if (e.which === 13) { // Enter key
+            e.preventDefault();
+            $(`#btnConfirmarQuitar_${modalId}`).click();
+        }
+    });
+    
+    // Limpiar modal al cerrar
+    $(`#${modalId}`).on('hidden.bs.modal', function() {
+        setTimeout(() => {
+            $(`#${modalId}`).closest('.modal-quitar-temp').remove();
+        }, 150);
+    });
 }
 
 // Funciones de paginación

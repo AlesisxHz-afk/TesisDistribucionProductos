@@ -116,17 +116,33 @@ def eliminar_almacen(almacen_id):
         alm = almacen.query.get(almacen_id)
         if not alm:
             return {"success": False, "error": "Almacén no encontrado"}
+        
+        # Contar cuántos envíos tiene asociados
+        cantidad_envios = distribucionalmacenproducto.query.filter_by(almacen_id=almacen_id).count()
+        
+        if cantidad_envios > 0:
+            return {
+                "success": False, 
+                "error": f"No se puede eliminar el almacén '{alm.nombre}' porque tiene {cantidad_envios} envío(s) registrado(s)"
+            }
+        
+        # Verificar si tiene productos asociados en almacencapacidad
         productos_asociados = almacencapacidad.query.filter_by(almacen_id=almacen_id).first()
         if productos_asociados:
-            return {"success": False, "error": "No se puede eliminar el almacén porque tiene productos asociados. Elimine primero los productos del almacén."}
+            return {
+                "success": False, 
+                "error": f"No se puede eliminar el almacén '{alm.nombre}' porque tiene productos almacenados"
+            }
+        
         db.session.delete(alm)
         db.session.commit()
         return {"success": True, "mensaje": "Almacén eliminado exitosamente"}
+        
     except Exception as e:
         db.session.rollback()
         print(f"Error en eliminar_almacen: {str(e)}")
         traceback.print_exc()
-        return {"success": False, "error": str(e)}
+        return {"success": False, "error": f"Error al eliminar: {str(e)}"}
 
 def verificar_nombre_disponible(nombre, exclude_id=None):
     try:
@@ -301,6 +317,7 @@ def obtener_productos_para_agregar(almacen_id):
             productos_lista.append({
                 "producto_id": prod.producto_id,
                 "nombre": prod.nombre,
+                "variedad": prod.variedad if hasattr(prod, 'variedad') else "",  # Agregar variedad
                 "cant_productos_act": float(prod.cant_productos_act)
             })
         return {"success": True, "productos": productos_lista}

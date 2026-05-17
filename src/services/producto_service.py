@@ -207,10 +207,6 @@ def crear_producto(nombre, tipo, variedad, descripcion, temperatura_optima, hume
         if tipo not in ['Fruta', 'Verdura', 'Tubérculo']:
             return None, "El tipo de producto debe ser Fruta, Verdura o Tubérculo"
         
-        # Validar que variedad sea uno de los permitidos
-        if variedad not in ['Orgánico', 'Convencional']:
-            return None, "La variedad debe ser Orgánico o Convencional"
-        
         # Si no se proporciona estado o es None, usar 'ACTIVO'
         if estado_producto is None or estado_producto == '':
             estado_producto = 'ACTIVO'
@@ -277,10 +273,6 @@ def actualizar_producto(producto_id, nombre, tipo, variedad, descripcion, temper
         if tipo not in ['Fruta', 'Verdura', 'Tubérculo']:
             return None, "El tipo de producto debe ser Fruta, Verdura o Tubérculo"
         
-        # Validar que variedad sea uno de los permitidos
-        if variedad not in ['Orgánico', 'Convencional']:
-            return None, "La variedad debe ser Orgánico o Convencional"
-        
         prod.nombre = nombre
         prod.tipo = tipo
         prod.variedad = variedad
@@ -335,7 +327,6 @@ def cambiar_estado_producto(producto_id, nuevo_estado):
         db.session.rollback()
         return False, f"Error al cambiar estado: {str(e)}"
 
-
 def eliminar_producto(producto_id):
     """
     Elimina un producto del sistema
@@ -345,6 +336,16 @@ def eliminar_producto(producto_id):
         
         if not prod:
             return False, "Producto no encontrado"
+        
+        # Verificar si tiene envíos registrados
+        from ..models.models import distribucionalmacenproducto
+        
+        envios_count = distribucionalmacenproducto.query.filter(
+            distribucionalmacenproducto.producto_id == producto_id
+        ).count()
+        
+        if envios_count > 0:
+            return False, f"No se puede eliminar el producto '{prod.nombre}' porque tiene {envios_count} envío(s) registrado(s)"
         
         # Eliminar archivo físico si existe
         if prod.foto_producto:
@@ -366,7 +367,6 @@ def eliminar_producto(producto_id):
     except Exception as e:
         db.session.rollback()
         return False, f"Error al eliminar producto: {str(e)}"
-
 
 def get_image_format(image_bytes):
     """

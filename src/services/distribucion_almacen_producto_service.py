@@ -415,17 +415,20 @@ def registrar_envio(data):
         if not valido:
             return None, mensaje
         
-        # Crear el envío
+        # Obtener fecha_envio correctamente
+        fecha_envio_obj = datetime.strptime(data.get('fecha_envio'), '%Y-%m-%d').date()
+        
+        # Crear el envío - AHORA día/mes/año se derivan de fecha_envio, no del frontend
         nuevo_envio = distribucionalmacenproducto(
             almacen_id=data.get('almacen_id'),
             producto_id=data.get('producto_id'),
             vehiculo_conductor_id=data.get('vehiculo_conductor_id'),
-            fecha_envio=datetime.strptime(data.get('fecha_envio'), '%Y-%m-%d').date(),
+            fecha_envio=fecha_envio_obj,
             hora_envio=datetime.strptime(data.get('hora_envio'), '%H:%M').time(),
             hora_llegada=None,
-            dia=data.get('dia'),
-            mes=data.get('mes'),
-            anio=data.get('anio'),
+            dia=fecha_envio_obj.day,        # Día derivado de fecha_envio
+            mes=fecha_envio_obj.month,      # Mes derivado de fecha_envio
+            anio=fecha_envio_obj.year,      # Año derivado de fecha_envio
             demanda=data.get('demanda'),
             gasto=None,
             estado_envio='PENDIENTE',
@@ -489,16 +492,19 @@ def actualizar_envio(asignacion_id, data):
         almacen_original_id = envio.almacen_id
         demanda_original = float(envio.demanda)
         
-        # Actualizar el envío
+        # Obtener fecha_envio correctamente
+        fecha_envio_obj = datetime.strptime(data.get('fecha_envio'), '%Y-%m-%d').date()
+        
+        # Actualizar el envío - AHORA día/mes/año se derivan de fecha_envio
         envio.almacen_id = data.get('almacen_id')
         envio.producto_id = data.get('producto_id')
         envio.vehiculo_conductor_id = data.get('vehiculo_conductor_id')
-        envio.fecha_envio = datetime.strptime(data.get('fecha_envio'), '%Y-%m-%d').date()
+        envio.fecha_envio = fecha_envio_obj
         envio.hora_envio = datetime.strptime(data.get('hora_envio'), '%H:%M').time()
         envio.hora_llegada = None
-        envio.dia = data.get('dia')
-        envio.mes = data.get('mes')
-        envio.anio = data.get('anio')
+        envio.dia = fecha_envio_obj.day         
+        envio.mes = fecha_envio_obj.month       
+        envio.anio = fecha_envio_obj.year        
         envio.demanda = data.get('demanda')
         envio.gasto = None
         envio.estado_envio = 'PENDIENTE'
