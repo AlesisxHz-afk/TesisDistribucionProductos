@@ -190,6 +190,29 @@ function pad2(n) {
 }
 
 // ----------------------------------------------------------------
+// GASTO DE COMBUSTIBLE - EDICIÓN MANUAL
+// ----------------------------------------------------------------
+
+/**
+ * Cuando el usuario ingresa/edita el gasto de combustible de una ruta,
+ * actualiza el modelo de datos. El gasto ya NO se calcula automáticamente,
+ * lo ingresa el usuario para cada envío.
+ */
+function onGastoChange(rutaIdx) {
+    var inputId = '#gasto-envio-' + rutaIdx;
+    var valor = parseFloat($(inputId).val());
+
+    if (isNaN(valor) || valor < 0) {
+        valor = 0;
+        $(inputId).val('0.00');
+    }
+
+    if (rutasPlanificadas[rutaIdx]) {
+        rutasPlanificadas[rutaIdx].gasto_estimado = valor;
+    }
+}
+
+// ----------------------------------------------------------------
 // CARGA DE ENVÍOS PENDIENTES
 // ----------------------------------------------------------------
 
@@ -301,8 +324,8 @@ function planificarRutas() {
                 Swal.fire({
                     icon: 'success',
                     title: 'Rutas planificadas',
-                    text: rutasPlanificadas.length + ' rutas generadas exitosamente.',
-                    timer: 2000,
+                    text: rutasPlanificadas.length + ' rutas generadas exitosamente. Ingresa el gasto de combustible de cada una antes de guardar.',
+                    timer: 2800,
                     showConfirmButton: false
                 });
             } else {
@@ -346,6 +369,8 @@ function mostrarRutasPlanificadas(rutas) {
         // Link de Google Maps para esta ruta
         var gmapsUrl = generarLinkGoogleMaps(ruta);
 
+        var gastoValor = (ruta.gasto_estimado && ruta.gasto_estimado > 0) ? ruta.gasto_estimado.toFixed(2) : '';
+
         html +=
             '<div class="ruta-item' + selClass + '" data-index="' + index + '" onclick="seleccionarRuta(' + index + ')">' +
 
@@ -388,10 +413,25 @@ function mostrarRutasPlanificadas(rutas) {
             '<span style="color:#a5d8ff;font-size:11px;">→ llega: <strong id="hora-llegada-' + index + '" style="color:#fdd54f;">' + ruta.hora_llegada + '</strong></span>' +
             '</div>' +
 
-            // Nro envío y gasto
+            // Gasto de combustible EDITABLE (ya no se calcula automáticamente)
+            '<div class="gasto-envio-row" onclick="event.stopPropagation();">' +
+            '<label><i class="fas fa-money-bill-wave" style="color:#4ade80;margin-right:4px;"></i>Ingrese el gasto de combustible:</label>' +
+            '<div class="gasto-input-wrap">' +
+            '<span class="gasto-prefijo">S/</span>' +
+            '<input type="number" ' +
+            '       id="gasto-envio-' + index + '" ' +
+            '       class="gasto-envio-input" ' +
+            '       min="0" step="0.01" ' +
+            '       placeholder="0.00" ' +
+            '       value="' + gastoValor + '" ' +
+            '       onchange="onGastoChange(' + index + ')" ' +
+            '       onclick="event.stopPropagation();">' +
+            '</div>' +
+            '</div>' +
+
+            // Nro envío
             '<div class="ruta-footer">' +
             '<span class="nro-envio"><i class="fas fa-hashtag" style="margin-right:2px;"></i>' + ruta.nro_envio + '</span>' +
-            '<span class="gasto-valor"><i class="fas fa-money-bill-wave" style="margin-right:3px;"></i>S/ ' + ruta.gasto_estimado.toFixed(2) + '</span>' +
             '</div>' +
 
             // Acciones
@@ -465,6 +505,10 @@ function verDetalleRuta(index) {
 
     var gmapsUrl = generarLinkGoogleMaps(ruta);
 
+    var gastoTexto = (ruta.gasto_estimado && ruta.gasto_estimado > 0)
+        ? 'S/ ' + ruta.gasto_estimado.toFixed(2)
+        : 'Sin ingresar';
+
     $('#detalle-ruta-titulo').text('Detalles — ' + ruta.almacen_nombre);
 
     var body =
@@ -472,7 +516,7 @@ function verDetalleRuta(index) {
         '<div class="modal-resumen-ruta">' +
         '<div class="modal-resumen-item"><div class="modal-resumen-label">Distancia</div><div class="modal-resumen-valor val-dist">' + ruta.distancia_km + ' km</div></div>' +
         '<div class="modal-resumen-item"><div class="modal-resumen-label">Tiempo Est.</div><div class="modal-resumen-valor val-tiempo">' + ruta.tiempo_estimado_horas + ' hrs</div></div>' +
-        '<div class="modal-resumen-item"><div class="modal-resumen-label">Gasto Est.</div><div class="modal-resumen-valor val-gasto">S/ ' + ruta.gasto_estimado.toFixed(2) + '</div></div>' +
+        '<div class="modal-resumen-item"><div class="modal-resumen-label">Gasto Combustible</div><div class="modal-resumen-valor val-gasto">' + gastoTexto + '</div></div>' +
         '<div class="modal-resumen-item"><div class="modal-resumen-label">Nivel Riesgo</div><div class="modal-resumen-valor ' + riesgoClass + '">' + ruta.nivel_riesgo + '</div></div>' +
         '</div>' +
 
@@ -522,14 +566,28 @@ function guardarPlanificacion() {
         return;
     }
 
-    // Sincronizar horas editadas antes de guardar
+    // Sincronizar horas y gastos editados antes de guardar
     rutasPlanificadas.forEach(function (ruta, idx) {
         var inputVal = $('#hora-envio-' + idx).val();
         if (inputVal) {
             ruta.hora_envio = inputVal;
             recalcularHoraLlegada(idx);
         }
+
+        var gastoVal = parseFloat($('#gasto-envio-' + idx).val());
+        ruta.gasto_estimado = (!isNaN(gastoVal) && gastoVal >= 0) ? gastoVal : 0;
     });
+
+    // Validar que se haya ingresado el gasto de combustible en todas las rutas
+    var sinGasto = rutasPlanificadas.some(function (r) { return !r.gasto_estimado || r.gasto_estimado <= 0; });
+    if (sinGasto) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Falta el gasto de combustible',
+            text: 'Ingresa el gasto de combustible en todas las rutas antes de guardar.'
+        });
+        return;
+    }
 
     Swal.fire({
         title: '¿Guardar planificación?',

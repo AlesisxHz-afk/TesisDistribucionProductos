@@ -27,6 +27,7 @@ body {
     position: relative;
     z-index: 100;
     border-right: 1px solid #2c3e50;
+    flex-shrink: 0;
 }
 
 .sidebar-header {
@@ -303,6 +304,7 @@ body {
     flex-direction: column;
     background-color: #0f1f2a;
     min-height: 100vh;
+    min-width: 0;
 }
 
 .content-header {
@@ -486,8 +488,9 @@ body {
 }
 
 .welcome-section {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
+    width: 100%;
 }
 
 .welcome-card {
@@ -529,7 +532,7 @@ body {
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     margin-bottom: 25px;
 }
@@ -612,7 +615,7 @@ body {
 }
 
 .footer-content {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -666,7 +669,453 @@ body {
     color: #40e0d0;
 }
 
-/* Responsividad para móviles */
+/* =============================================
+   PANTALLAS GRANDES (1440px - 1920px+)
+   ============================================= */
+
+@media (min-width: 1440px) {
+    .sidebar {
+        width: 300px;
+    }
+
+    .sidebar-header {
+        padding: 25px 20px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 26px;
+        gap: 12px;
+    }
+
+    .sidebar-header i {
+        font-size: 28px;
+    }
+
+    .system-subtitle {
+        font-size: 12px;
+        padding-left: 40px;
+    }
+
+    .nav-item a {
+        padding: 16px 24px;
+        font-size: 15px;
+        gap: 14px;
+    }
+
+    .nav-item i {
+        width: 20px;
+        font-size: 17px;
+    }
+
+    .submenu a {
+        padding: 11px 22px 11px 40px;
+        font-size: 14px;
+    }
+
+    .reportes-submenu a {
+        padding: 10px 18px 10px 50px;
+        font-size: 13px;
+    }
+
+    .sidebar-footer {
+        padding: 20px;
+    }
+
+    .user-avatar {
+        width: 52px;
+        height: 52px;
+    }
+
+    .user-avatar.default {
+        font-size: 52px;
+    }
+
+    .user-name {
+        font-size: 15px;
+    }
+
+    .user-role {
+        font-size: 13px;
+    }
+
+    .current-date {
+        font-size: 13px;
+        padding: 10px;
+    }
+
+    .content-header {
+        padding: 18px 35px;
+    }
+
+    .header-title h2 {
+        font-size: 26px;
+    }
+
+    .header-title p {
+        font-size: 14px;
+    }
+
+    .info-item {
+        font-size: 14px;
+        padding: 7px 15px;
+    }
+
+    .user-menu-btn {
+        padding: 10px 18px 10px 14px;
+        font-size: 15px;
+    }
+
+    .user-header-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .user-header-avatar.default {
+        font-size: 36px;
+    }
+
+    .content-wrapper {
+        padding: 35px 40px;
+    }
+
+    .welcome-section {
+        max-width: 1600px;
+    }
+
+    .welcome-card {
+        padding: 35px;
+    }
+
+    .welcome-text h3 {
+        font-size: 28px;
+    }
+
+    .welcome-text p {
+        font-size: 16px;
+    }
+
+    .welcome-icon {
+        font-size: 72px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 25px;
+    }
+
+    .dashboard-card {
+        padding: 35px 30px;
+    }
+
+    .dashboard-card i {
+        font-size: 56px;
+        margin-bottom: 22px;
+    }
+
+    .dashboard-card h4 {
+        font-size: 20px;
+    }
+
+    .dashboard-card p {
+        font-size: 15px;
+    }
+
+    .card-action {
+        padding: 12px 25px;
+        font-size: 15px;
+    }
+
+    .main-footer {
+        padding: 25px 40px;
+    }
+
+    .footer-logo {
+        font-size: 18px;
+    }
+
+    .footer-logo i {
+        font-size: 22px;
+    }
+
+    .footer-info p {
+        font-size: 14px;
+    }
+
+    .footer-links a {
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 1920px) {
+    .sidebar {
+        width: 340px;
+    }
+
+    .sidebar-header {
+        padding: 30px 25px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 30px;
+    }
+
+    .sidebar-header i {
+        font-size: 32px;
+    }
+
+    .system-subtitle {
+        font-size: 13px;
+        padding-left: 46px;
+    }
+
+    .nav-item a {
+        padding: 18px 28px;
+        font-size: 16px;
+    }
+
+    .nav-item i {
+        width: 22px;
+        font-size: 18px;
+    }
+
+    .submenu a {
+        padding: 13px 25px 13px 45px;
+        font-size: 15px;
+    }
+
+    .reportes-submenu a {
+        padding: 11px 20px 11px 56px;
+        font-size: 14px;
+    }
+
+    .sidebar-footer {
+        padding: 24px;
+    }
+
+    .user-avatar {
+        width: 58px;
+        height: 58px;
+    }
+
+    .user-avatar.default {
+        font-size: 58px;
+    }
+
+    .user-name {
+        font-size: 16px;
+    }
+
+    .user-role {
+        font-size: 14px;
+        padding: 3px 10px;
+    }
+
+    .current-date {
+        font-size: 14px;
+        padding: 11px;
+    }
+
+    .connection-status {
+        font-size: 12px;
+    }
+
+    .content-header {
+        padding: 22px 50px;
+    }
+
+    .header-title h2 {
+        font-size: 30px;
+        margin-bottom: 6px;
+    }
+
+    .header-title p {
+        font-size: 15px;
+    }
+
+    .info-item {
+        font-size: 15px;
+        padding: 8px 18px;
+        gap: 10px;
+    }
+
+    .user-menu-btn {
+        padding: 11px 22px 11px 16px;
+        font-size: 16px;
+        gap: 12px;
+    }
+
+    .user-header-avatar {
+        width: 40px;
+        height: 40px;
+    }
+
+    .user-header-avatar.default {
+        font-size: 40px;
+    }
+
+    .content-wrapper {
+        padding: 45px 60px;
+    }
+
+    .welcome-section {
+        max-width: 1800px;
+    }
+
+    .welcome-card {
+        padding: 45px;
+        border-radius: 20px;
+    }
+
+    .welcome-header {
+        margin-bottom: 35px;
+        padding-bottom: 28px;
+    }
+
+    .welcome-text h3 {
+        font-size: 34px;
+        margin-bottom: 10px;
+    }
+
+    .welcome-text p {
+        font-size: 18px;
+    }
+
+    .welcome-icon {
+        font-size: 88px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px;
+        margin-bottom: 35px;
+    }
+
+    .dashboard-card {
+        padding: 40px 35px;
+        border-radius: 18px;
+    }
+
+    .dashboard-card::before {
+        height: 5px;
+    }
+
+    .dashboard-card i {
+        font-size: 64px;
+        margin-bottom: 25px;
+    }
+
+    .dashboard-card h4 {
+        font-size: 22px;
+        margin-bottom: 12px;
+    }
+
+    .dashboard-card p {
+        font-size: 16px;
+        margin-bottom: 25px;
+    }
+
+    .card-action {
+        padding: 14px 30px;
+        font-size: 16px;
+        border-radius: 30px;
+    }
+
+    .main-footer {
+        padding: 30px 60px;
+    }
+
+    .footer-content {
+        max-width: 1800px;
+    }
+
+    .footer-logo {
+        font-size: 20px;
+        gap: 12px;
+    }
+
+    .footer-logo i {
+        font-size: 25px;
+    }
+
+    .footer-info p {
+        font-size: 15px;
+    }
+
+    .footer-links {
+        gap: 28px;
+    }
+
+    .footer-links a {
+        font-size: 15px;
+        gap: 8px;
+    }
+
+    .dropdown-item {
+        padding: 14px 18px;
+        font-size: 15px;
+    }
+
+    .dropdown-menu {
+        min-width: 240px;
+    }
+}
+
+/* =============================================
+   PANTALLAS MUY GRANDES (2560px+)
+   ============================================= */
+
+@media (min-width: 2560px) {
+    .sidebar {
+        width: 400px;
+    }
+
+    .sidebar-header h1 {
+        font-size: 34px;
+    }
+
+    .nav-item a {
+        padding: 20px 32px;
+        font-size: 18px;
+    }
+
+    .content-header {
+        padding: 28px 70px;
+    }
+
+    .header-title h2 {
+        font-size: 36px;
+    }
+
+    .content-wrapper {
+        padding: 60px 80px;
+    }
+
+    .welcome-section {
+        max-width: 2200px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 35px;
+    }
+
+    .dashboard-card i {
+        font-size: 76px;
+    }
+
+    .dashboard-card h4 {
+        font-size: 26px;
+    }
+
+    .footer-content {
+        max-width: 2200px;
+    }
+}
+
+/* =============================================
+   RESPONSIVIDAD PARA LAPTOPS Y TABLETS (≤1024px)
+   ============================================= */
+
 @media (max-width: 1024px) {
     .container {
         flex-direction: column;

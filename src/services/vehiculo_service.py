@@ -469,7 +469,6 @@ def obtener_envios_pendientes(fecha=None):
         
         print(f"Buscando envíos pendientes para fecha: {fecha}")
         
-        # NO filtrar por vehiculo_conductor_id - traer todos los pendientes
         query = text("""
             SELECT 
                 d.asignacion_id,
@@ -585,9 +584,9 @@ def analizar_rutas_con_modelo_pkt(envios):
         
         rutas_analizadas = []
         
-        # Punto de origen: Lima como centro de distribución
-        origen_lat = -12.0464
-        origen_lon = -77.0428
+        # Punto de origen: Olmos como centro de distribución
+        origen_lat = -9.19
+        origen_lon = -75.0152
         
         for envio in envios:
             # Calcular distancia
@@ -596,14 +595,11 @@ def analizar_rutas_con_modelo_pkt(envios):
                 envio['almacen_lat'], envio['almacen_lon']
             )
             
-            # Si la distancia es 0 (coordenadas iguales al origen), dar un mínimo
             if distancia < 1:
                 distancia = random.uniform(10, 50)
             
-            # Calcular tiempo estimado
             tiempo_estimado = calcular_tiempo_estimado(distancia)
             
-            # Determinar nivel de riesgo usando modelo PKT
             nivel_riesgo = determinar_nivel_riesgo_con_modelo(
                 modelo_data,
                 distancia,
@@ -611,10 +607,10 @@ def analizar_rutas_con_modelo_pkt(envios):
                 envio.get('humedad_optima', 70)
             )
             
-            # Calcular gasto estimado (S/ por km + costo fijo)
-            costo_por_km = 2.5
-            costo_fijo = random.uniform(15, 40)
-            gasto_estimado = round(distancia * costo_por_km + costo_fijo, 2)
+            # El gasto de combustible ya NO se calcula automáticamente.
+            # Queda en 0 y lo ingresa el usuario manualmente desde el frontend
+            # (panel "Ingrese el gasto de combustible" en planificar_rutas.js).
+            gasto_estimado = 0.0
             
             rutas_analizadas.append({
                 'asignacion_id': envio['asignacion_id'],
@@ -711,6 +707,8 @@ def planificar_rutas(fecha_envio):
                     'distancia_km': ruta['distancia_km'],
                     'tiempo_estimado_horas': ruta['tiempo_estimado_horas'],
                     'nivel_riesgo': ruta['nivel_riesgo'],
+                    # El gasto de combustible llega en 0 y se ingresa manualmente
+                    # en el frontend antes de guardar la planificación.
                     'gasto_estimado': ruta['gasto_estimado'],
                     'lat': ruta['lat'],
                     'lon': ruta['lon'],
@@ -774,7 +772,8 @@ def guardar_planificacion_rutas(rutas_data):
                 vehiculo_conductor_id = ruta['vehiculo_asignado']['vehiculo_conductor_id']
                 hora_envio_str = ruta['hora_envio']
                 hora_llegada_str = ruta['hora_llegada']
-                gasto = ruta['gasto_estimado']
+                # El gasto de combustible viene ingresado manualmente desde el frontend
+                gasto = float(ruta.get('gasto_estimado') or 0)
                 nro_envio = ruta['nro_envio']
                 
                 # Convertir hora string a time
