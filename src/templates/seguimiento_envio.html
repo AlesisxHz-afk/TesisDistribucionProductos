@@ -98,7 +98,7 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZoobTeKCRt0-Fifbh7DSI6MamaBVbngU&callback=initMap&libraries=places" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ url_for('static', filename='js/seguimiento_envio.js') }}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZoobTeKCRt0-Fifbh7DSI6MamaBVbngU&callback=initMapCallback&libraries=places" async defer></script>
 {% endblock %}

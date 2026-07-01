@@ -538,43 +538,65 @@ def determinar_nivel_riesgo_con_modelo(modelo_data, distancia_km, temperatura_op
     Si no hay modelo, usa lógica de distancia por defecto.
     """
     try:
-        if modelo_data and 'metricas' in modelo_data:
-            metricas = modelo_data['metricas']
-            eficiencia_promedio = metricas.get('eficiencia_promedio', 0.7)
-            
-            # Calcular score de riesgo basado en distancia y condiciones del producto
-            score_distancia = min(distancia_km / 300.0, 1.0)  # Normalizar distancia
-            
-            # Productos con temperatura muy baja o muy alta son más sensibles
-            score_temp = abs(temperatura_optima - 15) / 30.0
-            score_temp = min(score_temp, 1.0)
-            
-            # Humedad alta aumenta riesgo
-            score_hum = humedad_optima / 100.0
-            
-            # Score combinado ponderado
-            score_total = (score_distancia * 0.5) + (score_temp * 0.3) + (score_hum * 0.2)
-            
-            # Ajustar con eficiencia del modelo
-            score_ajustado = score_total * (1.0 / max(eficiencia_promedio, 0.1))
-            
-            if score_ajustado < 0.35:
-                return 'BAJO'
-            elif score_ajustado < 0.65:
-                return 'MEDIO'
-            else:
-                return 'ALTO'
+        # 1. Definir el riesgo base según los umbrales de distancia (muy flexibles para evitar ALTO)
+        if distancia_km <= 150:
+            riesgo_base = 1  # BAJO
+        elif distancia_km <= 350:
+            riesgo_base = 2  # MEDIO
         else:
-            # Fallback por distancia
-            if distancia_km < 80:
-                return 'BAJO'
-            elif distancia_km < 200:
-                return 'MEDIO'
+            riesgo_base = 3  # ALTO
+
+        # 2. Calcular factor de sensibilidad del producto (clima)
+        sensibilidad_temp = max(0, (15 - temperatura_optima) / 15.0)  # max 1.0
+        sensibilidad_hum = max(0, (humedad_optima - 60) / 40.0)      # max 1.0
+        sensibilidad_total = (sensibilidad_temp * 0.6) + (sensibilidad_hum * 0.4)
+
+        # 3. Ajustar el riesgo según la sensibilidad y eficiencia si hay modelo
+        if modelo_data and 'metricas' in modelo_data:
+            eficiencia = float(modelo_data['metricas'].get('eficiencia_promedio', 0.7))
+            
+            # Si la eficiencia del modelo es muy baja (< 0.4) y el producto es sensible, aumenta el riesgo
+            if eficiencia < 0.4 and sensibilidad_total > 0.6:
+                riesgo_base += 1
+            # Si la eficiencia es alta (> 0.6) y el producto es estable, disminuye el riesgo
+            elif eficiencia > 0.6 and sensibilidad_total < 0.4:
+                riesgo_base -= 1
+
+        # Ajuste por sensibilidad extrema en distancias límites
+        if riesgo_base == 1:
+            if sensibilidad_total > 0.80 and distancia_km > 100:
+                riesgo_base = 2  # Sube a MEDIO si es extremadamente crítico y dist > 100km
             else:
-                return 'ALTO'
+                # Para distancias < 150km, nunca dejar que suba a ALTO
+                riesgo_base = min(riesgo_base, 2)
+        elif riesgo_base == 2:
+            if sensibilidad_total < 0.30:
+                riesgo_base = 1  # Baja a BAJO si es muy estable
+            elif sensibilidad_total > 0.90:
+                riesgo_base = 3  # Sube a ALTO solo si es sumamente crítico (e.g. refrigerado extremo)
+        elif riesgo_base == 3:
+            # Para distancias largas, si el producto no es extremadamente crítico, bajarlo a MEDIO
+            if sensibilidad_total < 0.75:
+                riesgo_base = 2  # Baja a MEDIO
+
+        # Asegurar rango de riesgo válido [1, 3]
+        riesgo_base = max(1, min(3, riesgo_base))
+
+        if riesgo_base == 1:
+            return 'BAJO'
+        elif riesgo_base == 2:
+            return 'MEDIO'
+        else:
+            return 'ALTO'
     except Exception as e:
         print(f"Error determinando nivel de riesgo: {e}")
-        return 'MEDIO'
+        # Fallback de distancia simple
+        if distancia_km <= 150:
+            return 'BAJO'
+        elif distancia_km <= 350:
+            return 'MEDIO'
+        else:
+            return 'ALTO'
 
 
 def analizar_rutas_con_modelo_pkt(envios):
@@ -584,9 +606,9 @@ def analizar_rutas_con_modelo_pkt(envios):
         
         rutas_analizadas = []
         
-        # Punto de origen: Olmos como centro de distribución
-        origen_lat = -9.19
-        origen_lon = -75.0152
+        # [TAG] Punto de origen: Agrícola Ayala S.A.C. (coordenadas reales brindadas por el usuario)
+        origen_lat = -6.0461763
+        origen_lon = -80.1964131
         
         for envio in envios:
             # Calcular distancia

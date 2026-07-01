@@ -8,10 +8,11 @@ let infoWindow;
 let updateInterval;
 let currentNroEnvio = null;
 let currentEnvioData = null;
+let fallbackPolyline = null;
 
-// Coordenadas por defecto (Lima, Perú)
-const DEFAULT_LAT = -12.046374;
-const DEFAULT_LNG = -77.042793;
+// Coordenadas por defecto (Olmos, Lambayeque)
+const DEFAULT_LAT = -6.0542101;
+const DEFAULT_LNG = -80.0608864;
 
 // Inicialización del mapa de Google
 function initMap() {
@@ -24,19 +25,24 @@ function initMap() {
         return;
     }
     
-    // Configuración del mapa
+    // Configuración del mapa (con tema oscuro premium idéntico a distribuir_almacenes y planificar_rutas)
     const mapOptions = {
         center: { lat: DEFAULT_LAT, lng: DEFAULT_LNG },
         zoom: 13,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
-        mapTypeControl: true,
-        mapTypeControlOptions: {
-            style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
-            position: google.maps.ControlPosition.TOP_RIGHT
-        },
+        mapTypeControl: false,
+        streetViewControl: false,
         fullscreenControl: true,
-        streetViewControl: true,
-        zoomControl: false
+        zoomControl: false,
+        styles: [
+            { featureType: 'all', elementType: 'geometry', stylers: [{ color: '#202c3a' }] },
+            { featureType: 'all', elementType: 'labels.text.fill', stylers: [{ color: '#40e0d0' }] },
+            { featureType: 'all', elementType: 'labels.text.stroke', stylers: [{ color: '#1e3a5a' }] },
+            { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a1e2f' }] },
+            { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2c4a6a' }] },
+            { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#a5d8ff' }] },
+            { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#40e0d0' }] }
+        ]
     };
     
     // Crear el mapa
@@ -224,14 +230,19 @@ function actualizarRutaConAPI(envio) {
         console.log('Actualizando ruta con API de Google Maps');
         
         const request = {
-            origin: { lat: conductorLat, lng: conductorLng },
-            destination: { lat: almacenLat, lng: almacenLng },
-            travelMode: google.maps.TravelMode.DRIVING,
-            unitSystem: google.maps.UnitSystem.METRIC
+            origin: new google.maps.LatLng(conductorLat, conductorLng),
+            destination: new google.maps.LatLng(almacenLat, almacenLng),
+            travelMode: google.maps.TravelMode.DRIVING
         };
         
         directionsService.route(request, (result, status) => {
             if (status === google.maps.DirectionsStatus.OK) {
+                // Borrar fallback anterior si existe
+                if (fallbackPolyline) {
+                    fallbackPolyline.setMap(null);
+                    fallbackPolyline = null;
+                }
+                
                 // Actualizar el directionsRenderer con la nueva ruta
                 directionsRenderer.setDirections(result);
                 
@@ -243,7 +254,8 @@ function actualizarRutaConAPI(envio) {
                 
                 console.log('Ruta actualizada con éxito:', route.distance.text, route.duration.text);
             } else {
-                console.warn('No se pudo actualizar la ruta:', status);
+                console.warn('No se pudo actualizar la ruta con API (status: ' + status + '). Usando fallback.');
+                dibujarRutaFallback(conductorLat, conductorLng, almacenLat, almacenLng);
             }
         });
         
@@ -381,14 +393,19 @@ function mostrarRutaEnMapa(envio) {
         
         // Calcular y mostrar la ruta con la API de Google Maps
         const request = {
-            origin: { lat: conductorLat, lng: conductorLng },
-            destination: { lat: almacenLat, lng: almacenLng },
-            travelMode: google.maps.TravelMode.DRIVING,
-            unitSystem: google.maps.UnitSystem.METRIC
+            origin: new google.maps.LatLng(conductorLat, conductorLng),
+            destination: new google.maps.LatLng(almacenLat, almacenLng),
+            travelMode: google.maps.TravelMode.DRIVING
         };
         
         directionsService.route(request, (result, status) => {
             if (status === google.maps.DirectionsStatus.OK) {
+                // Borrar fallback anterior si existe
+                if (fallbackPolyline) {
+                    fallbackPolyline.setMap(null);
+                    fallbackPolyline = null;
+                }
+                
                 directionsRenderer.setDirections(result);
                 
                 // Mostrar información de la ruta
@@ -405,8 +422,8 @@ function mostrarRutaEnMapa(envio) {
                 bounds.extend({ lat: conductorLat, lng: conductorLng });
                 map.fitBounds(bounds, 50);
             } else {
-                console.error('Error al calcular ruta inicial:', status);
-                document.getElementById('route-info').style.display = 'none';
+                console.error('Error al calcular ruta inicial (status: ' + status + '). Usando fallback.');
+                dibujarRutaFallback(conductorLat, conductorLng, almacenLat, almacenLng);
             }
         });
         
@@ -543,7 +560,7 @@ function mostrarTicketEnvio(envio) {
         <div class="ticket-seccion">
             <div class="ticket-seccion-titulo">
                 <i class="fas fa-warehouse"></i>
-                Almacén de origen
+                Almacén de destino
             </div>
             <div class="ticket-icono">
                 <i class="fas fa-warehouse"></i>
@@ -640,6 +657,11 @@ function limpiarMapa() {
         directionsRenderer.setDirections({ routes: [] });
     }
     
+    if (fallbackPolyline) {
+        fallbackPolyline.setMap(null);
+        fallbackPolyline = null;
+    }
+    
     if (markerAlmacen) {
         markerAlmacen.setMap(null);
         markerAlmacen = null;
@@ -651,6 +673,42 @@ function limpiarMapa() {
     }
     
     document.getElementById('route-info').style.display = 'none';
+}
+
+// Función para dibujar la ruta de fallback con Polyline
+function dibujarRutaFallback(lat1, lng1, lat2, lng2) {
+    if (fallbackPolyline) {
+        fallbackPolyline.setMap(null);
+    }
+    
+    fallbackPolyline = new google.maps.Polyline({
+        path: [
+            { lat: lat1, lng: lng1 },
+            { lat: lat2, lng: lng2 }
+        ],
+        geodesic: true,
+        strokeColor: '#40e0d0', // Color turquesa premium que combina con el tema oscuro
+        strokeOpacity: 0.8,
+        strokeWeight: 5,
+        map: map
+    });
+    
+    // Calcular distancia y tiempo estimado
+    const distKm = calcularDistancia(lat1, lng1, lat2, lng2);
+    const tiempoHoras = distKm / 60.0;
+    const horas = Math.floor(tiempoHoras);
+    const minutos = Math.round((tiempoHoras - horas) * 60);
+    const tiempoTexto = horas > 0 ? `aprox. ${horas} h ${minutos} min` : `aprox. ${minutos} min`;
+    
+    document.getElementById('route-info').style.display = 'block';
+    document.getElementById('route-distance').textContent = distKm.toFixed(2) + ' km';
+    document.getElementById('route-time').textContent = tiempoTexto;
+    
+    // Centrar mapa
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend({ lat: lat1, lng: lng1 });
+    bounds.extend({ lat: lat2, lng: lng2 });
+    map.fitBounds(bounds, 50);
 }
 
 // Función para centrar la ruta en el mapa
@@ -750,5 +808,6 @@ function mostrarError(mensaje) {
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM cargado, inicializando...');
+    console.log('DOM cargado, callback de mapa registrado.');
+    window.initMapCallback = initMap;
 });
