@@ -1,0 +1,75 @@
+{% extends "main.html" %}
+{% block title %}Flota de Vehículos - Alaya S.A.C{% endblock %}
+{% block page_title %}Reporte: Flota de Vehículos{% endblock %}
+{% block page_description %}Estado actual de toda la flota con filtros interactivos y estadísticas{% endblock %}
+{% block maincss %}<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_comun.css') }}">{% endblock %}
+{% block contenido %}
+<div class="rpt-page">
+  <div class="rpt-header">
+    <div class="rpt-header-left">
+      <h2><i class="fas fa-truck" style="margin-right:10px;"></i>Flota de Vehículos</h2>
+      <p>Estado actual de todos los vehículos. Filtra, ordena y analiza la flota completa.</p>
+    </div>
+    <div class="rpt-header-icon"><i class="fas fa-truck-moving"></i></div>
+  </div>
+
+  <div class="rpt-kpi-grid">
+    <div class="rpt-kpi-card" style="--kpi-color:#40e0d0;"><div class="rpt-kpi-icon"><i class="fas fa-truck"></i></div><div class="rpt-kpi-value" id="kpi-total">—</div><div class="rpt-kpi-label">Total Vehículos</div></div>
+    <div class="rpt-kpi-card" style="--kpi-color:#4ade80;"><div class="rpt-kpi-icon"><i class="fas fa-check-circle"></i></div><div class="rpt-kpi-value" id="kpi-activos">—</div><div class="rpt-kpi-label">Activos</div></div>
+    <div class="rpt-kpi-card" style="--kpi-color:#fdd54f;"><div class="rpt-kpi-icon"><i class="fas fa-route"></i></div><div class="rpt-kpi-value" id="kpi-en-uso">—</div><div class="rpt-kpi-label">En Uso</div></div>
+    <div class="rpt-kpi-card" style="--kpi-color:#f87171;"><div class="rpt-kpi-icon"><i class="fas fa-ban"></i></div><div class="rpt-kpi-value" id="kpi-inactivos">—</div><div class="rpt-kpi-label">Inactivos</div></div>
+  </div>
+
+  <div class="rpt-filtros">
+    <label>Tipo:</label>
+    <select id="filtro-tipo" class="rpt-select"><option value="">— Todos —</option></select>
+    <label>Estado:</label>
+    <select id="filtro-estado" class="rpt-select" style="min-width:120px;">
+      <option value="">— Todos —</option>
+      <option value="ACTIVO">Activo</option>
+      <option value="EN_USO">En Uso</option>
+      <option value="INACTIVO">Inactivo</option>
+    </select>
+    <label>Marca:</label>
+    <input type="text" id="filtro-marca" class="rpt-input" style="min-width:120px;" placeholder="Marca...">
+    <button class="rpt-btn" id="btn-aplicar"><i class="fas fa-filter"></i> Filtrar</button>
+    <button class="rpt-btn rpt-btn-secondary" id="btn-reset"><i class="fas fa-undo"></i> Reset</button>
+  </div>
+
+  <div class="rpt-charts-grid">
+    <div class="rpt-chart-card">
+      <div class="rpt-chart-title"><i class="fas fa-chart-pie"></i> Distribución por Estado</div>
+      <div class="rpt-chart-canvas-wrap"><canvas id="chart-estado"></canvas></div>
+    </div>
+    <div class="rpt-chart-card">
+      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Cantidad por Tipo de Vehículo</div>
+      <div class="rpt-chart-canvas-wrap"><canvas id="chart-tipo"></canvas></div>
+    </div>
+  </div>
+
+  <div class="rpt-chart-card">
+    <div class="rpt-chart-title"><i class="fas fa-table"></i> Detalle de la Flota</div>
+    <div class="rpt-search-wrap">
+      <input type="text" class="rpt-search" id="tabla-search" placeholder="Buscar placa, modelo, marca...">
+    </div>
+    <div class="rpt-table-wrap">
+      <table class="rpt-table">
+        <thead><tr>
+          <th onclick="sortTable(0)">Placa ↕</th>
+          <th onclick="sortTable(1)">Marca ↕</th>
+          <th onclick="sortTable(2)">Modelo ↕</th>
+          <th onclick="sortTable(3)">Tipo ↕</th>
+          <th onclick="sortTable(4)">Cap. Carga ↕</th>
+          <th onclick="sortTable(5)">Año ↕</th>
+          <th>Estado</th>
+        </tr></thead>
+        <tbody id="tabla-body"><tr><td colspan="7" class="rpt-loading"><i class="fas fa-spinner"></i> Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/reporte_v1.js') }}"></script>
+{% endblock %}

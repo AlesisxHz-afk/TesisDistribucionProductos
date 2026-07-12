@@ -77,6 +77,50 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de edición de conductor/vehículo -->
+<div class="modal-overlay" id="modal-editar-overlay" style="display:none;">
+    <div class="modal-box modal-editar-box">
+        <div class="modal-header" style="background: linear-gradient(135deg,#1a3a5c,#0d2137);">
+            <h5 class="modal-title">
+                <i class="fas fa-edit" style="margin-right:8px;color:#fdd54f;"></i>
+                Editar Asignación de Conductor / Vehículo
+            </h5>
+            <button type="button" class="close-btn" id="btn-cerrar-editar">&times;</button>
+        </div>
+        <div class="modal-body" id="modal-editar-body">
+            <!-- Información actual -->
+            <div class="editar-info-actual" id="editar-info-actual"></div>
+
+            <!-- Selector de nuevo VC -->
+            <div class="editar-selector-wrap">
+                <label class="editar-label">
+                    <i class="fas fa-exchange-alt" style="color:#40e0d0;margin-right:6px;"></i>
+                    Selecciona el nuevo Conductor / Vehículo
+                    <span style="color:#a5d8ff;font-size:11px;margin-left:4px;">(solo ACTIVOS disponibles)</span>
+                </label>
+                <select id="select-vc-nuevo" class="editar-select">
+                    <option value="">-- Cargando opciones... --</option>
+                </select>
+                <div class="vc-info-preview" id="vc-info-preview" style="display:none;"></div>
+            </div>
+
+            <!-- Nota de riesgo -->
+            <div class="editar-nota-riesgo">
+                <i class="fas fa-info-circle" style="color:#fdd54f;margin-right:6px;"></i>
+                <span>El nivel de riesgo se mantiene según la distancia, temperatura y humedad del producto. El cambio de conductor/vehículo no altera el riesgo calculado.</span>
+            </div>
+        </div>
+        <div class="modal-footer" style="gap:10px;">
+            <button type="button" class="btn btn-secondary" id="btn-cancelar-editar">
+                <i class="fas fa-times" style="margin-right:6px;"></i>Cancelar
+            </button>
+            <button type="button" class="btn btn-warning" id="btn-confirmar-editar">
+                <i class="fas fa-check" style="margin-right:6px;"></i>Confirmar Cambio
+            </button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block javascript %}

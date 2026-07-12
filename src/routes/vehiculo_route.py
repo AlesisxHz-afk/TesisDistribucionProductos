@@ -365,3 +365,21 @@ def vehiculos_conductores_disponibles():
             'success': False,
             'error': str(e)
         }), 500
+
+
+@main.route("/obtener_vc_activos", methods=["GET"])
+def obtener_vc_activos():
+    """
+    Devuelve todos los pares vehiculo_conductor con estado ACTIVO
+    (tanto vehículo como conductor deben estar ACTIVOS, no EN_USO).
+    Se usa para el modal de edición manual de asignación en planificar rutas.
+    """
+    try:
+        resultado = vehiculo_service.obtener_vc_activos_disponibles()
+        return jsonify(resultado), 200 if resultado.get('success') else 500
+    except Exception as e:
+        print(f"Error en obtener_vc_activos: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500

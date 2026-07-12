@@ -11,83 +11,84 @@ from datetime import datetime
 main = Blueprint("reporte", __name__, url_prefix="/reporte")
 
 # ============================
-# RUTAS PARA REPORTES 01-03 (PRODUCTOS)
+# RUTAS PARA REPORTES — PRODUCTOS (P1, P2, P3)
 # ============================
 
-@main.route('/reporte01')
-def reporte01():
-    """Reporte de Comparativa de Stock vs Predicciones"""
-    return render_template('reporte01.html')
+@main.route('/reporte_p1')
+def reporte_p1():
+    """Reporte Interactivo: Stock por Tipo de Producto"""
+    return render_template('reporte_p1.html')
 
-@main.route('/reporte02')
-def reporte02():
-    """Reporte de Análisis de Productos"""
-    return render_template('reporte02.html')
+@main.route('/reporte_p2')
+def reporte_p2():
+    """Reporte Interactivo: Temperatura y Humedad Óptima por Producto"""
+    return render_template('reporte_p2.html')
 
-@main.route('/reporte03')
-def reporte03():
-    """Reporte de Tendencias de Productos"""
-    return render_template('reporte03.html')
-
-# ============================
-# RUTAS PARA REPORTES 04-06 (ALMACENES)
-# ============================
-
-@main.route('/reporte04')
-def reporte04():
-    """Reporte de Inventario de Almacenes"""
-    return render_template('reporte04.html')
-
-@main.route('/reporte05')
-def reporte05():
-    """Reporte de Movimiento de Productos"""
-    return render_template('reporte05.html')
-
-@main.route('/reporte06')
-def reporte06():
-    """Reporte de Rendimiento de Almacenes"""
-    return render_template('reporte06.html')
+@main.route('/reporte_p3')
+def reporte_p3():
+    """Reporte Interactivo: Envíos por Producto en el Tiempo"""
+    return render_template('reporte_p3.html')
 
 # ============================
-# RUTAS PARA REPORTES 07-09 (VEHÍCULOS)
+# RUTAS PARA REPORTES — ALMACENES (A1, A2, A3)
 # ============================
 
-@main.route('/reporte07')
-def reporte07():
-    """Reporte de Inventario de Vehículos"""
-    return render_template('reporte07.html')
+@main.route('/reporte_a1')
+def reporte_a1():
+    """Reporte Interactivo: Inventario vs Capacidad por Almacén"""
+    return render_template('reporte_a1.html')
 
-@main.route('/reporte08')
-def reporte08():
-    """Reporte de Asignaciones Vehículo-Conductor"""
-    return render_template('reporte08.html')
+@main.route('/reporte_a2')
+def reporte_a2():
+    """Reporte Interactivo: Mapa de Calor de Envíos por Almacén"""
+    return render_template('reporte_a2.html')
 
-@main.route('/reporte09')
-def reporte09():
-    """Reporte de Rendimiento de Vehículos"""
-    return render_template('reporte09.html')
-
-# ============================
-# RUTAS PARA REPORTES 10-12 (CONDUCTORES)
-# ============================
-
-@main.route('/reporte10')
-def reporte10():
-    """Reporte de Rendimiento de Conductores"""
-    return render_template('reporte10.html')
-
-@main.route('/reporte11')
-def reporte11():
-    """Reporte de Productividad por Conductor"""
-    return render_template('reporte11.html')
-
-@main.route('/reporte12')
-def reporte12():
-    """Reporte de Disponibilidad de Conductores"""
-    return render_template('reporte12.html')
+@main.route('/reporte_a3')
+def reporte_a3():
+    """Reporte Interactivo: Capacidad Disponible por Almacén"""
+    return render_template('reporte_a3.html')
 
 # ============================
-# RUTAS PARA DATOS - REPORTES 01, 02, 03 (PRODUCTOS)
+# RUTAS PARA REPORTES — VEHÍCULOS (V1, V2, V3)
+# ============================
+
+@main.route('/reporte_v1')
+def reporte_v1():
+    """Reporte Interactivo: Flota de Vehículos"""
+    return render_template('reporte_v1.html')
+
+@main.route('/reporte_v2')
+def reporte_v2():
+    """Reporte Interactivo: Rutas Realizadas por Vehículo"""
+    return render_template('reporte_v2.html')
+
+@main.route('/reporte_v3')
+def reporte_v3():
+    """Reporte Interactivo: Gasto de Combustible por Vehículo"""
+    return render_template('reporte_v3.html')
+
+# ============================
+# RUTAS PARA REPORTES — CONDUCTORES (C1, C2, C3)
+# ============================
+
+@main.route('/reporte_c1')
+def reporte_c1():
+    """Reporte Interactivo: Desempeño de Conductores"""
+    return render_template('reporte_c1.html')
+
+@main.route('/reporte_c2')
+def reporte_c2():
+    """Reporte Interactivo: Disponibilidad Semanal de Conductores"""
+    return render_template('reporte_c2.html')
+
+@main.route('/reporte_c3')
+def reporte_c3():
+    """Reporte Interactivo: Envíos por Conductor en el Tiempo"""
+    return render_template('reporte_c3.html')
+
+
+# ============================
+# ENDPOINTS DE DATOS (compartidos/nuevos)
 # ============================
 
 @main.route('/obtener_productos', methods=['GET'])
@@ -95,96 +96,36 @@ def obtener_productos_route():
     """Obtiene la lista de productos"""
     try:
         result = reportes_service.obtener_productos()
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener productos"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error al obtener productos"}), 500
     except Exception as e:
-        print(f"Error en obtener_productos: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_tipos_producto', methods=['GET'])
 def obtener_tipos_producto_route():
     """Obtiene los tipos de producto únicos"""
     try:
         result = reportes_service.obtener_tipos_producto()
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener tipos de producto"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error al obtener tipos"}), 500
     except Exception as e:
-        print(f"Error en obtener_tipos_producto: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_anios_distribucion', methods=['GET'])
 def obtener_anios_distribucion_route():
     """Obtiene los años disponibles en distribución"""
     try:
         result = reportes_service.obtener_anios_distribucion()
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener años"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error al obtener años"}), 500
     except Exception as e:
-        print(f"Error en obtener_anios_distribucion: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
-
-@main.route('/obtener_predicciones_excel', methods=['GET'])
-def obtener_predicciones_excel_route():
-    """Obtiene las predicciones del archivo Excel"""
-    try:
-        result = reportes_service.obtener_predicciones_excel()
-        
-        if result['success']:
-            return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": result.get('message', 'Error al obtener predicciones')
-            }), 500
-            
-    except Exception as e:
-        print(f"Error en obtener_predicciones_excel: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_analisis_productos', methods=['GET'])
 def obtener_analisis_productos_route():
@@ -192,24 +133,12 @@ def obtener_analisis_productos_route():
     try:
         filtros = request.args.to_dict()
         result = reportes_service.obtener_analisis_productos(filtros)
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener análisis de productos"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error"}), 500
     except Exception as e:
-        print(f"Error en obtener_analisis_productos: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_tendencia_producto/<int:producto_id>', methods=['GET'])
 def obtener_tendencia_producto_route(producto_id):
@@ -218,205 +147,97 @@ def obtener_tendencia_producto_route(producto_id):
         anio = request.args.get('anio')
         if anio:
             anio = int(anio)
-        
         result = reportes_service.obtener_tendencia_producto(producto_id, anio)
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener tendencia del producto"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error"}), 500
     except Exception as e:
-        print(f"Error en obtener_tendencia_producto: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
-
-# ============================
-# RUTAS PARA DATOS - REPORTES 04, 05, 06 (ALMACENES)
-# ============================
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_inventario_almacenes', methods=['GET'])
 def obtener_inventario_almacenes_route():
     """Obtiene el inventario actual de almacenes"""
     try:
         result = reportes_service.obtener_inventario_almacenes()
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener inventario de almacenes"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error"}), 500
     except Exception as e:
-        print(f"Error en obtener_inventario_almacenes: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_movimiento_productos', methods=['GET'])
 def obtener_movimiento_productos_route():
     """Obtiene los movimientos de productos (envíos)"""
     try:
-        print("Solicitud recibida en /obtener_movimiento_productos")
         result = reportes_service.obtener_movimiento_productos()
-        
         if result['success']:
-            print(f"Respuesta exitosa, cantidad de movimientos: {len(result.get('movimientos', []))}")
             return jsonify(result), 200
-        else:
-            print("Error en la función:", result.get('message'))
-            return jsonify({
-                "success": False,
-                "message": result.get('message', 'Error al obtener movimientos de productos')
-            }), 500
-            
+        return jsonify({"success": False, "message": result.get('message', 'Error')}), 500
     except Exception as e:
-        print(f"Error en obtener_movimiento_productos_route: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_rendimiento_almacenes', methods=['GET'])
 def obtener_rendimiento_almacenes_route():
     """Obtiene el rendimiento de los almacenes"""
     try:
         result = reportes_service.obtener_rendimiento_almacenes()
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener rendimiento de almacenes"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error"}), 500
     except Exception as e:
-        print(f"Error en obtener_rendimiento_almacenes: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
-
-# ============================
-# RUTAS PARA DATOS - REPORTES 07-12
-# ============================
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_vehiculos', methods=['GET'])
 def obtener_vehiculos_route():
     """Obtiene la lista de vehículos con sus asignaciones actuales"""
     try:
         result = reportes_service.obtener_vehiculos()
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener vehículos"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error al obtener vehículos"}), 500
     except Exception as e:
-        print(f"Error en obtener_vehiculos: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_asignaciones_completo', methods=['GET'])
 def obtener_asignaciones_completo_route():
     """Obtiene todas las asignaciones vehículo-conductor con detalles"""
     try:
         result = reportes_service.obtener_asignaciones_completo()
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener asignaciones"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error al obtener asignaciones"}), 500
     except Exception as e:
-        print(f"Error en obtener_asignaciones_completo: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_rendimiento_vehiculos', methods=['GET'])
 def obtener_rendimiento_vehiculos_route():
     """Obtiene datos de rendimiento de vehículos basado en envíos"""
     try:
         result = reportes_service.obtener_rendimiento_vehiculos()
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener rendimiento de vehículos"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error"}), 500
     except Exception as e:
-        print(f"Error en obtener_rendimiento_vehiculos: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_conductores', methods=['GET'])
 def obtener_conductores_route():
     """Obtiene la lista de conductores"""
     try:
         result = reportes_service.obtener_conductores()
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener conductores"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error al obtener conductores"}), 500
     except Exception as e:
-        print(f"Error en obtener_conductores: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_rendimiento_conductores', methods=['GET'])
 def obtener_rendimiento_conductores_route():
@@ -424,31 +245,17 @@ def obtener_rendimiento_conductores_route():
     try:
         fecha_inicio = request.args.get('fecha_inicio')
         fecha_fin = request.args.get('fecha_fin')
-        
         if fecha_inicio:
             fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
         if fecha_fin:
             fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
-        
         result = reportes_service.obtener_todos_envios_conductores(fecha_inicio, fecha_fin)
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener datos de rendimiento"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error"}), 500
     except Exception as e:
-        print(f"Error en obtener_rendimiento_conductores: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_envios_conductor/<int:conductor_id>', methods=['GET'])
 def obtener_envios_conductor_route(conductor_id):
@@ -456,139 +263,38 @@ def obtener_envios_conductor_route(conductor_id):
     try:
         fecha_inicio = request.args.get('fecha_inicio')
         fecha_fin = request.args.get('fecha_fin')
-        
         if fecha_inicio:
             fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
         if fecha_fin:
             fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
-        
         result = reportes_service.obtener_envios_por_conductor(conductor_id, fecha_inicio, fecha_fin)
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener envíos del conductor"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error"}), 500
     except Exception as e:
-        print(f"Error en obtener_envios_conductor: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @main.route('/obtener_disponibilidad_completa', methods=['GET'])
 def obtener_disponibilidad_completa_route():
     """Obtiene la disponibilidad completa de conductores"""
     try:
         result = reportes_service.obtener_disponibilidad_completa()
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener disponibilidad"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error al obtener disponibilidad"}), 500
     except Exception as e:
-        print(f"Error en obtener_disponibilidad_completa: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
-@main.route('/exportar_reporte/<int:tipo>', methods=['GET'])
-def exportar_reporte(tipo):
-    """Exporta un reporte en formato HTML"""
-    try:
-        fecha_inicio = request.args.get('fecha_inicio')
-        fecha_fin = request.args.get('fecha_fin')
-        conductor_id = request.args.get('conductor_id')
-        producto_id = request.args.get('producto_id')
-        anio = request.args.get('anio')
-        
-        if fecha_inicio:
-            fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
-        if fecha_fin:
-            fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
-        
-        if tipo == 1:
-            # Reporte de comparativa de stock
-            data = reportes_service.obtener_inventario_almacenes()
-        elif tipo == 2:
-            # Reporte de análisis de productos
-            data = reportes_service.obtener_analisis_productos()
-        elif tipo == 3 and producto_id:
-            # Reporte de tendencia de producto
-            data = reportes_service.obtener_tendencia_producto(int(producto_id), int(anio) if anio else None)
-        elif tipo == 4:
-            # Reporte de inventario de almacenes
-            data = reportes_service.obtener_inventario_almacenes()
-        elif tipo == 5:
-            # Reporte de movimiento de productos
-            data = reportes_service.obtener_movimiento_productos()
-        elif tipo == 6:
-            # Reporte de rendimiento de almacenes
-            data = reportes_service.obtener_rendimiento_almacenes()
-        elif tipo == 10:
-            # Reporte de rendimiento de conductores
-            data = reportes_service.obtener_todos_envios_conductores(fecha_inicio, fecha_fin)
-        elif tipo == 11 and conductor_id:
-            # Reporte de productividad por conductor
-            data = reportes_service.obtener_envios_por_conductor(int(conductor_id), fecha_inicio, fecha_fin)
-        elif tipo == 12:
-            # Reporte de disponibilidad
-            data = reportes_service.obtener_disponibilidad_completa()
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Tipo de reporte no válido"
-            }), 400
-        
-        return jsonify({
-            "success": True,
-            "data": data
-        }), 200
-        
-    except Exception as e:
-        print(f"Error en exportar_reporte: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
-    
 @main.route('/obtener_demanda_mensual_historica', methods=['GET'])
 def obtener_demanda_mensual_historica_route():
     """Obtiene la demanda mensual histórica de la base de datos"""
     try:
         result = reportes_service.obtener_demanda_mensual_historica()
-        
         if result['success']:
             return jsonify(result), 200
-        else:
-            return jsonify({
-                "success": False,
-                "message": "Error al obtener demanda mensual histórica"
-            }), 500
-            
+        return jsonify({"success": False, "message": "Error"}), 500
     except Exception as e:
-        print(f"Error en obtener_demanda_mensual_historica: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return jsonify({
-            "success": False,
-            "message": "Error interno del servidor",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500

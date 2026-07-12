@@ -906,3 +906,76 @@ def obtener_estadisticas_rutas(fecha=None):
             'success': False,
             'error': str(e)
         }
+
+
+def obtener_vc_activos_disponibles():
+    """
+    Obtiene todos los pares vehiculo_conductor disponibles para asignación manual.
+    Solo incluye aquellos donde:
+      - vehiculo_conductor.estado = 'ACTIVO'
+      - vehiculo.estado = 'ACTIVO'  (excluye EN_USO)
+      - conductor.estado = 'ACTIVO' (excluye EN_USO)
+    """
+    try:
+        query = text("""
+            SELECT
+                vc.vehiculo_conductor_id,
+                vc.vehiculo_id,
+                vc.conductor_id,
+                v.placa,
+                v.marca,
+                v.modelo,
+                v.cantidad_carga,
+                v.tipo_vehiculo,
+                v.estado as estado_vehiculo,
+                c.nombre,
+                c.apellido_paterno,
+                c.apellido_materno,
+                c.dni,
+                c.estado as estado_conductor
+            FROM vehiculo_conductor vc
+            INNER JOIN vehiculo v ON vc.vehiculo_id = v.vehiculo_id
+            INNER JOIN conductor c ON vc.conductor_id = c.conductor_id
+            WHERE vc.estado = 'ACTIVO'
+              AND v.estado = 'ACTIVO'
+              AND c.estado = 'ACTIVO'
+            ORDER BY v.placa, c.apellido_paterno
+        """)
+
+        result = db.session.execute(query)
+        rows = result.fetchall()
+
+        lista = []
+        for row in rows:
+            lista.append({
+                'vehiculo_conductor_id': row[0],
+                'vehiculo_id': row[1],
+                'conductor_id': row[2],
+                'placa': row[3],
+                'marca': row[4],
+                'modelo': row[5],
+                'capacidad_carga': float(row[6]) if row[6] else 0,
+                'tipo_vehiculo': row[7],
+                'estado_vehiculo': row[8],
+                'conductor_nombre': f"{row[9]} {row[10]} {row[11]}",
+                'conductor_dni': row[12],
+                'estado_conductor': row[13],
+                # Etiqueta combinada para mostrar en el select
+                'label': f"{row[3]} | {row[9]} {row[10]} {row[11]} | {row[7]}"
+            })
+
+        return {
+            'success': True,
+            'data': lista,
+            'total': len(lista)
+        }
+
+    except Exception as e:
+        print(f"Error en obtener_vc_activos_disponibles: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'success': False,
+            'error': str(e),
+            'message': 'Error al obtener vehículos-conductores activos'
+        }

@@ -1,0 +1,63 @@
+{% extends "main.html" %}
+{% block title %}Rutas por Vehículo - Alaya S.A.C{% endblock %}
+{% block page_title %}Reporte: Rutas Realizadas por Vehículo{% endblock %}
+{% block page_description %}Analiza la cantidad de envíos y demanda por cada vehículo de la flota{% endblock %}
+{% block maincss %}<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_comun.css') }}">{% endblock %}
+{% block contenido %}
+<div class="rpt-page">
+  <div class="rpt-header">
+    <div class="rpt-header-left">
+      <h2><i class="fas fa-route" style="margin-right:10px;"></i>Rutas Realizadas por Vehículo</h2>
+      <p>Compara la actividad de cada vehículo: cantidad de envíos, demanda transportada y eficiencia</p>
+    </div>
+    <div class="rpt-header-icon"><i class="fas fa-map-signs"></i></div>
+  </div>
+
+  <div class="rpt-kpi-grid">
+    <div class="rpt-kpi-card" style="--kpi-color:#40e0d0;"><div class="rpt-kpi-icon"><i class="fas fa-truck"></i></div><div class="rpt-kpi-value" id="kpi-vehs-activos">—</div><div class="rpt-kpi-label">Vehículos con envíos</div></div>
+    <div class="rpt-kpi-card" style="--kpi-color:#fdd54f;"><div class="rpt-kpi-icon"><i class="fas fa-shipping-fast"></i></div><div class="rpt-kpi-value" id="kpi-total-envios">—</div><div class="rpt-kpi-label">Total Envíos</div></div>
+    <div class="rpt-kpi-card" style="--kpi-color:#4ade80;"><div class="rpt-kpi-icon"><i class="fas fa-star"></i></div><div class="rpt-kpi-value" id="kpi-top-veh">—</div><div class="rpt-kpi-label">Vehículo más activo</div></div>
+    <div class="rpt-kpi-card" style="--kpi-color:#fb923c;"><div class="rpt-kpi-icon"><i class="fas fa-layer-group"></i></div><div class="rpt-kpi-value" id="kpi-dem-total">—</div><div class="rpt-kpi-label">Demanda Total</div></div>
+  </div>
+
+  <div class="rpt-filtros">
+    <label>Tipo vehículo:</label>
+    <select id="filtro-tipo" class="rpt-select"><option value="">— Todos —</option></select>
+    <label>Año:</label>
+    <select id="filtro-anio" class="rpt-select" style="min-width:110px;"><option value="">— Todos —</option></select>
+    <button class="rpt-btn" id="btn-aplicar"><i class="fas fa-filter"></i> Aplicar</button>
+    <button class="rpt-btn rpt-btn-secondary" id="btn-reset"><i class="fas fa-undo"></i> Reset</button>
+  </div>
+
+  <div class="rpt-charts-grid">
+    <div class="rpt-chart-card full-width">
+      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Envíos por Vehículo (placa)</div>
+      <div class="rpt-chart-canvas-wrap tall"><canvas id="chart-envios"></canvas></div>
+    </div>
+    <div class="rpt-chart-card full-width">
+      <div class="rpt-chart-title"><i class="fas fa-chart-area"></i> Demanda Transportada por Vehículo</div>
+      <div class="rpt-chart-canvas-wrap"><canvas id="chart-demanda"></canvas></div>
+    </div>
+  </div>
+
+  <div class="rpt-chart-card">
+    <div class="rpt-chart-title"><i class="fas fa-table"></i> Detalle por Vehículo</div>
+    <div class="rpt-table-wrap">
+      <table class="rpt-table">
+        <thead><tr>
+          <th onclick="sortTable(0)">Placa ↕</th>
+          <th onclick="sortTable(1)">Tipo ↕</th>
+          <th onclick="sortTable(2)">N° Envíos ↕</th>
+          <th onclick="sortTable(3)">Demanda Total ↕</th>
+          <th onclick="sortTable(4)">Gasto Total ↕</th>
+        </tr></thead>
+        <tbody id="tabla-body"><tr><td colspan="5" class="rpt-loading"><i class="fas fa-spinner"></i> Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/reporte_v2.js') }}"></script>
+{% endblock %}

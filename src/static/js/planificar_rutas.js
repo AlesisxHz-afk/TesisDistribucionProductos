@@ -4,6 +4,11 @@ var rutasPlanificadas = [];
 var currentFecha = '';
 var selectedRutaIndex = null;
 
+// Índice de la ruta que se está editando en el modal
+var editandoRutaIdx = null;
+// Lista de VC activos cargados para el modal
+var vcActivosList = [];
+
 // Coordenadas del centro de distribución (Lima)
 var ORIGEN_LAT = -6.04631499293515;
 var ORIGEN_LON = -80.04408509300606;
@@ -45,6 +50,16 @@ $(document).ready(function () {
     $('#modal-overlay').on('click', function (e) {
         if ($(e.target).is('#modal-overlay')) cerrarModal();
     });
+
+    // Modal editar
+    $('#btn-cerrar-editar, #btn-cancelar-editar').on('click', cerrarModalEditar);
+    $('#modal-editar-overlay').on('click', function (e) {
+        if ($(e.target).is('#modal-editar-overlay')) cerrarModalEditar();
+    });
+    $('#btn-confirmar-editar').on('click', confirmarEdicion);
+
+    // Preview al cambiar selección
+    $('#select-vc-nuevo').on('change', mostrarPreviewVC);
 });
 
 // ----------------------------------------------------------------
@@ -63,10 +78,6 @@ var COLORES_RUTAS = [
 
 /**
  * Traza una ruta real usando DirectionsService para un destino.
- * @param {number} destLat
- * @param {number} destLon
- * @param {string} color  - color de la polilínea
- * @param {number} rutaIdx - índice de la ruta (para el panel)
  */
 function trazarRutaReal(destLat, destLon, color, rutaIdx) {
     if (!map) return;
@@ -123,12 +134,10 @@ function trazarRutaReal(destLat, destLon, color, rutaIdx) {
                 rutasPlanificadas[rutaIdx].distancia_km = parseFloat(distanciaKm);
                 rutasPlanificadas[rutaIdx].tiempo_estimado_horas = parseFloat(duracionHoras);
 
-                // Recalcular hora llegada según la hora_envio actual del item
                 recalcularHoraLlegada(rutaIdx);
             }
         } else {
             console.warn('DirectionsService falló para ruta ' + rutaIdx + ': ' + status);
-            // Fallback: nada (no trazar línea recta)
         }
     });
 }
@@ -148,26 +157,18 @@ function actualizarMapaConRutas(rutas) {
 // HORAS - EDICIÓN Y RECÁLCULO
 // ----------------------------------------------------------------
 
-/**
- * Cuando el usuario cambia la hora de envío de una ruta,
- * actualiza el modelo de datos y recalcula la hora de llegada.
- */
 function onHoraEnvioChange(rutaIdx) {
     var inputId = '#hora-envio-' + rutaIdx;
-    var nuevaHora = $(inputId).val();   // "HH:MM"
+    var nuevaHora = $(inputId).val();
 
     if (!nuevaHora) return;
 
     rutasPlanificadas[rutaIdx].hora_envio = nuevaHora;
     recalcularHoraLlegada(rutaIdx);
 
-    // Refrescar solo el span de llegada
     $('#hora-llegada-' + rutaIdx).text(rutasPlanificadas[rutaIdx].hora_llegada);
 }
 
-/**
- * Recalcula la hora_llegada a partir de hora_envio + tiempo_estimado_horas.
- */
 function recalcularHoraLlegada(rutaIdx) {
     var ruta = rutasPlanificadas[rutaIdx];
     if (!ruta) return;
@@ -193,11 +194,6 @@ function pad2(n) {
 // GASTO DE COMBUSTIBLE - EDICIÓN MANUAL
 // ----------------------------------------------------------------
 
-/**
- * Cuando el usuario ingresa/edita el gasto de combustible de una ruta,
- * actualiza el modelo de datos. El gasto ya NO se calcula automáticamente,
- * lo ingresa el usuario para cada envío.
- */
 function onGastoChange(rutaIdx) {
     var inputId = '#gasto-envio-' + rutaIdx;
     var valor = parseFloat($(inputId).val());
@@ -324,8 +320,8 @@ function planificarRutas() {
                 Swal.fire({
                     icon: 'success',
                     title: 'Rutas planificadas',
-                    text: rutasPlanificadas.length + ' rutas generadas exitosamente. Ingresa el gasto de combustible de cada una antes de guardar.',
-                    timer: 2800,
+                    text: rutasPlanificadas.length + ' rutas generadas. Puedes editar la asignación con el botón ✏️ en cada ruta, e ingresar el gasto de combustible antes de guardar.',
+                    timer: 3200,
                     showConfirmButton: false
                 });
             } else {
@@ -366,10 +362,18 @@ function mostrarRutasPlanificadas(rutas) {
                           ruta.nivel_riesgo === 'MEDIO' ? 'riesgo-medio' : 'riesgo-alto';
         var selClass = selectedRutaIndex === index ? ' seleccionado' : '';
 
-        // Link de Google Maps para esta ruta
         var gmapsUrl = generarLinkGoogleMaps(ruta);
-
         var gastoValor = (ruta.gasto_estimado && ruta.gasto_estimado > 0) ? ruta.gasto_estimado.toFixed(2) : '';
+
+        // Tooltip del nivel de riesgo explicado
+        var riesgoTooltip = '';
+        if (ruta.nivel_riesgo === 'ALTO') {
+            riesgoTooltip = 'Distancia >350 km y/o producto muy sensible (temp. <10°C o humedad extrema)';
+        } else if (ruta.nivel_riesgo === 'MEDIO') {
+            riesgoTooltip = 'Distancia 150-350 km con sensibilidad moderada del producto';
+        } else {
+            riesgoTooltip = 'Distancia ≤150 km con producto estable (temp. y humedad favorables)';
+        }
 
         html +=
             '<div class="ruta-item' + selClass + '" data-index="' + index + '" onclick="seleccionarRuta(' + index + ')">' +
@@ -377,7 +381,7 @@ function mostrarRutasPlanificadas(rutas) {
             // Cabecera
             '<div class="ruta-header">' +
             '<h5><i class="fas fa-warehouse" style="color:#40e0d0;margin-right:6px;"></i>' + ruta.almacen_nombre + '</h5>' +
-            '<span class="riesgo-badge ' + riesgoClass + '">' + ruta.nivel_riesgo + '</span>' +
+            '<span class="riesgo-badge ' + riesgoClass + '" title="' + riesgoTooltip + '">' + ruta.nivel_riesgo + '</span>' +
             '</div>' +
 
             // Detalles básicos
@@ -385,20 +389,21 @@ function mostrarRutasPlanificadas(rutas) {
             '<div class="detalle-item"><i class="fas fa-box"></i><span>' + ruta.producto_nombre + '</span></div>' +
             '<div class="detalle-item"><i class="fas fa-road"></i><span>' + ruta.distancia_km + ' km</span></div>' +
             '<div class="detalle-item"><i class="fas fa-clock"></i><span>' + ruta.tiempo_estimado_horas + ' hrs</span></div>' +
+            '<div class="detalle-item"><i class="fas fa-thermometer-half" style="color:#fb923c;"></i><span>' + ruta.temperatura_optima + '°C</span></div>' +
+            '<div class="detalle-item"><i class="fas fa-tint" style="color:#60a5fa;"></i><span>' + ruta.humedad_optima + '%</span></div>' +
             '<div class="detalle-item"><i class="fas fa-layer-group"></i><span>Dem: ' + ruta.demanda + '</span></div>' +
             '</div>' +
 
             // Vehículo / conductor
-            '<div class="ruta-vehiculo-info">' +
-            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
-            '<i class="fas fa-truck" style="color:#40e0d0;"></i>' +
-            '<span class="vehiculo-placa">' + ruta.vehiculo_asignado.placa + '</span>' +
-            '<span style="color:#a5d8ff;font-size:11px;">' + (ruta.vehiculo_asignado.tipo_vehiculo || '') + '</span>' +
+            '<div class="ruta-vehiculo-info" id="vc-info-' + index + '">' +
+            renderVCInfo(ruta.vehiculo_asignado) +
             '</div>' +
-            '<div style="display:flex;align-items:center;gap:8px;">' +
-            '<i class="fas fa-user" style="color:#40e0d0;"></i>' +
-            '<span style="color:#e0f2fe;font-size:12px;">' + ruta.vehiculo_asignado.conductor + '</span>' +
-            '</div>' +
+
+            // Botón editar asignación
+            '<div class="editar-asignacion-row" onclick="event.stopPropagation();">' +
+            '<button class="btn-editar-asignacion" onclick="event.stopPropagation();abrirModalEdicion(' + index + ')">' +
+            '<i class="fas fa-edit"></i> Editar asignación' +
+            '</button>' +
             '</div>' +
 
             // Hora de envío EDITABLE
@@ -413,9 +418,9 @@ function mostrarRutasPlanificadas(rutas) {
             '<span style="color:#a5d8ff;font-size:11px;">→ llega: <strong id="hora-llegada-' + index + '" style="color:#fdd54f;">' + ruta.hora_llegada + '</strong></span>' +
             '</div>' +
 
-            // Gasto de combustible EDITABLE (ya no se calcula automáticamente)
+            // Gasto de combustible EDITABLE
             '<div class="gasto-envio-row" onclick="event.stopPropagation();">' +
-            '<label><i class="fas fa-money-bill-wave" style="color:#4ade80;margin-right:4px;"></i>Ingrese el gasto de combustible:</label>' +
+            '<label><i class="fas fa-money-bill-wave" style="color:#4ade80;margin-right:4px;"></i>Gasto de combustible:</label>' +
             '<div class="gasto-input-wrap">' +
             '<span class="gasto-prefijo">S/</span>' +
             '<input type="number" ' +
@@ -450,6 +455,178 @@ function mostrarRutasPlanificadas(rutas) {
     container.html(html);
 }
 
+/**
+ * Renderiza el bloque de info de vehículo/conductor para la tarjeta
+ */
+function renderVCInfo(va) {
+    if (!va) return '<div style="color:#f87171;font-size:12px;">Sin asignación</div>';
+    return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
+        '<i class="fas fa-truck" style="color:#40e0d0;"></i>' +
+        '<span class="vehiculo-placa">' + va.placa + '</span>' +
+        '<span style="color:#a5d8ff;font-size:11px;">' + (va.tipo_vehiculo || '') + '</span>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<i class="fas fa-user" style="color:#40e0d0;"></i>' +
+        '<span style="color:#e0f2fe;font-size:12px;">' + va.conductor + '</span>' +
+        '</div>';
+}
+
+// ----------------------------------------------------------------
+// MODAL EDITAR ASIGNACIÓN
+// ----------------------------------------------------------------
+
+/**
+ * Abre el modal para editar la asignación de conductor/vehículo de una ruta.
+ * Carga desde el servidor los VC activos disponibles (ACTIVO y no EN_USO).
+ */
+function abrirModalEdicion(rutaIdx) {
+    editandoRutaIdx = rutaIdx;
+    var ruta = rutasPlanificadas[rutaIdx];
+    if (!ruta) return;
+
+    // Mostrar info actual
+    var vaActual = ruta.vehiculo_asignado;
+    var infoHtml =
+        '<div class="editar-actual-card">' +
+        '<div class="editar-actual-label"><i class="fas fa-info-circle"></i> Asignación actual:</div>' +
+        '<div class="editar-actual-valores">' +
+        '<span><i class="fas fa-truck" style="color:#40e0d0;"></i> <strong>' + vaActual.placa + '</strong> — ' + (vaActual.tipo_vehiculo || '') + '</span>' +
+        '<span><i class="fas fa-user" style="color:#40e0d0;"></i> ' + vaActual.conductor + '</span>' +
+        '</div>' +
+        '</div>';
+    $('#editar-info-actual').html(infoHtml);
+
+    // Reset select
+    $('#select-vc-nuevo').html('<option value="">-- Cargando opciones disponibles... --</option>');
+    $('#vc-info-preview').hide();
+
+    $('#modal-editar-overlay').show();
+
+    // Cargar VCs activos del servidor
+    $.ajax({
+        url: '/main/vehiculo/obtener_vc_activos',
+        method: 'GET',
+        success: function (response) {
+            if (response.success) {
+                vcActivosList = response.data;
+                var opciones = '<option value="">-- Selecciona Conductor / Vehículo --</option>';
+
+                if (vcActivosList.length === 0) {
+                    opciones += '<option value="" disabled>No hay vehículos-conductores disponibles (todos en uso o inactivos)</option>';
+                } else {
+                    vcActivosList.forEach(function (vc) {
+                        var selected = (vc.vehiculo_conductor_id === vaActual.vehiculo_conductor_id) ? ' selected' : '';
+                        opciones += '<option value="' + vc.vehiculo_conductor_id + '"' + selected + '>' +
+                            '🚛 ' + vc.placa + ' | 👤 ' + vc.conductor_nombre + ' | ' + vc.tipo_vehiculo +
+                            '</option>';
+                    });
+                }
+
+                $('#select-vc-nuevo').html(opciones);
+
+                // Mostrar preview del actual
+                if (vaActual.vehiculo_conductor_id) {
+                    mostrarPreviewVC();
+                }
+            } else {
+                $('#select-vc-nuevo').html('<option value="">Error al cargar opciones</option>');
+                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudieron cargar los conductores disponibles.' });
+            }
+        },
+        error: function () {
+            $('#select-vc-nuevo').html('<option value="">Error de conexión</option>');
+            Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo consultar los conductores disponibles.' });
+        }
+    });
+}
+
+/**
+ * Muestra un preview con los datos del VC seleccionado en el select.
+ */
+function mostrarPreviewVC() {
+    var vcId = parseInt($('#select-vc-nuevo').val());
+    if (!vcId) {
+        $('#vc-info-preview').hide();
+        return;
+    }
+
+    var vc = vcActivosList.find(function (x) { return x.vehiculo_conductor_id === vcId; });
+    if (!vc) { $('#vc-info-preview').hide(); return; }
+
+    var html =
+        '<div class="vc-preview-grid">' +
+        '<div class="vc-preview-item"><span class="vc-preview-lbl">Placa</span><span class="vc-preview-val">' + vc.placa + '</span></div>' +
+        '<div class="vc-preview-item"><span class="vc-preview-lbl">Marca/Modelo</span><span class="vc-preview-val">' + vc.marca + ' ' + vc.modelo + '</span></div>' +
+        '<div class="vc-preview-item"><span class="vc-preview-lbl">Tipo</span><span class="vc-preview-val">' + vc.tipo_vehiculo + '</span></div>' +
+        '<div class="vc-preview-item"><span class="vc-preview-lbl">Capacidad</span><span class="vc-preview-val">' + vc.capacidad_carga + ' u.</span></div>' +
+        '<div class="vc-preview-item"><span class="vc-preview-lbl">Estado Vehículo</span><span class="vc-preview-val estado-activo">' + vc.estado_vehiculo + '</span></div>' +
+        '<div class="vc-preview-item"><span class="vc-preview-lbl">Conductor</span><span class="vc-preview-val">' + vc.conductor_nombre + '</span></div>' +
+        '<div class="vc-preview-item"><span class="vc-preview-lbl">DNI</span><span class="vc-preview-val">' + vc.conductor_dni + '</span></div>' +
+        '<div class="vc-preview-item"><span class="vc-preview-lbl">Estado Conductor</span><span class="vc-preview-val estado-activo">' + vc.estado_conductor + '</span></div>' +
+        '</div>';
+
+    $('#vc-info-preview').html(html).show();
+}
+
+/**
+ * Confirma el cambio de asignación de conductor/vehículo en la ruta.
+ */
+function confirmarEdicion() {
+    var vcId = parseInt($('#select-vc-nuevo').val());
+
+    if (!vcId) {
+        Swal.fire({ icon: 'warning', title: 'Atención', text: 'Debes seleccionar un conductor y vehículo.' });
+        return;
+    }
+
+    var vc = vcActivosList.find(function (x) { return x.vehiculo_conductor_id === vcId; });
+    if (!vc) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'El vehículo-conductor seleccionado no es válido.' });
+        return;
+    }
+
+    // Validación final: solo ACTIVOS
+    if (vc.estado_vehiculo !== 'ACTIVO' || vc.estado_conductor !== 'ACTIVO') {
+        Swal.fire({
+            icon: 'error',
+            title: 'No disponible',
+            text: 'El vehículo o conductor seleccionado no está ACTIVO. Por favor elige otro.'
+        });
+        return;
+    }
+
+    // Actualizar localmente el modelo de datos
+    var ruta = rutasPlanificadas[editandoRutaIdx];
+    ruta.vehiculo_asignado = {
+        vehiculo_conductor_id: vc.vehiculo_conductor_id,
+        vehiculo_id: vc.vehiculo_id,
+        conductor_id: vc.conductor_id,
+        placa: vc.placa,
+        tipo_vehiculo: vc.tipo_vehiculo,
+        conductor: vc.conductor_nombre
+    };
+
+    // Actualizar visualmente la tarjeta (solo el bloque de VC)
+    $('#vc-info-' + editandoRutaIdx).html(renderVCInfo(ruta.vehiculo_asignado));
+
+    cerrarModalEditar();
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Asignación actualizada',
+        html: '<strong>' + vc.placa + '</strong> → ' + vc.conductor_nombre +
+              '<br><small style="color:#888;">El cambio se guardará cuando presiones "Guardar Planificación"</small>',
+        timer: 2500,
+        showConfirmButton: false
+    });
+}
+
+function cerrarModalEditar() {
+    $('#modal-editar-overlay').hide();
+    editandoRutaIdx = null;
+    vcActivosList = [];
+}
+
 // ----------------------------------------------------------------
 // GENERAR LINK GOOGLE MAPS
 // ----------------------------------------------------------------
@@ -462,7 +639,6 @@ function generarLinkGoogleMaps(ruta) {
         return 'https://www.google.com/maps';
     }
 
-    // Formato: https://www.google.com/maps/dir/origen/destino (modo conducción)
     var origen = ORIGEN_LAT + ',' + ORIGEN_LON;
     var destino = lat + ',' + lon;
 
@@ -476,11 +652,9 @@ function generarLinkGoogleMaps(ruta) {
 function seleccionarRuta(index) {
     selectedRutaIndex = index;
 
-    // Actualizar clase seleccionado sin re-renderizar todo
     $('.ruta-item').removeClass('seleccionado');
     $('.ruta-item[data-index="' + index + '"]').addClass('seleccionado');
 
-    // Centrar mapa en el destino
     if (map && rutasPlanificadas[index]) {
         var ruta = rutasPlanificadas[index];
         var lat = parseFloat(ruta.lat);
@@ -509,26 +683,31 @@ function verDetalleRuta(index) {
         ? 'S/ ' + ruta.gasto_estimado.toFixed(2)
         : 'Sin ingresar';
 
+    // Explicación del nivel de riesgo para la tesis
+    var riesgoExplicacion = '';
+    if (ruta.nivel_riesgo === 'ALTO') {
+        riesgoExplicacion = 'Distancia >350 km y/o producto con alta sensibilidad (temperatura <10°C o humedad extrema).';
+    } else if (ruta.nivel_riesgo === 'MEDIO') {
+        riesgoExplicacion = 'Distancia entre 150-350 km con sensibilidad moderada del producto según temperatura y humedad.';
+    } else {
+        riesgoExplicacion = 'Distancia ≤150 km con producto estable (temperatura ≥18°C y humedad entre 50-70%).';
+    }
+
     $('#detalle-ruta-titulo').text('Detalles — ' + ruta.almacen_nombre);
 
     var body =
-        // Resumen rápido
         '<div class="modal-resumen-ruta">' +
         '<div class="modal-resumen-item"><div class="modal-resumen-label">Distancia</div><div class="modal-resumen-valor val-dist">' + ruta.distancia_km + ' km</div></div>' +
         '<div class="modal-resumen-item"><div class="modal-resumen-label">Tiempo Est.</div><div class="modal-resumen-valor val-tiempo">' + ruta.tiempo_estimado_horas + ' hrs</div></div>' +
-        '<div class="modal-resumen-item"><div class="modal-resumen-label">Gasto Combustible</div><div class="modal-resumen-valor val-gasto">' + gastoTexto + '</div></div>' +
+        '<div class="modal-resumen-item"><div class="modal-resumen-label">Gasto</div><div class="modal-resumen-valor val-gasto">' + gastoTexto + '</div></div>' +
         '<div class="modal-resumen-item"><div class="modal-resumen-label">Nivel Riesgo</div><div class="modal-resumen-valor ' + riesgoClass + '">' + ruta.nivel_riesgo + '</div></div>' +
         '</div>' +
 
-        // Link Google Maps
         '<div class="gmaps-link-box">' +
         '<span><i class="fas fa-map-marked-alt" style="color:#f4511e;margin-right:6px;"></i>Ver ruta completa en Google Maps</span>' +
-        '<a class="btn-link-maps" href="' + gmapsUrl + '" target="_blank" rel="noopener">' +
-        '<i class="fab fa-google"></i> Abrir en Maps' +
-        '</a>' +
+        '<a class="btn-link-maps" href="' + gmapsUrl + '" target="_blank" rel="noopener"><i class="fab fa-google"></i> Abrir en Maps</a>' +
         '</div>' +
 
-        // Tabla de detalles
         '<table class="tabla-detalle">' +
         '<tr><th colspan="2">Información del Envío</th></tr>' +
         '<tr><td class="td-label">N° Envío</td><td>' + ruta.nro_envio + '</td></tr>' +
@@ -537,8 +716,11 @@ function verDetalleRuta(index) {
         '<tr><td class="td-label">Producto</td><td>' + ruta.producto_nombre + '</td></tr>' +
         '<tr><td class="td-label">Tipo de Producto</td><td>' + (ruta.producto_tipo || 'N/A') + '</td></tr>' +
         '<tr><td class="td-label">Demanda</td><td>' + ruta.demanda + ' unidades</td></tr>' +
+        '<tr><th colspan="2">Condiciones Climáticas del Producto</th></tr>' +
         '<tr><td class="td-label">Temperatura Óptima</td><td>' + ruta.temperatura_optima + ' °C</td></tr>' +
         '<tr><td class="td-label">Humedad Óptima</td><td>' + ruta.humedad_optima + ' %</td></tr>' +
+        '<tr><td class="td-label">Nivel de Riesgo</td><td class="' + riesgoClass + '"><strong>' + ruta.nivel_riesgo + '</strong></td></tr>' +
+        '<tr><td class="td-label" colspan="2" style="font-size:11px;color:#a5d8ff;">' + riesgoExplicacion + '</td></tr>' +
         '<tr><th colspan="2">Vehículo y Conductor</th></tr>' +
         '<tr><td class="td-label">Placa</td><td>' + ruta.vehiculo_asignado.placa + '</td></tr>' +
         '<tr><td class="td-label">Tipo Vehículo</td><td>' + (ruta.vehiculo_asignado.tipo_vehiculo || 'N/A') + '</td></tr>' +

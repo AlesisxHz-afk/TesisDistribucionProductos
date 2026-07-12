@@ -1,0 +1,98 @@
+{% extends "main.html" %}
+{% block title %}Temperatura y Humedad por Producto - Alaya S.A.C{% endblock %}
+{% block page_title %}Reporte: Temperatura y Humedad Óptima{% endblock %}
+{% block page_description %}Scatter plot interactivo de condiciones climáticas óptimas por producto{% endblock %}
+{% block maincss %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_comun.css') }}">
+{% endblock %}
+{% block contenido %}
+<div class="rpt-page">
+  <div class="rpt-header">
+    <div class="rpt-header-left">
+      <h2><i class="fas fa-thermometer-half" style="margin-right:10px;"></i>Temperatura y Humedad Óptima</h2>
+      <p>Analiza cómo se distribuyen los productos según sus requerimientos climáticos óptimos</p>
+    </div>
+    <div class="rpt-header-icon"><i class="fas fa-cloud-sun"></i></div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="rpt-kpi-grid">
+    <div class="rpt-kpi-card" style="--kpi-color:#fb923c;">
+      <div class="rpt-kpi-icon"><i class="fas fa-thermometer-full"></i></div>
+      <div class="rpt-kpi-value" id="kpi-temp-max">—</div>
+      <div class="rpt-kpi-label">Temp. Máx. °C</div>
+    </div>
+    <div class="rpt-kpi-card" style="--kpi-color:#60a5fa;">
+      <div class="rpt-kpi-icon"><i class="fas fa-thermometer-quarter"></i></div>
+      <div class="rpt-kpi-value" id="kpi-temp-min">—</div>
+      <div class="rpt-kpi-label">Temp. Mín. °C</div>
+    </div>
+    <div class="rpt-kpi-card" style="--kpi-color:#40e0d0;">
+      <div class="rpt-kpi-icon"><i class="fas fa-tint"></i></div>
+      <div class="rpt-kpi-value" id="kpi-hum-avg">—</div>
+      <div class="rpt-kpi-label">Humedad Prom. %</div>
+    </div>
+    <div class="rpt-kpi-card" style="--kpi-color:#f87171;">
+      <div class="rpt-kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+      <div class="rpt-kpi-value" id="kpi-criticos">—</div>
+      <div class="rpt-kpi-label">Productos Críticos</div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="rpt-filtros">
+    <label>Tipo de producto:</label>
+    <select id="filtro-tipo" class="rpt-select"><option value="">— Todos —</option></select>
+    <label>Temp. mín.:</label>
+    <input type="number" id="filtro-temp-min" class="rpt-input" style="min-width:80px;width:80px;" placeholder="0">
+    <label>Temp. máx.:</label>
+    <input type="number" id="filtro-temp-max" class="rpt-input" style="min-width:80px;width:80px;" placeholder="40">
+    <button class="rpt-btn" id="btn-aplicar"><i class="fas fa-filter"></i> Filtrar</button>
+    <button class="rpt-btn rpt-btn-secondary" id="btn-reset"><i class="fas fa-undo"></i> Reset</button>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="rpt-charts-grid">
+    <div class="rpt-chart-card full-width">
+      <div class="rpt-chart-title"><i class="fas fa-braille"></i> Scatter: Temperatura vs Humedad Óptima</div>
+      <p style="font-size:12px;color:#7fc8e8;margin-bottom:10px;">Cada punto es un producto. Pasa el cursor para ver detalles. Productos en zona crítica (baja temp. + alta humedad) se marcan en rojo.</p>
+      <div class="rpt-chart-canvas-wrap tall"><canvas id="chart-scatter"></canvas></div>
+    </div>
+    <div class="rpt-chart-card">
+      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Distribución de Temperatura Óptima</div>
+      <div class="rpt-chart-canvas-wrap"><canvas id="chart-temp-hist"></canvas></div>
+    </div>
+    <div class="rpt-chart-card">
+      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Distribución de Humedad Óptima</div>
+      <div class="rpt-chart-canvas-wrap"><canvas id="chart-hum-hist"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="rpt-chart-card">
+    <div class="rpt-chart-title"><i class="fas fa-table"></i> Tabla de Condiciones Óptimas</div>
+    <div class="rpt-search-wrap">
+      <input type="text" class="rpt-search" id="tabla-search" placeholder="Buscar producto...">
+    </div>
+    <div class="rpt-table-wrap">
+      <table class="rpt-table">
+        <thead><tr>
+          <th onclick="sortTable(0)">Producto ↕</th>
+          <th onclick="sortTable(1)">Tipo ↕</th>
+          <th onclick="sortTable(2)">Temp. Ópt. ↕</th>
+          <th onclick="sortTable(3)">Humedad Ópt. ↕</th>
+          <th>Sensibilidad</th>
+          <th>Estado</th>
+        </tr></thead>
+        <tbody id="tabla-body">
+          <tr><td colspan="6" class="rpt-loading"><i class="fas fa-spinner"></i> Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/reporte_p2.js') }}"></script>
+{% endblock %}

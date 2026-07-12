@@ -1,0 +1,62 @@
+{% extends "main.html" %}
+{% block title %}Gasto de Combustible - Alaya S.A.C{% endblock %}
+{% block page_title %}Reporte: Gasto de Combustible por Vehículo{% endblock %}
+{% block page_description %}Analiza el gasto de combustible por vehículo y período{% endblock %}
+{% block maincss %}<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_comun.css') }}">{% endblock %}
+{% block contenido %}
+<div class="rpt-page">
+  <div class="rpt-header">
+    <div class="rpt-header-left">
+      <h2><i class="fas fa-gas-pump" style="margin-right:10px;"></i>Gasto de Combustible por Vehículo</h2>
+      <p>Visualiza y compara los gastos de combustible de la flota. Selecciona un vehículo para ver su evolución.</p>
+    </div>
+    <div class="rpt-header-icon"><i class="fas fa-gas-pump"></i></div>
+  </div>
+
+  <div class="rpt-kpi-grid">
+    <div class="rpt-kpi-card" style="--kpi-color:#fb923c;"><div class="rpt-kpi-icon"><i class="fas fa-money-bill-wave"></i></div><div class="rpt-kpi-value" id="kpi-gasto-total">—</div><div class="rpt-kpi-label">Gasto Total S/</div></div>
+    <div class="rpt-kpi-card" style="--kpi-color:#fdd54f;"><div class="rpt-kpi-icon"><i class="fas fa-chart-line"></i></div><div class="rpt-kpi-value" id="kpi-gasto-prom">—</div><div class="rpt-kpi-label">Prom. por Envío S/</div></div>
+    <div class="rpt-kpi-card" style="--kpi-color:#f87171;"><div class="rpt-kpi-icon"><i class="fas fa-fire"></i></div><div class="rpt-kpi-value" id="kpi-mayor-gasto">—</div><div class="rpt-kpi-label">Mayor Gasto (placa)</div></div>
+    <div class="rpt-kpi-card" style="--kpi-color:#4ade80;"><div class="rpt-kpi-icon"><i class="fas fa-leaf"></i></div><div class="rpt-kpi-value" id="kpi-menor-gasto">—</div><div class="rpt-kpi-label">Menor Gasto (placa)</div></div>
+  </div>
+
+  <div class="rpt-filtros">
+    <label>Vehículo (placa):</label>
+    <select id="filtro-vehiculo" class="rpt-select" style="min-width:150px;"><option value="">— Todos —</option></select>
+    <button class="rpt-btn" id="btn-ver-evolucion"><i class="fas fa-chart-line"></i> Ver Evolución</button>
+    <button class="rpt-btn rpt-btn-secondary" id="btn-reset"><i class="fas fa-undo"></i> Reset</button>
+  </div>
+
+  <div class="rpt-charts-grid">
+    <div class="rpt-chart-card full-width">
+      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Gasto de Combustible por Vehículo (Total)</div>
+      <div class="rpt-chart-canvas-wrap tall"><canvas id="chart-gasto-total"></canvas></div>
+    </div>
+    <div class="rpt-chart-card full-width" id="card-evolucion" style="display:none;">
+      <div class="rpt-chart-title" id="evolucion-title"><i class="fas fa-chart-line"></i> Evolución de Gasto</div>
+      <div class="rpt-chart-canvas-wrap"><canvas id="chart-evolucion"></canvas></div>
+    </div>
+  </div>
+
+  <div class="rpt-chart-card">
+    <div class="rpt-chart-title"><i class="fas fa-table"></i> Ranking de Gasto por Vehículo</div>
+    <div class="rpt-table-wrap">
+      <table class="rpt-table">
+        <thead><tr>
+          <th>#</th>
+          <th onclick="sortTable(0)">Placa ↕</th>
+          <th onclick="sortTable(1)">Tipo ↕</th>
+          <th onclick="sortTable(2)">N° Envíos ↕</th>
+          <th onclick="sortTable(3)">Gasto Total ↕</th>
+          <th onclick="sortTable(4)">Gasto Prom/Envío ↕</th>
+        </tr></thead>
+        <tbody id="tabla-body"><tr><td colspan="6" class="rpt-loading"><i class="fas fa-spinner"></i> Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/reporte_v3.js') }}"></script>
+{% endblock %}

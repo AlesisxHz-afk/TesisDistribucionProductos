@@ -1,0 +1,72 @@
+{% extends "main.html" %}
+{% block title %}Envíos por Producto - Alaya S.A.C{% endblock %}
+{% block page_title %}Reporte: Envíos por Producto en el Tiempo{% endblock %}
+{% block page_description %}Evolución temporal de los envíos desglosada por producto{% endblock %}
+{% block maincss %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_comun.css') }}">
+{% endblock %}
+{% block contenido %}
+<div class="rpt-page">
+  <div class="rpt-header">
+    <div class="rpt-header-left">
+      <h2><i class="fas fa-chart-line" style="margin-right:10px;"></i>Envíos por Producto en el Tiempo</h2>
+      <p>Selecciona un producto para ver su curva de demanda histórica y tendencia de envíos</p>
+    </div>
+    <div class="rpt-header-icon"><i class="fas fa-shipping-fast"></i></div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="rpt-kpi-grid">
+    <div class="rpt-kpi-card" style="--kpi-color:#40e0d0;">
+      <div class="rpt-kpi-icon"><i class="fas fa-truck"></i></div>
+      <div class="rpt-kpi-value" id="kpi-total-envios">—</div>
+      <div class="rpt-kpi-label">Total Envíos</div>
+    </div>
+    <div class="rpt-kpi-card" style="--kpi-color:#fdd54f;">
+      <div class="rpt-kpi-icon"><i class="fas fa-layer-group"></i></div>
+      <div class="rpt-kpi-value" id="kpi-total-demanda">—</div>
+      <div class="rpt-kpi-label">Demanda Total</div>
+    </div>
+    <div class="rpt-kpi-card" style="--kpi-color:#4ade80;">
+      <div class="rpt-kpi-icon"><i class="fas fa-check"></i></div>
+      <div class="rpt-kpi-value" id="kpi-completados">—</div>
+      <div class="rpt-kpi-label">Completados</div>
+    </div>
+    <div class="rpt-kpi-card" style="--kpi-color:#fb923c;">
+      <div class="rpt-kpi-icon"><i class="fas fa-hourglass"></i></div>
+      <div class="rpt-kpi-value" id="kpi-pendientes">—</div>
+      <div class="rpt-kpi-label">Pendientes</div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="rpt-filtros">
+    <label>Producto:</label>
+    <select id="filtro-producto" class="rpt-select" style="min-width:200px;"><option value="">— Todos —</option></select>
+    <label>Año:</label>
+    <select id="filtro-anio" class="rpt-select" style="min-width:110px;"><option value="">— Todos —</option></select>
+    <button class="rpt-btn" id="btn-aplicar"><i class="fas fa-search"></i> Cargar</button>
+    <button class="rpt-btn rpt-btn-secondary" id="btn-reset"><i class="fas fa-undo"></i> Reset</button>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="rpt-charts-grid">
+    <div class="rpt-chart-card full-width">
+      <div class="rpt-chart-title"><i class="fas fa-chart-line"></i> Demanda de Envíos por Mes</div>
+      <div class="rpt-chart-canvas-wrap tall"><canvas id="chart-linea"></canvas></div>
+    </div>
+    <div class="rpt-chart-card">
+      <div class="rpt-chart-title"><i class="fas fa-chart-pie"></i> Estado de Envíos</div>
+      <div class="rpt-chart-canvas-wrap"><canvas id="chart-estados"></canvas></div>
+    </div>
+    <div class="rpt-chart-card">
+      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Demanda por Producto (Top 8)</div>
+      <div class="rpt-chart-canvas-wrap"><canvas id="chart-top"></canvas></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/reporte_p3.js') }}"></script>
+{% endblock %}

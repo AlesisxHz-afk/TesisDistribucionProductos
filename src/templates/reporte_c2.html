@@ -1,0 +1,58 @@
+{% extends "main.html" %}
+{% block title %}Disponibilidad Semanal - Alaya S.A.C{% endblock %}
+{% block page_title %}Reporte: Disponibilidad Semanal de Conductores{% endblock %}
+{% block page_description %}Visualiza los horarios de disponibilidad de cada conductor por día de la semana{% endblock %}
+{% block maincss %}<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_comun.css') }}">{% endblock %}
+{% block contenido %}
+<div class="rpt-page">
+  <div class="rpt-header">
+    <div class="rpt-header-left">
+      <h2><i class="fas fa-calendar-week" style="margin-right:10px;"></i>Disponibilidad Semanal de Conductores</h2>
+      <p>Mapa visual de horarios disponibles. Haz clic en una celda verde para ver detalles del turno.</p>
+    </div>
+    <div class="rpt-header-icon"><i class="fas fa-calendar-check"></i></div>
+  </div>
+
+  <div class="rpt-kpi-grid">
+    <div class="rpt-kpi-card" style="--kpi-color:#40e0d0;"><div class="rpt-kpi-icon"><i class="fas fa-users"></i></div><div class="rpt-kpi-value" id="kpi-conductores">—</div><div class="rpt-kpi-label">Conductores</div></div>
+    <div class="rpt-kpi-card" style="--kpi-color:#4ade80;"><div class="rpt-kpi-icon"><i class="fas fa-calendar-check"></i></div><div class="rpt-kpi-value" id="kpi-disponibles">—</div><div class="rpt-kpi-label">Turnos Disponibles</div></div>
+    <div class="rpt-kpi-card" style="--kpi-color:#fdd54f;"><div class="rpt-kpi-icon"><i class="fas fa-clock"></i></div><div class="rpt-kpi-value" id="kpi-dia-pico">—</div><div class="rpt-kpi-label">Día más cubierto</div></div>
+    <div class="rpt-kpi-card" style="--kpi-color:#f87171;"><div class="rpt-kpi-icon"><i class="fas fa-user-slash"></i></div><div class="rpt-kpi-value" id="kpi-sin-disp">—</div><div class="rpt-kpi-label">Sin disponibilidad</div></div>
+  </div>
+
+  <div class="rpt-filtros">
+    <label>Conductor:</label>
+    <select id="filtro-conductor" class="rpt-select" style="min-width:200px;"><option value="">— Todos —</option></select>
+    <label>Estado:</label>
+    <select id="filtro-estado" class="rpt-select" style="min-width:120px;">
+      <option value="">— Todos —</option><option value="ACTIVO">Activo</option><option value="EN_USO">En Uso</option>
+    </select>
+    <button class="rpt-btn" id="btn-aplicar"><i class="fas fa-filter"></i> Filtrar</button>
+    <button class="rpt-btn rpt-btn-secondary" id="btn-reset"><i class="fas fa-undo"></i> Reset</button>
+  </div>
+
+  <div class="rpt-chart-card" style="margin-bottom:18px;">
+    <div class="rpt-chart-title"><i class="fas fa-th"></i> Grilla de Disponibilidad Semanal</div>
+    <p style="font-size:12px;color:#7fc8e8;margin-bottom:12px;">🟢 Disponible | ⬜ Sin turno registrado. Haz clic para ver hora de inicio y fin.</p>
+    <div id="disponibilidad-info" style="font-size:12px;color:#fdd54f;margin-bottom:12px;min-height:18px;"></div>
+    <div style="overflow-x:auto;">
+      <div class="sem-grid" id="grid-sem" style="min-width:600px;"></div>
+    </div>
+  </div>
+
+  <div class="rpt-charts-grid">
+    <div class="rpt-chart-card">
+      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Conductores por Día</div>
+      <div class="rpt-chart-canvas-wrap"><canvas id="chart-dia"></canvas></div>
+    </div>
+    <div class="rpt-chart-card">
+      <div class="rpt-chart-title"><i class="fas fa-chart-pie"></i> Estado de Conductores</div>
+      <div class="rpt-chart-canvas-wrap"><canvas id="chart-estado"></canvas></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/reporte_c2.js') }}"></script>
+{% endblock %}

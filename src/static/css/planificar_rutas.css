@@ -767,3 +767,181 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ============================================================
+   BOTÓN EDITAR ASIGNACIÓN
+   ============================================================ */
+.editar-asignacion-row {
+    margin: 8px 0 6px;
+}
+
+.btn-editar-asignacion {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(253, 213, 79, 0.15), rgba(253, 213, 79, 0.08));
+    border: 1px solid rgba(253, 213, 79, 0.5);
+    color: #fdd54f;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+}
+
+.btn-editar-asignacion:hover {
+    background: linear-gradient(135deg, rgba(253, 213, 79, 0.3), rgba(253, 213, 79, 0.15));
+    border-color: #fdd54f;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(253, 213, 79, 0.25);
+}
+
+/* ============================================================
+   MODAL EDITAR ASIGNACIÓN
+   ============================================================ */
+.modal-editar-box {
+    max-width: 560px;
+}
+
+.editar-actual-card {
+    background: rgba(64, 224, 208, 0.08);
+    border: 1px solid rgba(64, 224, 208, 0.3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+}
+
+.editar-actual-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #a5d8ff;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 8px;
+}
+
+.editar-actual-valores {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.editar-actual-valores span {
+    color: #e0f2fe;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.editar-selector-wrap {
+    margin-bottom: 16px;
+}
+
+.editar-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-accent);
+    margin-bottom: 8px;
+}
+
+.editar-select {
+    width: 100%;
+    background: var(--submenu-bg, #0d2137);
+    border: 1px solid rgba(64, 224, 208, 0.4);
+    color: var(--text-primary, #e0f2fe);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    margin-bottom: 10px;
+}
+
+.editar-select:focus {
+    outline: none;
+    border-color: #40e0d0;
+    box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.15);
+}
+
+.editar-select option {
+    background: #0d2137;
+    color: #e0f2fe;
+}
+
+/* Preview del VC seleccionado */
+.vc-info-preview {
+    background: rgba(64, 224, 208, 0.06);
+    border: 1px solid rgba(64, 224, 208, 0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 6px;
+    animation: fadeInDown 0.2s ease;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.vc-preview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+}
+
+.vc-preview-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.vc-preview-lbl {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #7fc8e8;
+}
+
+.vc-preview-val {
+    font-size: 12px;
+    color: #e0f2fe;
+}
+
+.estado-activo {
+    color: #4ade80 !important;
+    font-weight: 700;
+}
+
+/* Nota riesgo */
+.editar-nota-riesgo {
+    background: rgba(253, 213, 79, 0.07);
+    border-left: 3px solid rgba(253, 213, 79, 0.5);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: #c8b96a;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+}
+
+/* Botón warning */
+.btn-warning {
+    background: linear-gradient(135deg, #fdd54f, #f5a623);
+    color: #1a1a2e;
+    border: none;
+    font-weight: 700;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #ffe070, #fdd54f);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(253, 213, 79, 0.4);
+}
+
