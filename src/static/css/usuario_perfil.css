@@ -8,7 +8,7 @@
 .profile-header {
     margin-bottom: 25px;
     padding-bottom: 15px;
-    border-bottom: 2px solid rgba(64, 224, 208, 0.3);
+    border-bottom: 2px solid rgba(var(--accent-rgb), 0.3);
 }
 
 .profile-header h2 {
@@ -48,7 +48,7 @@
     background: rgba(21, 42, 58, 0.8);
     border-radius: 12px;
     padding: 20px;
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     text-align: center;
 }
 
@@ -96,7 +96,7 @@
 .btn-change {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     color: white;
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
 }
 
 .btn-change:hover {
@@ -132,7 +132,7 @@
     background: rgba(21, 42, 58, 0.8);
     border-radius: 12px;
     padding: 20px;
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
 }
 
 .status-active {
@@ -155,14 +155,14 @@
 .card {
     background: rgba(21, 42, 58, 0.8);
     border-radius: 12px;
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .card-header {
     background: linear-gradient(90deg, var(--bg-secondary) 0%, var(--gradient-start) 100%);
     padding: 18px 25px;
-    border-bottom: 1px solid rgba(64, 224, 208, 0.2);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.2);
     border-radius: 12px 12px 0 0;
 }
 
@@ -188,7 +188,7 @@
 .form-section {
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 1px solid rgba(64, 224, 208, 0.1);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
 }
 
 .form-section:last-child {
@@ -253,7 +253,7 @@
 
 .form-control {
     background-color: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(64, 224, 208, 0.3);
+    border: 2px solid rgba(var(--accent-rgb), 0.3);
     border-radius: 8px;
     color: var(--text-primary);
     padding: 12px 15px;
@@ -265,13 +265,13 @@
 .form-control:focus {
     background-color: rgba(255, 255, 255, 0.15);
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 0.2rem rgba(64, 224, 208, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(var(--accent-rgb), 0.25);
     color: white;
 }
 
 .form-control[readonly] {
     background-color: rgba(255, 255, 255, 0.05);
-    border-color: rgba(64, 224, 208, 0.1);
+    border-color: rgba(var(--accent-rgb), 0.1);
     cursor: not-allowed;
 }
 
@@ -308,7 +308,7 @@
     justify-content: flex-start;
     padding-top: 20px;
     margin-top: 20px;
-    border-top: 1px solid rgba(64, 224, 208, 0.1);
+    border-top: 1px solid rgba(var(--accent-rgb), 0.1);
 }
 
 .btn {
@@ -338,7 +338,7 @@
 .btn-primary:hover {
     background: linear-gradient(90deg, #3d8b40 0%, var(--gradient-start) 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(64, 224, 208, 0.3);
+    box-shadow: 0 6px 15px rgba(var(--accent-rgb), 0.3);
 }
 
 .btn-secondary {
@@ -414,7 +414,7 @@
     background-color: rgba(21, 42, 58, 0.95);
     margin: auto;
     padding: 30px;
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     border-radius: 12px;
     width: 90%;
     max-width: 400px;
@@ -465,7 +465,7 @@
 .btn-modal-option {
     padding: 15px;
     border-radius: 8px;
-    border: 2px solid rgba(64, 224, 208, 0.3);
+    border: 2px solid rgba(var(--accent-rgb), 0.3);
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
     font-size: 16px;
@@ -479,10 +479,10 @@
 }
 
 .btn-modal-option:hover {
-    background: rgba(64, 224, 208, 0.2);
+    background: rgba(var(--accent-rgb), 0.2);
     border-color: var(--accent-color);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(64, 224, 208, 0.2);
+    box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.2);
 }
 
 .btn-modal-option i {

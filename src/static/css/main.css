@@ -1,99 +1,107 @@
 :root {
-    /* Default theme: Light Mode (White with Light Green) */
-    --bg-primary: linear-gradient(135deg, #f5fbf6 0%, #eaf5eb 100%);
+    /* Default theme: Minimalist Light Mode (White with Green) */
+    --bg-primary: #f8f9fa;
     --bg-secondary: #ffffff;
-    --bg-sidebar: linear-gradient(180deg, #ffffff 0%, #f0f7f2 100%);
-    --bg-sidebar-header: #f0f7f2;
-    --bg-sidebar-footer: #f0f7f2;
-    --bg-header: linear-gradient(90deg, #ffffff 0%, #f0f7f2 100%);
+    --bg-sidebar: #ffffff;
+    --bg-sidebar-header: #ffffff;
+    --bg-sidebar-footer: #ffffff;
+    --bg-header: #ffffff;
     --bg-card: #ffffff;
-    --bg-card-welcome: linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%);
+    --bg-card-welcome: #ecfdf5;
     --bg-input: #ffffff;
     --bg-dropdown: #ffffff;
-    --bg-footer: linear-gradient(90deg, #ffffff 0%, #f0f7f2 100%);
+    --bg-footer: #ffffff;
     
-    --border-color: #e2ede5;
-    --border-accent: rgba(76, 175, 80, 0.3);
+    --border-color: #e5e7eb;
+    --border-accent: rgba(16, 185, 129, 0.2);
     
-    --text-primary: #2c3e2f;
-    --text-secondary: #4caf50;
-    --text-muted: #5e7362;
-    --text-accent: #2e7d32;
+    --text-primary: #111827;
+    --text-secondary: #059669;
+    --text-muted: #4b5563;
+    --text-accent: #047857;
     --text-light: #ffffff;
     
-    --accent-color: #4caf50;
-    --accent-secondary: #81c784;
-    --accent-hover: #388e3c;
-    --accent-light: rgba(76, 175, 80, 0.1);
-    --accent-glow: rgba(76, 175, 80, 0.2);
+    --accent-color: #10b981;
+    --accent-secondary: #059669;
+    --accent-hover: #059669;
+    --accent-light: rgba(16, 185, 129, 0.08);
+    --accent-glow: rgba(16, 185, 129, 0.15);
     
-    --gradient-start: #e8f5e9;
-    --gradient-end: #c8e6c9;
-    --gradient-accent: linear-gradient(90deg, #4caf50 0%, #81c784 100%);
-    --gradient-accent-hover: linear-gradient(90deg, #388e3c 0%, #4caf50 100%);
+    --gradient-start: #ecfdf5;
+    --gradient-end: #d1fae5;
+    --gradient-accent: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    --gradient-accent-hover: linear-gradient(90deg, #059669 0%, #047857 100%);
     
-    --shadow-color: rgba(0, 0, 0, 0.06);
-    --shadow-hover: rgba(76, 175, 80, 0.15);
+    --shadow-color: rgba(0, 0, 0, 0.04);
+    --shadow-hover: rgba(16, 185, 129, 0.1);
     
-    --sidebar-border: 1px solid #e2ede5;
-    --nav-item-color: #2c3e2f;
-    --nav-item-active-color: #2e7d32;
-    --nav-item-hover-bg: rgba(76, 175, 80, 0.08);
-    --nav-item-active-bg: rgba(76, 175, 80, 0.12);
+    --sidebar-border: 1px solid #e5e7eb;
+    --nav-item-color: #4b5563;
+    --nav-item-active-color: #059669;
+    --nav-item-hover-bg: #f3f4f6;
+    --nav-item-active-bg: #ecfdf5;
     
-    --submenu-bg: #f9fdfa;
-    --header-btn-bg: linear-gradient(90deg, #e8f5e9 0%, #c8e6c9 100%);
+    --submenu-bg: #f9fafb;
+    --header-btn-bg: #f3f4f6;
     
-    --fruit-opacity: 0.06;
+    --fruit-opacity: 0.04;
+    
+    /* RGB constants for custom page stylesheets (rgba borders and overlays) */
+    --accent-rgb: 16, 185, 129;      /* Emerald Green */
+    --bg-overlay-rgb: 243, 244, 246;  /* Soft light gray background */
 }
 
 [data-theme="dark"] {
-    /* Dark Mode: The original Dark Blue and Cyan */
-    --bg-primary: linear-gradient(135deg, #0c1b2a 0%, #152a3a 100%);
-    --bg-secondary: #152a3a;
-    --bg-sidebar: linear-gradient(180deg, #0a1e2f 0%, #152a3a 100%);
-    --bg-sidebar-header: rgba(10, 30, 47, 0.8);
-    --bg-sidebar-footer: rgba(10, 30, 47, 0.8);
-    --bg-header: linear-gradient(90deg, #152a3a 0%, #1e3a5a 100%);
-    --bg-card: rgba(21, 42, 58, 0.8);
-    --bg-card-welcome: linear-gradient(135deg, #152a3a 0%, #1e3a5a 100%);
-    --bg-input: rgba(10, 30, 47, 0.8);
-    --bg-dropdown: #152a3a;
-    --bg-footer: linear-gradient(90deg, #0a1e2f 0%, #152a3a 100%);
+    /* Dark Mode: Google Material Dark Palette */
+    --bg-primary: #1f1f1f;
+    --bg-secondary: #2d2d30;
+    --bg-sidebar: #2d2d30;
+    --bg-sidebar-header: #1f1f1f;
+    --bg-sidebar-footer: #1f1f1f;
+    --bg-header: #2d2d30;
+    --bg-card: #2d2d30;
+    --bg-card-welcome: #2d2d30;
+    --bg-input: #1f1f1f;
+    --bg-dropdown: #2d2d30;
+    --bg-footer: #2d2d30;
     
-    --border-color: #2c3e50;
-    --border-accent: rgba(64, 224, 208, 0.2);
+    --border-color: #3c4043;
+    --border-accent: rgba(129, 201, 149, 0.25);
     
-    --text-primary: #e0f2fe;
-    --text-secondary: #40e0d0;
-    --text-muted: #a5d8ff;
-    --text-accent: #7dd3fc;
+    --text-primary: #e8eaed;
+    --text-secondary: #81c995;
+    --text-muted: #9aa0a6;
+    --text-accent: #8ab4f8;
     --text-light: #ffffff;
     
-    --accent-color: #40e0d0;
-    --accent-secondary: #4682b4;
-    --accent-hover: #3bcbc0;
-    --accent-light: rgba(64, 224, 208, 0.15);
-    --accent-glow: rgba(64, 224, 208, 0.3);
+    --accent-color: #81c995;
+    --accent-secondary: #8ab4f8;
+    --accent-hover: #a8dab5;
+    --accent-light: rgba(129, 201, 149, 0.15);
+    --accent-glow: rgba(129, 201, 149, 0.3);
     
-    --gradient-start: #1e3a5a;
-    --gradient-end: #2c5282;
-    --gradient-accent: linear-gradient(90deg, #40e0d0 0%, #4682b4 100%);
-    --gradient-accent-hover: linear-gradient(90deg, #3bcbc0 0%, #40e0d0 100%);
+    --gradient-start: #2d2d30;
+    --gradient-end: #3c4043;
+    --gradient-accent: linear-gradient(90deg, #81c995 0%, #8ab4f8 100%);
+    --gradient-accent-hover: linear-gradient(90deg, #a8dab5 0%, #81c995 100%);
     
-    --shadow-color: rgba(0, 0, 0, 0.4);
-    --shadow-hover: rgba(64, 224, 208, 0.2);
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --shadow-hover: rgba(129, 201, 149, 0.2);
     
-    --sidebar-border: 1px solid #2c3e50;
-    --nav-item-color: #a5d8ff;
-    --nav-item-active-color: #40e0d0;
-    --nav-item-hover-bg: rgba(64, 224, 208, 0.1);
-    --nav-item-active-bg: rgba(64, 224, 208, 0.15);
+    --sidebar-border: 1px solid #3c4043;
+    --nav-item-color: #9aa0a6;
+    --nav-item-active-color: #81c995;
+    --nav-item-hover-bg: rgba(255, 255, 255, 0.04);
+    --nav-item-active-bg: rgba(129, 201, 149, 0.1);
     
-    --submenu-bg: rgba(10, 30, 47, 0.9);
-    --header-btn-bg: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    --submenu-bg: #1f1f1f;
+    --header-btn-bg: #3c4043;
     
-    --fruit-opacity: 0.02;
+    --fruit-opacity: 0.015;
+    
+    /* RGB constants for custom page stylesheets (rgba borders and overlays) */
+    --accent-rgb: 129, 201, 149;    /* Google Soft Green */
+    --bg-overlay-rgb: 30, 31, 34;    /* Google dark surface gray */
 }
 
 * {
@@ -1316,7 +1324,7 @@ body {
         left: 0;
         right: 0;
         z-index: 1001;
-        background-color: rgba(10, 30, 47, 0.98);
+        background-color: rgba(var(--bg-overlay-rgb), 0.98);
         width: 100%;
     }
     

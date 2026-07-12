@@ -2,7 +2,7 @@
 
 .card {
     background-color: var(--bg-secondary);
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     margin-bottom: 20px;
@@ -22,7 +22,7 @@
 
 .card-header {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border-bottom: 1px solid rgba(64, 224, 208, 0.2);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.2);
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -63,7 +63,7 @@
     width: 100%;
     padding: 10px 15px 10px 40px;
     background-color: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     border-radius: 25px;
     color: var(--text-primary);
     font-size: 14px;
@@ -73,7 +73,7 @@
 .search-box input:focus {
     outline: none;
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(64, 224, 208, 0.2);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
 }
 
 .search-box .search-icon {
@@ -87,7 +87,7 @@
 
 .btn-primary {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     color: white;
     padding: 10px 20px;
     border-radius: 25px;
@@ -194,7 +194,7 @@
     height: 50px;
     border-radius: 8px;
     object-fit: cover;
-    border: 2px solid rgba(64, 224, 208, 0.3);
+    border: 2px solid rgba(var(--accent-rgb), 0.3);
     background-color: var(--bg-input);
     display: block;
     margin: 0 auto;
@@ -205,7 +205,7 @@
     transform: scale(1.5);
     cursor: pointer;
     border-color: var(--accent-color);
-    box-shadow: 0 0 10px rgba(64, 224, 208, 0.5);
+    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5);
     z-index: 10;
     position: relative;
 }
@@ -215,7 +215,7 @@
     height: 50px;
     border-radius: 8px;
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border: 2px solid rgba(64, 224, 208, 0.3);
+    border: 2px solid rgba(var(--accent-rgb), 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -238,7 +238,7 @@
     max-width: 100%;
     max-height: 70vh;
     border-radius: 10px;
-    border: 3px solid rgba(64, 224, 208, 0.5);
+    border: 3px solid rgba(var(--accent-rgb), 0.5);
 }
 
 .btn-sm {
@@ -260,7 +260,7 @@
 .table-responsive {
     overflow-x: auto;
     border-radius: 10px;
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     background-color: var(--bg-input);
     margin-bottom: 20px;
 }
@@ -274,7 +274,7 @@
 
 .table th {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border-bottom: 2px solid rgba(64, 224, 208, 0.3);
+    border-bottom: 2px solid rgba(var(--accent-rgb), 0.3);
     padding: 15px;
     text-align: left;
     font-weight: 600;
@@ -284,13 +284,13 @@
 
 .table td {
     padding: 15px;
-    border-bottom: 1px solid rgba(64, 224, 208, 0.1);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
     vertical-align: middle;
     font-size: 14px;
 }
 
 .table tbody tr:hover {
-    background-color: rgba(64, 224, 208, 0.05);
+    background-color: rgba(var(--accent-rgb), 0.05);
 }
 
 .table tbody tr:last-child td {
@@ -332,7 +332,7 @@
     line-height: 1.5;
     color: var(--text-primary);
     background-color: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     border-radius: 8px;
     transition: border-color 0.15s ease-in-out;
 }
@@ -340,7 +340,7 @@
 .form-control:focus {
     border-color: var(--accent-color);
     outline: 0;
-    box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
     background-color: var(--submenu-bg);
 }
 
@@ -389,7 +389,7 @@ textarea.form-control {
     width: 100%;
     padding: 10px;
     background-color: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     border-radius: 8px;
     color: var(--text-primary);
     font-size: 14px;
@@ -404,7 +404,7 @@ textarea.form-control {
     content: 'Seleccionar imagen';
     display: inline-block;
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     border-radius: 20px;
     padding: 8px 16px;
     outline: none;
@@ -425,9 +425,9 @@ textarea.form-control {
 .preview-container {
     margin-top: 10px;
     padding: 15px;
-    background-color: rgba(10, 30, 47, 0.5);
+    background-color: rgba(var(--bg-overlay-rgb), 0.5);
     border-radius: 10px;
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
 }
 
 .preview-container label {
@@ -448,7 +448,7 @@ textarea.form-control {
     max-width: 200px;
     max-height: 200px;
     border-radius: 10px;
-    border: 2px solid rgba(64, 224, 208, 0.3);
+    border: 2px solid rgba(var(--accent-rgb), 0.3);
     background-color: var(--bg-input);
     object-fit: cover;
 }
@@ -460,7 +460,7 @@ textarea.form-control {
     align-items: center;
     padding: 15px;
     background-color: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     border-radius: 10px;
     margin-top: 20px;
     flex-wrap: wrap;
@@ -494,7 +494,7 @@ textarea.form-control {
 
 .pagination-size select {
     background-color: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 8px;
@@ -509,7 +509,7 @@ textarea.form-control {
 
 .btn-pagination {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 8px;
@@ -537,12 +537,12 @@ textarea.form-control {
 
 .btn-page {
     background: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
 }
 
 .btn-page-active {
     background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
-    border: 1px solid rgba(64, 224, 208, 0.5);
+    border: 1px solid rgba(var(--accent-rgb), 0.5);
     color: white;
     font-weight: 700;
 }
@@ -581,7 +581,7 @@ textarea.form-control {
 .modal-content {
     position: relative;
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gradient-start) 100%);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     border-radius: 15px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     color: var(--text-primary);
@@ -589,7 +589,7 @@ textarea.form-control {
 
 .modal-header {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border-bottom: 1px solid rgba(64, 224, 208, 0.3);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.3);
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -628,12 +628,12 @@ textarea.form-control {
 }
 
 .modal-footer {
-    border-top: 1px solid rgba(64, 224, 208, 0.3);
+    border-top: 1px solid rgba(var(--accent-rgb), 0.3);
     padding: 20px;
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    background-color: rgba(10, 30, 47, 0.5);
+    background-color: rgba(var(--bg-overlay-rgb), 0.5);
 }
 
 /* Estados de productos */
@@ -675,7 +675,7 @@ textarea.form-control {
     font-size: 48px;
     margin-bottom: 15px;
     display: block;
-    color: rgba(64, 224, 208, 0.3);
+    color: rgba(var(--accent-rgb), 0.3);
 }
 
 .no-results h4 {

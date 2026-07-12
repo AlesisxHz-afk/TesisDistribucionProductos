@@ -2,7 +2,7 @@
 
 .card {
     background-color: var(--bg-secondary);
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     margin-bottom: 20px;
@@ -22,7 +22,7 @@
 
 .card-header {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border-bottom: 1px solid rgba(64, 224, 208, 0.2);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.2);
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -63,7 +63,7 @@
     width: 100%;
     padding: 10px 15px 10px 40px;
     background-color: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     border-radius: 25px;
     color: var(--text-primary);
     font-size: 14px;
@@ -73,7 +73,7 @@
 .search-box input:focus {
     outline: none;
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(64, 224, 208, 0.2);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
 }
 
 .search-box .search-icon {
@@ -92,8 +92,8 @@
 
 /* Formulario de predicción */
 .prediccion-form {
-    background: rgba(10, 30, 47, 0.5);
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    background: rgba(var(--bg-overlay-rgb), 0.5);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
@@ -139,7 +139,7 @@
     line-height: 1.5;
     color: var(--text-primary);
     background-color: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     border-radius: 8px;
     transition: border-color 0.15s ease-in-out;
     box-sizing: border-box;
@@ -152,7 +152,7 @@
 .form-control:focus {
     border-color: var(--accent-color);
     outline: 0;
-    box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.1);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
     background-color: var(--submenu-bg);
 }
 
@@ -197,7 +197,7 @@ select.form-control {
 
 .btn-primary {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     color: white;
 }
 
@@ -277,7 +277,7 @@ select.form-control {
 .table-responsive {
     overflow-x: auto;
     border-radius: 10px;
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     background-color: var(--bg-input);
     margin-bottom: 20px;
 }
@@ -291,7 +291,7 @@ select.form-control {
 
 .table th {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border-bottom: 2px solid rgba(64, 224, 208, 0.3);
+    border-bottom: 2px solid rgba(var(--accent-rgb), 0.3);
     padding: 15px;
     text-align: left;
     font-weight: 600;
@@ -301,13 +301,13 @@ select.form-control {
 
 .table td {
     padding: 15px;
-    border-bottom: 1px solid rgba(64, 224, 208, 0.1);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
     vertical-align: middle;
     font-size: 14px;
 }
 
 .table tbody tr:hover {
-    background-color: rgba(64, 224, 208, 0.05);
+    background-color: rgba(var(--accent-rgb), 0.05);
 }
 
 .table tbody tr:last-child td {
@@ -337,7 +337,7 @@ select.form-control {
     font-size: 48px;
     margin-bottom: 15px;
     display: block;
-    color: rgba(64, 224, 208, 0.3);
+    color: rgba(var(--accent-rgb), 0.3);
 }
 
 .no-results h4 {
@@ -359,7 +359,7 @@ select.form-control {
     align-items: center;
     padding: 15px;
     background-color: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     border-radius: 10px;
     margin-top: 20px;
     flex-wrap: wrap;
@@ -393,7 +393,7 @@ select.form-control {
 
 .pagination-size select {
     background-color: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 8px;
@@ -418,7 +418,7 @@ select.form-control {
 
 .btn-pagination {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 8px;
@@ -446,12 +446,12 @@ select.form-control {
 
 .btn-page {
     background: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
 }
 
 .btn-page-active {
     background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
-    border: 1px solid rgba(64, 224, 208, 0.5);
+    border: 1px solid rgba(var(--accent-rgb), 0.5);
     color: white;
     font-weight: 700;
 }
@@ -494,7 +494,7 @@ select.form-control {
 .modal-content {
     position: relative;
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gradient-start) 100%);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     border-radius: 15px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     color: var(--text-primary);
@@ -502,7 +502,7 @@ select.form-control {
 
 .modal-header {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border-bottom: 1px solid rgba(64, 224, 208, 0.3);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.3);
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -541,18 +541,18 @@ select.form-control {
 }
 
 .modal-footer {
-    border-top: 1px solid rgba(64, 224, 208, 0.3);
+    border-top: 1px solid rgba(var(--accent-rgb), 0.3);
     padding: 20px;
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    background-color: rgba(10, 30, 47, 0.5);
+    background-color: rgba(var(--bg-overlay-rgb), 0.5);
 }
 
 /* Producto info en modal */
 .producto-info {
-    background-color: rgba(10, 30, 47, 0.5);
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    background-color: rgba(var(--bg-overlay-rgb), 0.5);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     border-radius: 8px;
     padding: 15px;
     margin-bottom: 20px;
@@ -571,7 +571,7 @@ select.form-control {
 
 /* Tabla de detalle */
 .table-detalle {
-    background-color: rgba(10, 30, 47, 0.5);
+    background-color: rgba(var(--bg-overlay-rgb), 0.5);
 }
 
 .table-detalle th {
@@ -582,12 +582,12 @@ select.form-control {
 
 .table-detalle td {
     padding: 10px;
-    border-bottom: 1px solid rgba(64, 224, 208, 0.1);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
 }
 
 .table-detalle tfoot th {
     background: var(--bg-input);
-    border-top: 2px solid rgba(64, 224, 208, 0.3);
+    border-top: 2px solid rgba(var(--accent-rgb), 0.3);
     color: var(--accent-color);
 }
 

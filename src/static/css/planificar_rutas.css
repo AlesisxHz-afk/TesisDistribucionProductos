@@ -50,7 +50,7 @@
 
 .card {
     background-color: var(--bg-secondary);
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     margin-bottom: 20px;
@@ -71,7 +71,7 @@
 /* ---- HEADER ---- */
 .card-header {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border-bottom: 1px solid rgba(64, 224, 208, 0.2);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.2);
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -110,7 +110,7 @@
 .fecha-input {
     min-width: 160px;
     background-color: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 8px;
@@ -121,7 +121,7 @@
 /* ---- BOTONES ---- */
 .btn-primary {
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     color: white;
     padding: 10px 20px;
     border-radius: 25px;
@@ -246,7 +246,7 @@
 .mapa-container {
     background-color: var(--gradient-start);
     border-radius: 10px;
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     overflow: hidden;
     height: 100%;
     width: 100%;
@@ -255,7 +255,7 @@
 /* ---- PANEL LATERAL ---- */
 .panel-control-container {
     background-color: var(--bg-input);
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     border-radius: 10px;
     display: flex;
     flex-direction: column;
@@ -265,7 +265,7 @@
 .panel-header {
     padding: 14px 16px;
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border-bottom: 1px solid rgba(64, 224, 208, 0.2);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.2);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -279,7 +279,7 @@
 }
 
 .badge-rutas {
-    background-color: rgba(64, 224, 208, 0.2);
+    background-color: rgba(var(--accent-rgb), 0.2);
     color: var(--accent-color);
     padding: 4px 10px;
     border-radius: 20px;
@@ -299,7 +299,7 @@
 /* ---- ITEM ENVÍO PENDIENTE ---- */
 .envio-pendiente-item {
     background-color: var(--submenu-bg);
-    border: 1px solid rgba(64, 224, 208, 0.15);
+    border: 1px solid rgba(var(--accent-rgb), 0.15);
     border-radius: 10px;
     padding: 12px 14px;
 }
@@ -332,7 +332,7 @@
 /* ---- ITEM RUTA PLANIFICADA ---- */
 .ruta-item {
     background-color: var(--submenu-bg);
-    border: 1px solid rgba(64, 224, 208, 0.2);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     border-radius: 10px;
     padding: 14px;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -341,12 +341,12 @@
 
 .ruta-item:hover {
     border-color: var(--accent-color);
-    box-shadow: 0 2px 10px rgba(64, 224, 208, 0.2);
+    box-shadow: 0 2px 10px rgba(var(--accent-rgb), 0.2);
 }
 
 .ruta-item.seleccionado {
     border: 2px solid var(--accent-color);
-    background-color: rgba(64, 224, 208, 0.08);
+    background-color: rgba(var(--accent-rgb), 0.08);
 }
 
 .ruta-header {
@@ -418,7 +418,7 @@
 
 /* ---- VEHICULO INFO ---- */
 .ruta-vehiculo-info {
-    background-color: rgba(64, 224, 208, 0.07);
+    background-color: rgba(var(--accent-rgb), 0.07);
     border-radius: 6px;
     padding: 8px 10px;
     margin: 8px 0;
@@ -450,7 +450,7 @@
 
 .hora-envio-input {
     background-color: var(--submenu-bg);
-    border: 1px solid rgba(64, 224, 208, 0.4);
+    border: 1px solid rgba(var(--accent-rgb), 0.4);
     color: var(--text-primary);
     padding: 4px 8px;
     border-radius: 6px;
@@ -462,7 +462,7 @@
 .hora-envio-input:focus {
     outline: none;
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(64, 224, 208, 0.2);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
 }
 
 /* ---- FOOTER RUTA ---- */
@@ -542,7 +542,7 @@
     width: 90%;
     max-width: 780px;
     background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gradient-start) 100%);
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
     color: var(--text-primary);
     border-radius: 15px;
     max-height: 90vh;
@@ -555,7 +555,7 @@
     justify-content: space-between;
     padding: 15px 20px;
     background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-    border-bottom: 1px solid rgba(64, 224, 208, 0.3);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.3);
     border-radius: 15px 15px 0 0;
     flex-shrink: 0;
 }
@@ -596,8 +596,8 @@
     align-items: center;
     justify-content: flex-end;
     padding: 14px 20px;
-    border-top: 1px solid rgba(64, 224, 208, 0.2);
-    background-color: rgba(10, 30, 47, 0.5);
+    border-top: 1px solid rgba(var(--accent-rgb), 0.2);
+    background-color: rgba(var(--bg-overlay-rgb), 0.5);
     border-radius: 0 0 15px 15px;
     flex-shrink: 0;
 }
@@ -616,12 +616,12 @@
     text-align: left;
     font-size: 13px;
     font-weight: 700;
-    border-bottom: 2px solid rgba(64, 224, 208, 0.3);
+    border-bottom: 2px solid rgba(var(--accent-rgb), 0.3);
 }
 
 .tabla-detalle td {
     padding: 10px 12px;
-    border-bottom: 1px solid rgba(64, 224, 208, 0.1);
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.1);
     vertical-align: middle;
     color: var(--text-primary);
 }
@@ -631,7 +631,7 @@
 }
 
 .tabla-detalle tr:hover td {
-    background-color: rgba(64, 224, 208, 0.04);
+    background-color: rgba(var(--accent-rgb), 0.04);
 }
 
 .tabla-detalle .td-label {
@@ -649,7 +649,7 @@
     padding: 14px;
     border-radius: 8px;
     margin-bottom: 18px;
-    border: 1px solid rgba(64, 224, 208, 0.3);
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
 }
 
 .modal-resumen-item {
@@ -701,13 +701,13 @@
 
 .rutas-lista::-webkit-scrollbar-track,
 .modal-body::-webkit-scrollbar-track {
-    background: rgba(10, 30, 47, 0.5);
+    background: rgba(var(--bg-overlay-rgb), 0.5);
     border-radius: 3px;
 }
 
 .rutas-lista::-webkit-scrollbar-thumb,
 .modal-body::-webkit-scrollbar-thumb {
-    background: rgba(64, 224, 208, 0.3);
+    background: rgba(var(--accent-rgb), 0.3);
     border-radius: 3px;
 }
 
