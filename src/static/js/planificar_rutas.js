@@ -299,7 +299,7 @@ function planificarRutas() {
 
     Swal.fire({
         title: 'Planificando rutas...',
-        text: 'Analizando envíos con modelo PKT',
+        text: 'Analizando envíos según distancia, temperatura y humedad',
         allowOutsideClick: false,
         didOpen: function () { Swal.showLoading(); }
     });

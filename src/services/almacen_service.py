@@ -768,14 +768,27 @@ def guardar_asignacion_almacenes(clasificacion):
                 print(f"Advertencia: Asignación {asignacion_id} no encontrada.")
                 continue
 
+            # Guardar el almacén anterior
+            almacen_id_anterior = asig.almacen_id
+
             # 2. Actualizar almacen_id en distribucion_almacen_producto
             asig.almacen_id = almacen_id
             asignaciones_actualizadas += 1
 
-            # 3. Actualizar almacen_capacidad: sumar demanda si ya existe el registro,
-            #    o insertar uno nuevo si no existe.
+            # 3. Actualizar almacen_capacidad:
+            #    Si había un almacén anterior y es diferente al nuevo, restar del anterior
             if asig.producto_id and asig.demanda:
                 demanda = float(asig.demanda)
+
+                if almacen_id_anterior and almacen_id_anterior != 0 and almacen_id_anterior != almacen_id:
+                    registro_cap_ant = almacencapacidad.query.filter_by(
+                        almacen_id=almacen_id_anterior,
+                        producto_id=asig.producto_id
+                    ).first()
+                    if registro_cap_ant:
+                        registro_cap_ant.cant_productos_act = max(0.0, float(registro_cap_ant.cant_productos_act) - demanda)
+
+                # Sumar al nuevo almacén
                 registro_cap = almacencapacidad.query.filter_by(
                     almacen_id=almacen_id,
                     producto_id=asig.producto_id

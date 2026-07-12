@@ -1,6 +1,6 @@
 /* Estilos específicos para la distribución en almacenes */
 .card {
-    background-color: #152a3a;
+    background-color: var(--bg-secondary);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
@@ -16,11 +16,11 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #40e0d0 0%, #4682b4 100%);
+    background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
 }
 
 .card-header {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-bottom: 1px solid rgba(64, 224, 208, 0.2);
     padding: 20px;
     display: flex;
@@ -34,7 +34,7 @@
     margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .header-actions {
@@ -48,7 +48,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #e0f2fe;
+    color: var(--text-primary);
 }
 
 .periodo-selector label {
@@ -59,9 +59,9 @@
 
 .periodo-combo {
     min-width: 160px;
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.3);
-    color: #e0f2fe;
+    color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 14px;
@@ -69,8 +69,8 @@
 }
 
 .periodo-combo option {
-    background-color: #152a3a;
-    color: #e0f2fe;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 .badge-asignado {
@@ -87,7 +87,7 @@
 }
 
 .btn-primary {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     color: white;
     padding: 10px 20px;
@@ -102,7 +102,7 @@
 }
 
 .btn-primary:hover {
-    background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
+    background: linear-gradient(90deg, var(--gradient-end) 0%, #3b82f6 100%);
     transform: translateY(-1px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
@@ -151,7 +151,7 @@
 
 .card-body {
     padding: 20px;
-    background-color: #152a3a;
+    background-color: var(--bg-secondary);
 }
 
 .distribucion-container {
@@ -162,7 +162,7 @@
 }
 
 .mapa-container {
-    background-color: #1e3a5a;
+    background-color: var(--gradient-start);
     border-radius: 10px;
     border: 1px solid rgba(64, 224, 208, 0.2);
     overflow: hidden;
@@ -172,7 +172,7 @@
 }
 
 .almacenes-lista-container {
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 10px;
     padding: 15px;
@@ -182,7 +182,7 @@
 }
 
 .almacenes-lista-container h4 {
-    color: #40e0d0;
+    color: var(--accent-color);
     margin-top: 0;
     margin-bottom: 15px;
     font-size: 1.2rem;
@@ -200,7 +200,7 @@
 }
 
 .almacen-item {
-    background-color: rgba(10, 30, 47, 0.9);
+    background-color: var(--submenu-bg);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 8px;
     padding: 15px;
@@ -208,18 +208,18 @@
 }
 
 .almacen-item:hover {
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
     box-shadow: 0 2px 8px rgba(64, 224, 208, 0.2);
 }
 
 .almacen-item.seleccionado {
-    border: 2px solid #40e0d0;
+    border: 2px solid var(--accent-color);
     background-color: rgba(64, 224, 208, 0.1);
 }
 
 .almacen-item h5 {
     margin: 0 0 10px 0;
-    color: #e0f2fe;
+    color: var(--text-primary);
     font-size: 16px;
     font-weight: 600;
     display: flex;
@@ -232,8 +232,8 @@
 .almacen-item h5 span.tipo-badge {
     font-size: 12px;
     font-weight: normal;
-    color: #a5d8ff;
-    background: #1e3a5a;
+    color: var(--text-accent);
+    background: var(--gradient-start);
     padding: 3px 8px;
     border-radius: 12px;
 }
@@ -241,7 +241,7 @@
 .almacen-envios-count {
     font-size: 12px;
     font-weight: 700;
-    color: #40e0d0;
+    color: var(--accent-color);
     background: rgba(64, 224, 208, 0.15);
     border: 1px solid rgba(64, 224, 208, 0.3);
     padding: 3px 8px;
@@ -249,7 +249,7 @@
 }
 
 .barra-progreso-container {
-    background-color: #1e3a5a;
+    background-color: var(--gradient-start);
     border-radius: 4px;
     height: 8px;
     margin: 10px 0;
@@ -267,7 +267,7 @@
     display: flex;
     justify-content: space-between;
     font-size: 12px;
-    color: #a5d8ff;
+    color: var(--text-accent);
     margin-bottom: 12px;
 }
 
@@ -278,14 +278,14 @@
 }
 
 .almacen-detalles i {
-    color: #40e0d0;
+    color: var(--accent-color);
     width: 16px;
 }
 
 .btn-ver-detalles {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
-    color: #e0f2fe;
+    color: var(--text-primary);
     padding: 6px 12px;
     border-radius: 15px;
     font-size: 12px;
@@ -300,8 +300,8 @@
 }
 
 .btn-ver-detalles:hover {
-    background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
-    border-color: #40e0d0;
+    background: linear-gradient(90deg, var(--gradient-end) 0%, #3b82f6 100%);
+    border-color: var(--accent-color);
 }
 
 /* Banner de periodo ya asignado */
@@ -358,9 +358,9 @@
     flex-direction: column;
     width: 100%;
     pointer-events: auto;
-    background: linear-gradient(135deg, #152a3a 0%, #1e3a5a 100%);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gradient-start) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
-    color: #e0f2fe;
+    color: var(--text-primary);
     border-radius: 15px;
     outline: 0;
     margin: 0 auto;
@@ -371,7 +371,7 @@
     align-items: flex-start;
     justify-content: space-between;
     padding: 15px 20px;
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-bottom: 1px solid rgba(64, 224, 208, 0.3);
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
@@ -380,7 +380,7 @@
 .modal-title {
     margin-bottom: 0;
     line-height: 1.5;
-    color: #40e0d0;
+    color: var(--accent-color);
     font-weight: 700;
     font-size: 1.25rem;
 }
@@ -390,7 +390,7 @@
     font-size: 1.5rem;
     font-weight: 700;
     line-height: 1;
-    color: #e0f2fe;
+    color: var(--text-primary);
     opacity: 0.7;
     background: transparent;
     border: 0;
@@ -399,7 +399,7 @@
 }
 
 .close:hover {
-    color: #40e0d0;
+    color: var(--accent-color);
     opacity: 1;
 }
 
@@ -429,8 +429,8 @@
 }
 
 .tabla-detalle th {
-    background-color: #1e3a5a;
-    color: #40e0d0;
+    background-color: var(--gradient-start);
+    color: var(--accent-color);
     padding: 12px;
     text-align: left;
     font-size: 14px;
@@ -466,12 +466,12 @@
 .no-foto-detalle {
     width: 48px;
     height: 48px;
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-size: 20px;
     margin: 0 auto;
     border: 2px solid rgba(64, 224, 208, 0.3);
@@ -505,14 +505,14 @@
 
 .estado-asignado {
     background-color: rgba(64, 224, 208, 0.2);
-    color: #40e0d0;
+    color: var(--accent-color);
     border: 1px solid rgba(64, 224, 208, 0.4);
 }
 
 .no-results {
     text-align: center;
     padding: 40px 20px;
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-style: italic;
 }
 
@@ -520,17 +520,17 @@
     font-size: 48px;
     margin-bottom: 15px;
     display: block;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .no-results h4 {
-    color: #40e0d0;
+    color: var(--accent-color);
     margin-bottom: 10px;
 }
 
 /* Resumen de almacén en modal */
 .modal-resumen-almacen {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 20px;
@@ -546,7 +546,7 @@
 
 .modal-resumen-label {
     font-size: 11px;
-    color: #a5d8ff;
+    color: var(--text-accent);
     margin-bottom: 4px;
 }
 
@@ -555,7 +555,7 @@
     font-weight: bold;
 }
 
-.modal-resumen-valor.cap { color: #40e0d0; }
+.modal-resumen-valor.cap { color: var(--accent-color); }
 .modal-resumen-valor.ocu { color: #f87171; }
 .modal-resumen-valor.dis { color: #4ade80; }
 
@@ -563,7 +563,7 @@
 .modal-total-bar {
     margin-top: 15px;
     padding: 12px 15px;
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
@@ -573,11 +573,11 @@
 }
 
 .modal-total-bar span {
-    color: #e0f2fe;
+    color: var(--text-primary);
 }
 
 .modal-total-bar strong {
-    color: #40e0d0;
+    color: var(--accent-color);
     font-size: 16px;
 }
 
@@ -653,4 +653,35 @@
         width: 36px;
         height: 36px;
     }
+}
+
+/* Botón Reasignar Personalizado */
+.btn-reasignar {
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%) !important;
+    border: 1px solid rgba(16, 185, 129, 0.4) !important;
+    color: white !important;
+    padding: 6px 14px !important;
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+    text-decoration: none !important;
+    outline: none !important;
+}
+
+.btn-reasignar:hover {
+    background: linear-gradient(90deg, #059669 0%, #047857 100%) !important;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3) !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn-reasignar i {
+    font-size: 11px !important;
+    color: white !important;
 }

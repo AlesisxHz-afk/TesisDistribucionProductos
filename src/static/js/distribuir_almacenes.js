@@ -132,12 +132,17 @@ async function clasificarEnvio() {
         return;
     }
 
+    const style = getComputedStyle(document.body);
+    const bgSecondary = style.getPropertyValue('--bg-dropdown').trim() || '#152a3a';
+    const textPrimary = style.getPropertyValue('--text-primary').trim() || '#e0f2fe';
+    const accentColor = style.getPropertyValue('--accent-color').trim() || '#40e0d0';
+
     Swal.fire({
         title: periodoYaAsignado ? 'Cargando distribución...' : 'Clasificando envíos...',
-        text: periodoYaAsignado ? 'Obteniendo la distribución guardada' : 'El modelo PKT está procesando los datos',
+        text: periodoYaAsignado ? 'Obteniendo la distribución guardada' : 'Procesando la distribución de envíos',
         allowOutsideClick: false,
-        background: '#152a3a',
-        color: '#e0f2fe',
+        background: bgSecondary,
+        color: textPrimary,
         didOpen: () => Swal.showLoading()
     });
 
@@ -154,7 +159,7 @@ async function clasificarEnvio() {
             const yaAsignado = data.ya_asignado === true;
 
             if (yaAsignado) {
-                // Distribución ya guardada: mostrar en modo lectura
+                // Distribución ya guardada: inicializar estructuras locales para permitir edición
                 clasificacionActual = {};
                 enviosData = [];
 
@@ -162,8 +167,19 @@ async function clasificarEnvio() {
                 const almacenesAgrupados = data.almacenes || [];
                 almacenesData = data.almacenes_stock || almacenesData;
 
-                renderizarListaAlmacenesPorDistribucion(almacenesAgrupados, true);
-                actualizarMapa(almacenesData, [], almacenesAgrupados);
+                // Extraer envíos de la distribución existente para cargarlos localmente
+                almacenesAgrupados.forEach(alm => {
+                    if (alm.envios) {
+                        alm.envios.forEach(envio => {
+                            envio.almacen_id_sugerido = alm.almacen_id;
+                            enviosData.push(envio);
+                            clasificacionActual[envio.asignacion_id] = alm.almacen_id;
+                        });
+                    }
+                });
+
+                renderizarListaAlmacenesPorDistribucion(almacenesAgrupados, false);
+                actualizarMapa(almacenesData, enviosData, almacenesAgrupados);
                 actualizarEstadoBotones(true);
 
                 Swal.fire({
@@ -480,7 +496,7 @@ function verDetallesDistribucion(almacenId, almacenNombre, enviosJson) {
     document.getElementById('detalle-almacen-titulo').textContent = `Envíos asignados — ${almacenNombre}`;
 
     let html = construirResumenAlmacen(capacidadTotal, espacioOcupado, espacioDisponible);
-    html += construirTablaEnvios(envios);
+    html += construirTablaEnviosConEdicion(envios, almacenId, periodoYaAsignado);
 
     document.getElementById('detalle-almacen-body').innerHTML = html;
     $('#modal-detalle-almacen').modal('show');
@@ -553,8 +569,8 @@ function construirResumenAlmacen(capacidadTotal, espacioOcupado, espacioDisponib
     `;
 }
 
-// Construir HTML de la tabla de envíos
-function construirTablaEnvios(envios) {
+// Construir HTML de la tabla de envíos con columna de acciones editable
+function construirTablaEnviosConEdicion(envios, almacenId, yaAsignado) {
     if (!envios || envios.length === 0) {
         return `
             <div style="text-align:center;padding:40px;background:rgba(30,58,90,0.3);border-radius:8px;border:1px dashed rgba(64,224,208,0.3);">
@@ -587,6 +603,13 @@ function construirTablaEnvios(envios) {
                <div class="no-foto-detalle" style="display:none;"><i class="fas fa-image"></i></div>`
             : `<div class="no-foto-detalle"><i class="fas fa-image"></i></div>`;
 
+        // Columna acciones para edición (siempre visible)
+        const accionesHtml = `<td style="text-align:center;">
+                   <button class="btn-reasignar" onclick="cambiarAlmacenEnvio(${envio.asignacion_id}, ${almacenId})">
+                       <i class="fas fa-edit"></i> Reasignar
+                   </button>
+               </td>`;
+
         rowsHtml += `
             <tr>
                 <td style="text-align:center;width:60px;">${fotoHtml}</td>
@@ -596,9 +619,12 @@ function construirTablaEnvios(envios) {
                 <td style="font-weight:bold;color:#40e0d0;font-size:15px;">${demanda.toFixed(2)} kg</td>
                 <td style="color:#a5d8ff;">${fechaEnvio}</td>
                 <td><span class="estado-badge ${estadoClass}">${estado}</span></td>
+                ${accionesHtml}
             </tr>
         `;
     });
+
+    const thAccion = '<th style="text-align:center;">Acciones</th>';
 
     return `
         <div>
@@ -615,6 +641,7 @@ function construirTablaEnvios(envios) {
                         <th>Demanda</th>
                         <th>Fecha Envío</th>
                         <th>Estado</th>
+                        ${thAccion}
                     </tr>
                 </thead>
                 <tbody>
@@ -629,17 +656,202 @@ function construirTablaEnvios(envios) {
     `;
 }
 
-// Funciones auxiliares de mensajes
+// Función para reasignar un envío a otro almacén de forma local
+function cambiarAlmacenEnvio(asignacionId, almacenIdActual) {
+    const style = getComputedStyle(document.body);
+    const bgSecondary = style.getPropertyValue('--bg-dropdown').trim() || '#152a3a';
+    const textPrimary = style.getPropertyValue('--text-primary').trim() || '#e0f2fe';
+    const accentColor = style.getPropertyValue('--accent-color').trim() || '#40e0d0';
+
+    // Generar opciones para el select (filtrando por estado ACTIVO)
+    let optionsHtml = '';
+    almacenesData.forEach(alm => {
+        if (alm.estado === 'ACTIVO' || alm.almacen_id == almacenIdActual) {
+            const selected = alm.almacen_id == almacenIdActual ? 'selected' : '';
+            const capacidad = parseFloat(alm.capacidad) || 0;
+            const ocupado = parseFloat(alm.total_ocupado) || 0;
+            const disponible = Math.max(0, capacidad - ocupado);
+            optionsHtml += `<option value="${alm.almacen_id}" ${selected}>${alm.nombre || alm.almacen_nombre} (Disp: ${disponible.toFixed(2)} kg / Cap: ${capacidad.toFixed(2)} kg)</option>`;
+        }
+    });
+
+    Swal.fire({
+        title: 'Reasignar Almacén',
+        html: `
+            <div style="text-align: left; padding: 10px;">
+                <p style="margin-bottom: 10px; color: ${textPrimary};">Seleccione el nuevo almacén activo para este envío:</p>
+                <select id="swal-nuevo-almacen" class="swal2-input" style="margin: 0; width: 100%; background: ${bgSecondary}; color: ${textPrimary}; border: 1px solid rgba(64, 224, 208, 0.3);">
+                    ${optionsHtml}
+                </select>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Reasignar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        background: bgSecondary,
+        color: textPrimary,
+        preConfirm: () => {
+            const nuevoAlmacenId = parseInt(document.getElementById('swal-nuevo-almacen').value);
+            if (nuevoAlmacenId === almacenIdActual) return nuevoAlmacenId;
+
+            // Buscar el envío para validar su demanda
+            const envio = enviosData.find(e => e.asignacion_id == asignacionId);
+            if (!envio) {
+                Swal.showValidationMessage('Envío no encontrado localmente');
+                return false;
+            }
+
+            const demandaEnvio = parseFloat(envio.demanda) || 0;
+
+            // Buscar el almacén de destino
+            const nuevoAlmacen = almacenesData.find(a => a.almacen_id == nuevoAlmacenId);
+            if (!nuevoAlmacen) {
+                Swal.showValidationMessage('Almacén de destino no encontrado');
+                return false;
+            }
+
+            // Validar que el almacén esté activo
+            if (nuevoAlmacen.estado !== 'ACTIVO') {
+                Swal.showValidationMessage('El almacén seleccionado debe estar ACTIVO');
+                return false;
+            }
+
+            // Validar capacidad
+            const capacidad = parseFloat(nuevoAlmacen.capacidad) || 0;
+            const ocupadoActual = parseFloat(nuevoAlmacen.total_ocupado) || 0;
+            const nuevoOcupado = ocupadoActual + demandaEnvio;
+
+            if (nuevoOcupado > capacidad) {
+                Swal.showValidationMessage(`Capacidad excedida. Disponible: ${(capacidad - ocupadoActual).toFixed(2)} kg, Demanda envío: ${demandaEnvio.toFixed(2)} kg`);
+                return false;
+            }
+
+            return nuevoAlmacenId;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const nuevoAlmacenId = parseInt(result.value);
+            if (nuevoAlmacenId === almacenIdActual) return;
+
+            // 1. Actualizar en clasificacionActual
+            clasificacionActual[asignacionId] = nuevoAlmacenId;
+
+            // 2. Actualizar en enviosData
+            const envio = enviosData.find(e => e.asignacion_id == asignacionId);
+            if (envio) {
+                envio.almacen_id_sugerido = nuevoAlmacenId;
+            }
+
+            // Habilitar el botón de guardar asignación y remover banner
+            periodoYaAsignado = false;
+            actualizarEstadoBotones(false);
+
+            // 3. Re-agrupar envíos por almacén localmente
+            recalcularDistribucionLocal();
+
+            // Cerrar el modal actual
+            $('#modal-detalle-almacen').modal('hide');
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Envío reasignado',
+                text: 'Se actualizó la distribución localmente. Recuerde presionar "Guardar Asignación" para conservar los cambios.',
+                timer: 2500,
+                showConfirmButton: false,
+                background: bgSecondary,
+                color: textPrimary,
+                confirmButtonColor: accentColor
+            });
+        }
+    });
+}
+
+// Recalcular la distribución local y actualizar mapas y barras
+function recalcularDistribucionLocal() {
+    const agrupado = {};
+    
+    // Inicializar cada almacén
+    almacenesData.forEach(alm => {
+        agrupado[alm.almacen_id] = {
+            almacen_id: alm.almacen_id,
+            almacen_nombre: alm.nombre || alm.almacen_nombre,
+            tipo_almacen: alm.tipo_almacen,
+            capacidad: parseFloat(alm.capacidad) || 0,
+            total_ocupado: parseFloat(alm.total_ocupado) || 0,
+            total_demanda: 0,
+            envios: []
+        };
+    });
+
+    // Agrupar envíos
+    enviosData.forEach(envio => {
+        const aId = envio.almacen_id_sugerido;
+        if (agrupado[aId]) {
+            const demanda = parseFloat(envio.demanda) || 0;
+            agrupado[aId].total_demanda += demanda;
+            
+            agrupado[aId].envios.push({
+                asignacion_id: envio.asignacion_id,
+                producto_nombre: envio.producto_nombre,
+                demanda: demanda,
+                fecha_envio: envio.fecha_envio || envio.fecha,
+                estado_envio: envio.estado_envio || 'PENDIENTE',
+                foto_producto: envio.foto_producto
+            });
+        }
+    });
+
+    const almacenesAgrupados = Object.values(agrupado);
+
+    // Ajustar total_ocupado acumulando stock original + demanda nueva
+    almacenesAgrupados.forEach(alm => {
+        const orig = almacenesData.find(a => a.almacen_id === alm.almacen_id);
+        const ocupadoInicial = orig ? (parseFloat(orig.total_ocupado_original) || parseFloat(orig.total_ocupado) || 0) : 0;
+        
+        if (orig && orig.total_ocupado_original === undefined) {
+            orig.total_ocupado_original = ocupadoInicial;
+        }
+        
+        alm.total_ocupado = ocupadoInicial + alm.total_demanda;
+        
+        // Guardar también en almacenesData para que persista en siguientes reasignaciones
+        if (orig) {
+            orig.total_ocupado = alm.total_ocupado;
+        }
+    });
+
+    // Renderizar listados y mapa
+    renderizarListaAlmacenesPorDistribucion(almacenesAgrupados, false);
+    actualizarMapa(almacenesData, enviosData, almacenesAgrupados);
+}
+
+// Funciones auxiliares de mensajes adaptativas
 function mostrarError(mensaje) {
+    const style = getComputedStyle(document.body);
+    const bgSecondary = style.getPropertyValue('--bg-dropdown').trim() || '#152a3a';
+    const textPrimary = style.getPropertyValue('--text-primary').trim() || '#e0f2fe';
+    const accentColor = style.getPropertyValue('--accent-color').trim() || '#40e0d0';
+
     Swal.fire({
         icon: 'error', title: 'Error', text: mensaje,
-        background: '#152a3a', color: '#e0f2fe', confirmButtonColor: '#40e0d0'
+        background: bgSecondary, color: textPrimary, confirmButtonColor: accentColor
     });
 }
 
 function mostrarAdvertencia(mensaje) {
+    const style = getComputedStyle(document.body);
+    const bgSecondary = style.getPropertyValue('--bg-dropdown').trim() || '#152a3a';
+    const textPrimary = style.getPropertyValue('--text-primary').trim() || '#e0f2fe';
+    const accentColor = style.getPropertyValue('--accent-color').trim() || '#40e0d0';
+
     Swal.fire({
         icon: 'warning', title: 'Atención', text: mensaje,
-        background: '#152a3a', color: '#e0f2fe', confirmButtonColor: '#40e0d0'
+        background: bgSecondary, color: textPrimary, confirmButtonColor: accentColor
     });
 }
+
+// Exponer funciones globales
+window.cambiarAlmacenEnvio = cambiarAlmacenEnvio;
+window.recalcularDistribucionLocal = recalcularDistribucionLocal;

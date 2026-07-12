@@ -41,6 +41,34 @@ app.register_blueprint(conductor_route.main)
 app.register_blueprint(vehiculo_conductor_route.main)
 app.register_blueprint(reportes_route.main)
 
+@app.context_processor
+def inject_user_details():
+    from flask import request
+    from src.models.models import usuario
+    
+    username = request.cookies.get('usuario')
+    if not username:
+        return {}
+        
+    try:
+        user = usuario.query.filter_by(usuario=username).first()
+        if user:
+            tipo_nombre = request.cookies.get('tipo_nombre') or 'CONDUCTOR'
+            return {
+                'username': username,
+                'apellidosynombres': request.cookies.get('apellidosynombres') or f"{user.ape_paterno} {user.ape_materno} {user.nombres}",
+                'tipo_nombre': tipo_nombre,
+                'foto_usuario': user.foto_usuario,
+                'nombres': user.nombres,
+                'ape_paterno': user.ape_paterno,
+                'ape_materno': user.ape_materno,
+                'estado_usuario': user.estado_usuario
+            }
+    except Exception as e:
+        print(f"Error in context processor inject_user_details: {e}")
+        
+    return {}
+
 @app.route('/')
 def index():
     return render_template("index.html")

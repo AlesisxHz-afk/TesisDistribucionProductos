@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>{% block title %}Panel de Distribución Agrícola - Alaya S.A.C{% endblock %}</title>
+    <script>
+        // Cargar tema guardado antes de renderizar la página para evitar parpadeos
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/x-icon">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=1.9">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {% block maincss %}
@@ -156,8 +161,12 @@
             
             <div class="sidebar-footer">
                 <div class="user-info">
-                    <div class="user-avatar default" id="sidebar-user-avatar">
-                        <i class="fas fa-user-circle"></i>
+                    <div class="user-avatar" id="sidebar-user-avatar">
+                        {% if foto_usuario %}
+                            <img src="{{ url_for('static', filename='images/usuario/' + foto_usuario) }}" alt="Foto de perfil">
+                        {% else %}
+                            <i class="fas fa-user-circle"></i>
+                        {% endif %}
                     </div>
                     <div class="user-details">
                         <span class="user-name" id="sidebar-username">{{ username }}</span>
@@ -184,10 +193,17 @@
                     </div>
                 </div>
                 <div class="header-actions">
+                    <button class="theme-toggle-btn" id="theme-toggle-btn" title="Cambiar tema">
+                        <i class="fas fa-moon"></i>
+                    </button>
                     <div class="user-dropdown" id="user-dropdown">
                         <button class="user-menu-btn" id="user-menu-btn">
-                            <div class="user-header-avatar default" id="header-user-avatar">
-                                <i class="fas fa-user-circle"></i>
+                            <div class="user-header-avatar" id="header-user-avatar">
+                                {% if foto_usuario %}
+                                    <img src="{{ url_for('static', filename='images/usuario/' + foto_usuario) }}" alt="Foto de perfil">
+                                {% else %}
+                                    <i class="fas fa-user-circle"></i>
+                                {% endif %}
                             </div>
                             <span id="header-username">{{ username }}</span>
                             <i class="fas fa-chevron-down"></i>
@@ -206,6 +222,7 @@
             </header>
             
             <div class="content-wrapper">
+                <div class="floating-fruits-container" id="floating-fruits-container"></div>
                 {% block contenido %}
                 <section class="welcome-section">
                     <div class="welcome-card">

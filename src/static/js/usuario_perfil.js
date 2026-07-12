@@ -12,6 +12,19 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function cargarDatosUsuario() {
+    // Si los datos ya fueron inyectados por el servidor (Jinja), usarlos directamente
+    if (typeof serverUsuarioData !== 'undefined' && serverUsuarioData && serverUsuarioData.usuario) {
+        usuarioData = serverUsuarioData;
+        if (usuarioData.estado_usuario === 'True' || usuarioData.estado_usuario === 'true') {
+            usuarioData.estado_usuario = true;
+        } else if (usuarioData.estado_usuario === 'False' || usuarioData.estado_usuario === 'false') {
+            usuarioData.estado_usuario = false;
+        }
+        originalData = JSON.parse(JSON.stringify(usuarioData));
+        mostrarDatosUsuario();
+        return;
+    }
+
     fetch('/main/usuario/obtener_datos_usuario')
         .then(response => response.json())
         .then(data => {
@@ -253,7 +266,7 @@ function base64ToBlob(base64) {
 }
 
 function openPhotoOptions() {
-    document.getElementById('photoOptionsModal').style.display = 'block';
+    document.getElementById('photoOptionsModal').style.display = 'flex';
 }
 
 function closePhotoOptions() {

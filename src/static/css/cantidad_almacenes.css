@@ -2,7 +2,7 @@
 /* Basado en el estilo de productos.css, sin propiedades -webkit- */
 
 .card {
-    background-color: #152a3a;
+    background-color: var(--bg-secondary);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
@@ -18,11 +18,11 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #40e0d0 0%, #4682b4 100%);
+    background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
 }
 
 .card-header {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-bottom: 1px solid rgba(64, 224, 208, 0.2);
     padding: 20px;
     display: flex;
@@ -36,7 +36,7 @@
     margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .header-actions {
@@ -63,17 +63,17 @@
 .search-box input {
     width: 100%;
     padding: 10px 15px 10px 40px;
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 25px;
-    color: #e0f2fe;
+    color: var(--text-primary);
     font-size: 14px;
     transition: all 0.3s ease;
 }
 
 .search-box input:focus {
     outline: none;
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
     box-shadow: 0 0 0 2px rgba(64, 224, 208, 0.2);
 }
 
@@ -82,12 +82,12 @@
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #40e0d0;
+    color: var(--accent-color);
     font-size: 16px;
 }
 
 .btn-primary {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     color: white;
     padding: 10px 20px;
@@ -103,10 +103,10 @@
 }
 
 .btn-primary:hover {
-    background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
+    background: linear-gradient(90deg, var(--gradient-end) 0%, #3b82f6 100%);
     transform: translateY(-1px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
 }
 
 .btn-secondary {
@@ -186,14 +186,14 @@
 
 .card-body {
     padding: 20px;
-    background-color: #152a3a;
+    background-color: var(--bg-secondary);
 }
 
 .table-responsive {
     overflow-x: auto;
     border-radius: 10px;
     border: 1px solid rgba(64, 224, 208, 0.2);
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
     margin-bottom: 20px;
 }
 
@@ -201,16 +201,16 @@
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 0;
-    color: #e0f2fe;
+    color: var(--text-primary);
 }
 
 .table th {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-bottom: 2px solid rgba(64, 224, 208, 0.3);
     padding: 15px;
     text-align: left;
     font-weight: 600;
-    color: #40e0d0;
+    color: var(--accent-color);
     font-size: 14px;
 }
 
@@ -252,7 +252,7 @@
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-size: 14px;
 }
 
@@ -262,18 +262,18 @@
     padding: 12px 15px;
     font-size: 14px;
     line-height: 1.5;
-    color: #e0f2fe;
-    background-color: rgba(10, 30, 47, 0.8);
+    color: var(--text-primary);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 8px;
     transition: border-color 0.15s ease-in-out;
 }
 
 .form-control:focus {
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
     outline: 0;
     box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.1);
-    background-color: rgba(10, 30, 47, 0.9);
+    background-color: var(--submenu-bg);
 }
 
 select.form-control {
@@ -307,7 +307,7 @@ textarea.form-control {
 }
 
 .form-text.text-muted {
-    color: #a5d8ff !important;
+    color: var(--text-accent) !important;
     font-size: 12px;
     margin-top: 5px;
 }
@@ -318,7 +318,7 @@ textarea.form-control {
     justify-content: space-between;
     align-items: center;
     padding: 15px;
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 10px;
     margin-top: 20px;
@@ -327,7 +327,7 @@ textarea.form-control {
 }
 
 .pagination-info {
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-size: 14px;
     font-weight: 600;
     min-width: 150px;
@@ -352,9 +352,9 @@ textarea.form-control {
 }
 
 .pagination-size select {
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.3);
-    color: #e0f2fe;
+    color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 13px;
@@ -362,14 +362,14 @@ textarea.form-control {
 }
 
 .pagination-size select:focus {
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
     outline: none;
 }
 
 .btn-pagination {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
-    color: #e0f2fe;
+    color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 8px;
     cursor: pointer;
@@ -384,8 +384,8 @@ textarea.form-control {
 }
 
 .btn-pagination:hover:not(:disabled) {
-    background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
-    border-color: #40e0d0;
+    background: linear-gradient(90deg, var(--gradient-end) 0%, #3b82f6 100%);
+    border-color: var(--accent-color);
     transform: translateY(-1px);
 }
 
@@ -395,19 +395,19 @@ textarea.form-control {
 }
 
 .btn-page {
-    background: rgba(10, 30, 47, 0.8);
+    background: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.2);
 }
 
 .btn-page-active {
-    background: linear-gradient(90deg, #40e0d0 0%, #4682b4 100%);
+    background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
     border: 1px solid rgba(64, 224, 208, 0.5);
     color: white;
     font-weight: 700;
 }
 
 .pagination-ellipsis {
-    color: #a5d8ff;
+    color: var(--text-accent);
     padding: 0 5px;
     font-size: 14px;
     user-select: none;
@@ -439,15 +439,15 @@ textarea.form-control {
 
 .modal-content {
     position: relative;
-    background: linear-gradient(135deg, #152a3a 0%, #1e3a5a 100%);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gradient-start) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 15px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    color: #e0f2fe;
+    color: var(--text-primary);
 }
 
 .modal-header {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-bottom: 1px solid rgba(64, 224, 208, 0.3);
     padding: 20px;
     display: flex;
@@ -456,7 +456,7 @@ textarea.form-control {
 }
 
 .modal-header .modal-title {
-    color: #40e0d0;
+    color: var(--accent-color);
     font-weight: 700;
     font-size: 1.25rem;
     margin: 0;
@@ -469,7 +469,7 @@ textarea.form-control {
     font-size: 24px;
     font-weight: 700;
     line-height: 1;
-    color: #e0f2fe;
+    color: var(--text-primary);
     opacity: 0.7;
     cursor: pointer;
     transition: opacity 0.3s ease;
@@ -477,7 +477,7 @@ textarea.form-control {
 
 .modal-header .close:hover {
     opacity: 1;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .modal-body {
@@ -506,11 +506,11 @@ textarea.form-control {
 .alert-info {
     background-color: rgba(32, 107, 196, 0.2);
     border-color: rgba(32, 107, 196, 0.3);
-    color: #a5d8ff;
+    color: var(--text-accent);
 }
 
 .alert-info i {
-    color: #40e0d0;
+    color: var(--accent-color);
     margin-right: 8px;
 }
 
@@ -579,7 +579,7 @@ textarea.form-control {
 }
 
 .text-success {
-    color: #40e0d0 !important;
+    color: var(--accent-color) !important;
 }
 
 .table-sm td, .table-sm th {

@@ -534,11 +534,11 @@ def obtener_envios_pendientes(fecha=None):
 
 def determinar_nivel_riesgo_con_modelo(modelo_data, distancia_km, temperatura_optima, humedad_optima):
     """
-    Usa las métricas del modelo PKT para determinar el nivel de riesgo de una ruta.
-    Si no hay modelo, usa lógica de distancia por defecto.
+    Determina el nivel de riesgo de una ruta de forma directa usando la distancia,
+    temperatura y humedad del producto, sin depender de un archivo modelo PKT.
     """
     try:
-        # 1. Definir el riesgo base según los umbrales de distancia (muy flexibles para evitar ALTO)
+        # 1. Definir el riesgo base según los umbrales de distancia
         if distancia_km <= 150:
             riesgo_base = 1  # BAJO
         elif distancia_km <= 350:
@@ -546,38 +546,38 @@ def determinar_nivel_riesgo_con_modelo(modelo_data, distancia_km, temperatura_op
         else:
             riesgo_base = 3  # ALTO
 
-        # 2. Calcular factor de sensibilidad del producto (clima)
-        sensibilidad_temp = max(0, (15 - temperatura_optima) / 15.0)  # max 1.0
-        sensibilidad_hum = max(0, (humedad_optima - 60) / 40.0)      # max 1.0
+        # 2. Calcular factor de criticidad del producto (sensibilidad a clima/temperatura/humedad)
+        # Productos que requieren temperaturas bajas (< 12°C) o humedades extremas (> 80%) son más sensibles
+        sensibilidad_temp = 0.0
+        if temperatura_optima < 10:
+            sensibilidad_temp = 1.0  # Muy sensible
+        elif temperatura_optima < 18:
+            sensibilidad_temp = 0.5  # Sensibilidad moderada
+        else:
+            sensibilidad_temp = 0.1  # Estable
+            
+        sensibilidad_hum = 0.0
+        if humedad_optima > 85 or humedad_optima < 50:
+            sensibilidad_hum = 1.0   # Muy sensible
+        elif humedad_optima > 70:
+            sensibilidad_hum = 0.5   # Sensibilidad moderada
+        else:
+            sensibilidad_hum = 0.1
+
         sensibilidad_total = (sensibilidad_temp * 0.6) + (sensibilidad_hum * 0.4)
 
-        # 3. Ajustar el riesgo según la sensibilidad y eficiencia si hay modelo
-        if modelo_data and 'metricas' in modelo_data:
-            eficiencia = float(modelo_data['metricas'].get('eficiencia_promedio', 0.7))
-            
-            # Si la eficiencia del modelo es muy baja (< 0.4) y el producto es sensible, aumenta el riesgo
-            if eficiencia < 0.4 and sensibilidad_total > 0.6:
-                riesgo_base += 1
-            # Si la eficiencia es alta (> 0.6) y el producto es estable, disminuye el riesgo
-            elif eficiencia > 0.6 and sensibilidad_total < 0.4:
-                riesgo_base -= 1
-
-        # Ajuste por sensibilidad extrema en distancias límites
+        # 3. Ajustar el riesgo según la distancia y la sensibilidad del producto
         if riesgo_base == 1:
             if sensibilidad_total > 0.80 and distancia_km > 100:
-                riesgo_base = 2  # Sube a MEDIO si es extremadamente crítico y dist > 100km
-            else:
-                # Para distancias < 150km, nunca dejar que suba a ALTO
-                riesgo_base = min(riesgo_base, 2)
+                riesgo_base = 2  # Sube a MEDIO si es sensible y distancia mayor a 100km
         elif riesgo_base == 2:
             if sensibilidad_total < 0.30:
-                riesgo_base = 1  # Baja a BAJO si es muy estable
+                riesgo_base = 1  # Baja a BAJO si el producto es muy estable
             elif sensibilidad_total > 0.90:
-                riesgo_base = 3  # Sube a ALTO solo si es sumamente crítico (e.g. refrigerado extremo)
+                riesgo_base = 3  # Sube a ALTO si el producto es sumamente crítico
         elif riesgo_base == 3:
-            # Para distancias largas, si el producto no es extremadamente crítico, bajarlo a MEDIO
             if sensibilidad_total < 0.75:
-                riesgo_base = 2  # Baja a MEDIO
+                riesgo_base = 2  # Baja a MEDIO si la distancia es larga pero el producto es estable
 
         # Asegurar rango de riesgo válido [1, 3]
         riesgo_base = max(1, min(3, riesgo_base))
@@ -589,7 +589,7 @@ def determinar_nivel_riesgo_con_modelo(modelo_data, distancia_km, temperatura_op
         else:
             return 'ALTO'
     except Exception as e:
-        print(f"Error determinando nivel de riesgo: {e}")
+        print(f"Error determinando nivel de riesgo directo: {e}")
         # Fallback de distancia simple
         if distancia_km <= 150:
             return 'BAJO'

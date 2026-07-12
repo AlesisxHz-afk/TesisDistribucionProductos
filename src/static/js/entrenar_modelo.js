@@ -19,7 +19,7 @@ function entrenarModelo(tipo) {
         'Predice el almacén óptimo para cada producto.' :
         'Analiza eficiencia de rutas con condiciones climáticas.';
     
-    btn.disabled = true;
+    if (btn) btn.disabled = true;
     loading.classList.add('active');
     
     Swal.fire({
@@ -422,10 +422,13 @@ document.addEventListener('DOMContentLoaded', function() {
         entrenarModelo('clasificacion_almacenes');
     });
     
-    document.getElementById('btnPlanificacionRutas').addEventListener('click', function(e) {
-        e.stopPropagation();
-        entrenarModelo('planificacion_rutas');
-    });
+    const btnPlanificacionRutas = document.getElementById('btnPlanificacionRutas');
+    if (btnPlanificacionRutas) {
+        btnPlanificacionRutas.addEventListener('click', function(e) {
+            e.stopPropagation();
+            entrenarModelo('planificacion_rutas');
+        });
+    }
     
     // Botón flotante
     const floatingButton = document.createElement('button');

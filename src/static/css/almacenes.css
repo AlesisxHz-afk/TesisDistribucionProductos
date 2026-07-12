@@ -1,7 +1,7 @@
 /* Estilos específicos para la gestión de almacenes */
 
 .card {
-    background-color: #152a3a;
+    background-color: var(--bg-secondary);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
@@ -17,11 +17,11 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #40e0d0 0%, #4682b4 100%);
+    background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
 }
 
 .card-header {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-bottom: 1px solid rgba(64, 224, 208, 0.2);
     padding: 20px;
     display: flex;
@@ -35,12 +35,12 @@
     margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .card-body {
     padding: 20px;
-    background-color: #152a3a;
+    background-color: var(--bg-secondary);
 }
 
 .card-body.p-0 {
@@ -71,17 +71,17 @@
 .search-box input {
     width: 100%;
     padding: 10px 15px 10px 40px;
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 25px;
-    color: #e0f2fe;
+    color: var(--text-primary);
     font-size: 14px;
     transition: all 0.3s ease;
 }
 
 .search-box input:focus {
     outline: none;
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
     box-shadow: 0 0 0 2px rgba(64, 224, 208, 0.2);
 }
 
@@ -90,12 +90,12 @@
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #40e0d0;
+    color: var(--accent-color);
     font-size: 16px;
 }
 
 .btn-primary {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     color: white;
     padding: 10px 20px;
@@ -111,10 +111,10 @@
 }
 
 .btn-primary:hover {
-    background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
+    background: linear-gradient(90deg, var(--gradient-end) 0%, #3b82f6 100%);
     transform: translateY(-1px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
 }
 
 .btn-secondary {
@@ -228,7 +228,7 @@
     overflow-x: auto;
     border-radius: 10px;
     border: 1px solid rgba(64, 224, 208, 0.2);
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
     margin-bottom: 20px;
 }
 
@@ -236,16 +236,16 @@
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 0;
-    color: #e0f2fe;
+    color: var(--text-primary);
 }
 
 .table th {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-bottom: 2px solid rgba(64, 224, 208, 0.3);
     padding: 15px;
     text-align: left;
     font-weight: 600;
-    color: #40e0d0;
+    color: var(--accent-color);
     font-size: 14px;
 }
 
@@ -282,7 +282,7 @@
 /* Pestañas de navegación */
 .nav-tabs-container {
     margin-bottom: 20px;
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-radius: 15px;
     padding: 10px;
     border: 1px solid rgba(64, 224, 208, 0.2);
@@ -301,7 +301,7 @@
     border-radius: 25px;
     cursor: pointer;
     font-weight: 600;
-    color: #a5d8ff;
+    color: var(--text-accent);
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
@@ -314,11 +314,11 @@
 
 .nav-tab:hover {
     background: rgba(64, 224, 208, 0.1);
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .nav-tab.active {
-    background: linear-gradient(90deg, #40e0d0 0%, #4682b4 100%);
+    background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
     color: white;
 }
 
@@ -344,7 +344,7 @@
     width: 100%;
     border-radius: 8px;
     margin-top: 10px;
-    background-color: #1e3a5a;
+    background-color: var(--gradient-start);
     border: 1px solid rgba(64, 224, 208, 0.3);
     overflow: hidden;
 }
@@ -354,23 +354,23 @@
     align-items: center;
     gap: 5px;
     padding: 5px 10px;
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 20px;
-    color: #40e0d0;
+    color: var(--accent-color);
     font-size: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .ubicacion-badge:hover {
-    background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
-    border-color: #40e0d0;
+    background: linear-gradient(90deg, var(--gradient-end) 0%, #3b82f6 100%);
+    border-color: var(--accent-color);
 }
 
 /* Estilos para InfoWindow personalizado de Google Maps */
 .gm-style .gm-style-iw-c {
-    background: linear-gradient(135deg, #152a3a 0%, #1e3a5a 100%) !important;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gradient-start) 100%) !important;
     border: 1px solid rgba(64, 224, 208, 0.3) !important;
     border-radius: 15px !important;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
@@ -379,30 +379,30 @@
 
 .gm-style .gm-style-iw-d {
     background: transparent !important;
-    color: #e0f2fe !important;
+    color: var(--text-primary) !important;
     overflow: hidden !important;
     max-height: none !important;
 }
 
 .gm-style .gm-style-iw-t::after {
-    background: linear-gradient(135deg, #152a3a 0%, #1e3a5a 100%) !important;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gradient-start) 100%) !important;
     border: 1px solid rgba(64, 224, 208, 0.3) !important;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
 }
 
 .gm-style .gm-style-iw-tc::after {
-    background: linear-gradient(135deg, #152a3a 0%, #1e3a5a 100%) !important;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gradient-start) 100%) !important;
     border: 1px solid rgba(64, 224, 208, 0.3) !important;
 }
 
 .gm-style .gm-style-iw button {
-    color: #e0f2fe !important;
+    color: var(--text-primary) !important;
     opacity: 0.7 !important;
 }
 
 .gm-style .gm-style-iw button:hover {
     opacity: 1 !important;
-    color: #40e0d0 !important;
+    color: var(--accent-color) !important;
 }
 
 .gm-ui-hover-effect {
@@ -438,7 +438,7 @@
 
 .custom-info-window h4 {
     margin: 0 0 10px 0;
-    color: #40e0d0;
+    color: var(--accent-color);
     font-size: 16px;
     font-weight: 700;
     border-bottom: 1px solid rgba(64, 224, 208, 0.3);
@@ -454,14 +454,14 @@
 
 .custom-info-window .info-row {
     margin: 8px 0;
-    color: #e0f2fe;
+    color: var(--text-primary);
     font-size: 13px;
     display: flex;
     align-items: flex-start;
 }
 
 .custom-info-window .info-row i {
-    color: #40e0d0;
+    color: var(--accent-color);
     width: 20px;
     margin-right: 8px;
     font-size: 14px;
@@ -469,7 +469,7 @@
 }
 
 .custom-info-window .info-row strong {
-    color: #a5d8ff;
+    color: var(--text-accent);
     min-width: 70px;
     font-weight: 600;
 }
@@ -490,7 +490,7 @@
 
 .custom-info-window .estado-activo {
     background: rgba(40, 167, 69, 0.2);
-    color: #40e0d0;
+    color: var(--accent-color);
     border: 1px solid rgba(40, 167, 69, 0.3);
 }
 
@@ -516,7 +516,7 @@
 
 .custom-info-window .coordenadas-info {
     font-size: 11px;
-    color: #a5d8ff;
+    color: var(--text-accent);
     background: rgba(10, 30, 47, 0.5);
     padding: 8px;
     border-radius: 6px;
@@ -526,15 +526,15 @@
 
 .custom-info-window .coordenadas-info span {
     font-family: monospace;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 /* Mensaje de no resultados en el mapa */
 .no-results-mapa {
     text-align: center;
     padding: 20px;
-    color: #a5d8ff;
-    background: linear-gradient(135deg, #152a3a 0%, #1e3a5a 100%);
+    color: var(--text-accent);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gradient-start) 100%);
     border-radius: 10px;
     border: 1px solid rgba(64, 224, 208, 0.3);
 }
@@ -543,25 +543,25 @@
     font-size: 48px;
     margin-bottom: 15px;
     display: block;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .no-results-mapa h4 {
     margin-bottom: 10px;
-    color: #40e0d0;
+    color: var(--accent-color);
     font-size: 18px;
 }
 
 .no-results-mapa p {
     margin: 0;
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-size: 14px;
 }
 
 /* Tooltips personalizados */
 .gm-style .gm-style-tt {
-    background: #152a3a !important;
-    color: #e0f2fe !important;
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
     border: 1px solid rgba(64, 224, 208, 0.3) !important;
 }
 
@@ -574,7 +574,7 @@
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-size: 14px;
 }
 
@@ -584,18 +584,18 @@
     padding: 12px 15px;
     font-size: 14px;
     line-height: 1.5;
-    color: #e0f2fe;
-    background-color: rgba(10, 30, 47, 0.8);
+    color: var(--text-primary);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 8px;
     transition: border-color 0.15s ease-in-out;
 }
 
 .form-control:focus {
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
     outline: 0;
     box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.1);
-    background-color: rgba(10, 30, 47, 0.9);
+    background-color: var(--submenu-bg);
 }
 
 select.form-control {
@@ -624,7 +624,7 @@ select.form-control {
 }
 
 .form-text.text-muted {
-    color: #a5d8ff !important;
+    color: var(--text-accent) !important;
     font-size: 12px;
     margin-top: 5px;
 }
@@ -635,7 +635,7 @@ select.form-control {
     justify-content: space-between;
     align-items: center;
     padding: 15px;
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 10px;
     margin-top: 20px;
@@ -644,7 +644,7 @@ select.form-control {
 }
 
 .pagination-info {
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-size: 14px;
     font-weight: 600;
     min-width: 150px;
@@ -669,9 +669,9 @@ select.form-control {
 }
 
 .pagination-size select {
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.3);
-    color: #e0f2fe;
+    color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 13px;
@@ -679,14 +679,14 @@ select.form-control {
 }
 
 .pagination-size select:focus {
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
     outline: none;
 }
 
 .btn-pagination {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
-    color: #e0f2fe;
+    color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 8px;
     cursor: pointer;
@@ -701,8 +701,8 @@ select.form-control {
 }
 
 .btn-pagination:hover:not(:disabled) {
-    background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
-    border-color: #40e0d0;
+    background: linear-gradient(90deg, var(--gradient-end) 0%, #3b82f6 100%);
+    border-color: var(--accent-color);
     transform: translateY(-1px);
 }
 
@@ -712,19 +712,19 @@ select.form-control {
 }
 
 .btn-page {
-    background: rgba(10, 30, 47, 0.8);
+    background: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.2);
 }
 
 .btn-page-active {
-    background: linear-gradient(90deg, #40e0d0 0%, #4682b4 100%);
+    background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
     border: 1px solid rgba(64, 224, 208, 0.5);
     color: white;
     font-weight: 700;
 }
 
 .pagination-ellipsis {
-    color: #a5d8ff;
+    color: var(--text-accent);
     padding: 0 5px;
     font-size: 14px;
     user-select: none;
@@ -756,15 +756,15 @@ select.form-control {
 
 .modal-content {
     position: relative;
-    background: linear-gradient(135deg, #152a3a 0%, #1e3a5a 100%);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gradient-start) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 15px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    color: #e0f2fe;
+    color: var(--text-primary);
 }
 
 .modal-header {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-bottom: 1px solid rgba(64, 224, 208, 0.3);
     padding: 20px;
     display: flex;
@@ -773,7 +773,7 @@ select.form-control {
 }
 
 .modal-header .modal-title {
-    color: #40e0d0;
+    color: var(--accent-color);
     font-weight: 700;
     font-size: 1.25rem;
     margin: 0;
@@ -786,7 +786,7 @@ select.form-control {
     font-size: 24px;
     font-weight: 700;
     line-height: 1;
-    color: #e0f2fe;
+    color: var(--text-primary);
     opacity: 0.7;
     cursor: pointer;
     transition: opacity 0.3s ease;
@@ -794,7 +794,7 @@ select.form-control {
 
 .modal-header .close:hover {
     opacity: 1;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .modal-body {
@@ -814,7 +814,7 @@ select.form-control {
 
 /* Estados */
 .estado-activo {
-    color: #40e0d0;
+    color: var(--accent-color);
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -844,7 +844,7 @@ select.form-control {
 .no-results {
     text-align: center;
     padding: 40px 20px;
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-style: italic;
 }
 
@@ -857,7 +857,7 @@ select.form-control {
 
 .no-results h4 {
     margin-bottom: 10px;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 /* Alertas */
@@ -871,11 +871,11 @@ select.form-control {
 .alert-info {
     background-color: rgba(32, 107, 196, 0.2);
     border-color: rgba(32, 107, 196, 0.3);
-    color: #a5d8ff;
+    color: var(--text-accent);
 }
 
 .alert-info i {
-    color: #40e0d0;
+    color: var(--accent-color);
     margin-right: 8px;
 }
 
@@ -925,13 +925,13 @@ select.form-control {
 }
 
 .text-success {
-    color: #40e0d0 !important;
+    color: var(--accent-color) !important;
 }
 
 /* Capacidad */
 .capacidad-disponible {
     font-size: 12px;
-    color: #a5d8ff;
+    color: var(--text-accent);
     margin-top: 2px;
 }
 

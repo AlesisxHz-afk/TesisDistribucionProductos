@@ -17,7 +17,7 @@
 
 /* Cards */
 .card {
-    background-color: #152a3a;
+    background-color: var(--bg-secondary);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
@@ -33,11 +33,11 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #40e0d0 0%, #4682b4 100%);
+    background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
 }
 
 .card-header {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-bottom: 1px solid rgba(64, 224, 208, 0.2);
     padding: 20px;
     display: flex;
@@ -51,7 +51,7 @@
     margin: 0;
     font-size: 1.3rem;
     font-weight: 700;
-    color: #40e0d0;
+    color: var(--accent-color);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -63,7 +63,7 @@
 
 .card-body {
     padding: 20px;
-    background-color: #152a3a;
+    background-color: var(--bg-secondary);
 }
 
 /* Filtros */
@@ -82,7 +82,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
     border-radius: 10px;
     padding: 20px;
     border: 1px solid rgba(64, 224, 208, 0.2);
@@ -96,7 +96,7 @@
 
 .info-label {
     font-size: 12px;
-    color: #a5d8ff;
+    color: var(--text-accent);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -104,7 +104,7 @@
 .info-value {
     font-size: 16px;
     font-weight: 600;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 /* Tabla */
@@ -112,23 +112,23 @@
     overflow-x: auto;
     border-radius: 10px;
     border: 1px solid rgba(64, 224, 208, 0.2);
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
 }
 
 .table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 0;
-    color: #e0f2fe;
+    color: var(--text-primary);
 }
 
 .table th {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-bottom: 2px solid rgba(64, 224, 208, 0.3);
     padding: 15px;
     text-align: left;
     font-weight: 600;
-    color: #40e0d0;
+    color: var(--accent-color);
     font-size: 14px;
     white-space: nowrap;
 }
@@ -154,7 +154,7 @@
 
 /* Variación */
 .variacion-positiva {
-    color: #40e0d0;
+    color: var(--accent-color);
     font-weight: 600;
     display: inline-flex;
     align-items: center;
@@ -190,12 +190,12 @@
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-size: 14px;
 }
 
 .form-group label i {
-    color: #40e0d0;
+    color: var(--accent-color);
     margin-right: 5px;
 }
 
@@ -205,18 +205,18 @@
     padding: 10px 15px;
     font-size: 14px;
     line-height: 1.5;
-    color: #e0f2fe;
-    background-color: rgba(10, 30, 47, 0.8);
+    color: var(--text-primary);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 8px;
     transition: border-color 0.15s ease-in-out;
 }
 
 .form-control:focus {
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
     outline: 0;
     box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.1);
-    background-color: rgba(10, 30, 47, 0.9);
+    background-color: var(--submenu-bg);
 }
 
 select.form-control {
@@ -230,7 +230,7 @@ select.form-control {
 
 /* Botones */
 .btn-primary {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     color: white;
     padding: 10px 20px;
@@ -245,10 +245,10 @@ select.form-control {
 }
 
 .btn-primary:hover {
-    background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
+    background: linear-gradient(90deg, var(--gradient-end) 0%, #3b82f6 100%);
     transform: translateY(-1px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
 }
 
 .btn-success {
@@ -282,7 +282,7 @@ select.form-control {
 .no-results {
     text-align: center;
     padding: 40px 20px;
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-style: italic;
 }
 
@@ -295,7 +295,7 @@ select.form-control {
 
 .no-results h4 {
     margin-bottom: 10px;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 /* Canvas */

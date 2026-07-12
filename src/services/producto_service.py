@@ -4,12 +4,12 @@ import hashlib
 import os
 from werkzeug.utils import secure_filename
 from PIL import Image
-import imghdr
 import pickle
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta, date
 import random
+from io import BytesIO
 
 # Rutas de los modelos PKT
 MODELOS_PATH = os.path.join(os.path.dirname(__file__), '..', 'models', 'pkt')
@@ -370,31 +370,14 @@ def eliminar_producto(producto_id):
 
 def get_image_format(image_bytes):
     """
-    Detecta el formato de la imagen usando imghdr
+    Detecta el formato de la imagen usando Pillow.
+    Compatible con Python 3.13.
     """
-    image_format = imghdr.what(None, h=image_bytes)
-    
-    if image_format:
-        return image_format
-    
-    signatures = {
-        b'\xff\xd8\xff': 'jpeg',
-        b'\x89PNG\r\n\x1a\n': 'png',
-        b'GIF87a': 'gif',
-        b'GIF89a': 'gif',
-        b'RIFF': 'webp',
-        b'BM': 'bmp',
-        b'II*\x00': 'tiff',
-        b'MM\x00*': 'tiff',
-        b'<?xml': 'svg',
-    }
-    
-    for signature, fmt in signatures.items():
-        if image_bytes.startswith(signature):
-            return fmt
-    
-    return None
-
+    try:
+        img = Image.open(BytesIO(image_bytes))
+        return img.format.lower() if img.format else None
+    except Exception:
+        return None
 
 def guardar_foto_producto(foto, foto_path):
     """
@@ -928,42 +911,54 @@ def guardar_predicciones_db(anio, mes, predicciones):
                     errores += 1
                     continue
                 
-                # Calcular cuántos envíos podemos hacer respetando el mínimo
-                max_envios_posibles = int(demanda_total / MINIMO_POR_ENVIO)
+                # Si el frontend proporciona los envíos ya editados/personalizados
+                envios_personalizados = pred.get('envios')
                 
-                if max_envios_posibles < 1:
-                    # Si no alcanza para 1 envío con mínimo, crear 1 envío con toda la demanda
-                    num_envios = 1
-                    cantidades = [demanda_total]
-                    print(f"Producto {producto_id}: Demanda insuficiente ({demanda_total}), creando 1 envío")
+                if envios_personalizados and isinstance(envios_personalizados, list):
+                    num_envios = len(envios_personalizados)
+                    cantidades = [float(e.get('cantidad', 100)) for e in envios_personalizados]
+                    dias = [int(e.get('dia', 1)) for e in envios_personalizados]
+                    # Asegurar orden ascendente por día
+                    pares = sorted(zip(dias, cantidades))
+                    dias = [p[0] for p in pares]
+                    cantidades = [p[1] for p in pares]
                 else:
-                    # Usar el menor entre los envíos solicitados y los posibles
-                    num_envios = min(total_envios, max_envios_posibles)
+                    # Calcular cuántos envíos podemos hacer respetando el mínimo
+                    max_envios_posibles = int(demanda_total / MINIMO_POR_ENVIO)
                     
-                    # Asignar mínimo a cada envío
-                    cantidades = [MINIMO_POR_ENVIO] * num_envios
+                    if max_envios_posibles < 1:
+                        # Si no alcanza para 1 envío con mínimo, crear 1 envío con toda la demanda
+                        num_envios = 1
+                        cantidades = [demanda_total]
+                        print(f"Producto {producto_id}: Demanda insuficiente ({demanda_total}), creando 1 envío")
+                    else:
+                        # Usar el menor entre los envíos solicitados y los posibles
+                        num_envios = min(total_envios, max_envios_posibles)
+                        
+                        # Asignar mínimo a cada envío
+                        cantidades = [MINIMO_POR_ENVIO] * num_envios
+                        
+                        # Distribuir el resto
+                        resto = demanda_total - (num_envios * MINIMO_POR_ENVIO)
+                        
+                        if resto > 0:
+                            # Distribuir el resto aleatoriamente
+                            for _ in range(int(resto)):
+                                idx = random.randint(0, num_envios - 1)
+                                cantidades[idx] += 1
                     
-                    # Distribuir el resto
-                    resto = demanda_total - (num_envios * MINIMO_POR_ENVIO)
+                    # Redondear a 2 decimales
+                    cantidades = [round(c, 2) for c in cantidades]
                     
-                    if resto > 0:
-                        # Distribuir el resto aleatoriamente
-                        for _ in range(int(resto)):
-                            idx = random.randint(0, num_envios - 1)
-                            cantidades[idx] += 1
-                
-                # Redondear a 2 decimales
-                cantidades = [round(c, 2) for c in cantidades]
-                
-                # Ajustar última por errores de redondeo
-                suma = sum(cantidades)
-                if abs(suma - demanda_total) > 0.01:
-                    cantidades[-1] += round(demanda_total - suma, 2)
-                    cantidades[-1] = round(cantidades[-1], 2)
-                
-                # Generar días únicos
-                dias = random.sample(range(1, 29), min(num_envios, 28))
-                dias.sort()
+                    # Ajustar última por errores de redondeo
+                    suma = sum(cantidades)
+                    if abs(suma - demanda_total) > 0.01:
+                        cantidades[-1] += round(demanda_total - suma, 2)
+                        cantidades[-1] = round(cantidades[-1], 2)
+                    
+                    # Generar días únicos
+                    dias = random.sample(range(1, 29), min(num_envios, 28))
+                    dias.sort()
                 
                 envios_del_producto = []
                 

@@ -22,7 +22,7 @@
             <div class="profile-photo-section">
                 <div class="photo-container">
                     <img id="profilePhoto" 
-                         src="{{ url_for('static', filename='images/usuario/userdefault.jpg') }}" 
+                         src="{% if foto_usuario %}{{ url_for('static', filename='images/usuario/' + foto_usuario) }}{% else %}{{ url_for('static', filename='images/usuario/userdefault.jpg') }}{% endif %}" 
                          alt="Foto de perfil" 
                          class="profile-photo">
                     <div class="photo-actions">
@@ -46,7 +46,7 @@
                     <i class="fas fa-user"></i>
                     <div>
                         <span class="label">Usuario:</span>
-                        <span id="usernameDisplay" class="value">Cargando...</span>
+                        <span id="usernameDisplay" class="value">{{ username or 'Cargando...' }}</span>
                     </div>
                 </div>
                 <br>
@@ -54,7 +54,7 @@
                     <i class="fas fa-shield-alt"></i>
                     <div>
                         <span class="label">Rol:</span>
-                        <span id="roleDisplay" class="value">Cargando...</span>
+                        <span id="roleDisplay" class="value">{{ tipo_nombre or 'Cargando...' }}</span>
                     </div>
                 </div>
                 <br>
@@ -62,7 +62,13 @@
                     <i class="fas fa-circle"></i>
                     <div>
                         <span class="label">Estado:</span>
-                        <span id="statusDisplay" class="status-active">Activo</span>
+                        <span id="statusDisplay" class="status-active">
+                            {% if estado_usuario == True or estado_usuario == 'true' or estado_usuario == 'ACTIVO' %}
+                                Activo
+                            {% else %}
+                                Inactivo
+                            {% endif %}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -86,7 +92,7 @@
                                     <label for="usuario" class="form-label">
                                         <i class="fas fa-at"></i> Usuario
                                     </label>
-                                    <input type="text" class="form-control" id="usuario" name="usuario" readonly>
+                                    <input type="text" class="form-control" id="usuario" name="usuario" value="{{ username or '' }}" readonly>
                                     <small class="form-text">No se puede modificar</small>
                                 </div>
                                 
@@ -94,7 +100,7 @@
                                     <label for="nombres" class="form-label required">
                                         <i class="fas fa-user"></i> Nombres
                                     </label>
-                                    <input type="text" class="form-control" id="nombres" name="nombres" required>
+                                    <input type="text" class="form-control" id="nombres" name="nombres" value="{{ nombres or '' }}" required>
                                     <div class="invalid-feedback">Por favor ingresa tus nombres</div>
                                 </div>
                                 
@@ -102,7 +108,7 @@
                                     <label for="ape_paterno" class="form-label required">
                                         <i class="fas fa-user-tag"></i> Apellido paterno
                                     </label>
-                                    <input type="text" class="form-control" id="ape_paterno" name="ape_paterno" required>
+                                    <input type="text" class="form-control" id="ape_paterno" name="ape_paterno" value="{{ ape_paterno or '' }}" required>
                                     <div class="invalid-feedback">Por favor ingresa tu apellido paterno</div>
                                 </div>
                                 
@@ -110,7 +116,7 @@
                                     <label for="ape_materno" class="form-label required">
                                         <i class="fas fa-user-tag"></i> Apellido materno
                                     </label>
-                                    <input type="text" class="form-control" id="ape_materno" name="ape_materno" required>
+                                    <input type="text" class="form-control" id="ape_materno" name="ape_materno" value="{{ ape_materno or '' }}" required>
                                     <div class="invalid-feedback">Por favor ingresa tu apellido materno</div>
                                 </div>
                             </div>
@@ -178,6 +184,18 @@
 {% endblock %}
 
 {% block javascript %}
+    <script>
+        // Inyectar datos del servidor directamente para evitar llamadas AJAX lentas al cargar
+        const serverUsuarioData = {
+            usuario: "{{ username or '' }}",
+            nombres: "{{ nombres or '' }}",
+            ape_paterno: "{{ ape_paterno or '' }}",
+            ape_materno: "{{ ape_materno or '' }}",
+            foto_usuario: "{{ foto_usuario or '' }}",
+            tipo_usuario: "{{ tipo_nombre or '' }}",
+            estado_usuario: "{{ estado_usuario or '' }}"
+        };
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <script src="{{ url_for('static', filename='js/usuario_perfil.js') }}"></script>
 {% endblock %}

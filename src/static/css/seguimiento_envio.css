@@ -3,7 +3,7 @@
 .envio-container {
     display: flex;
     height: calc(100vh - 120px);
-    background-color: #152a3a;
+    background-color: var(--bg-secondary);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 15px;
     overflow: hidden;
@@ -13,7 +13,7 @@
 /* Sidebar de búsqueda */
 .busqueda-sidebar {
     width: 300px;
-    background: linear-gradient(135deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-right: 1px solid rgba(64, 224, 208, 0.3);
     display: flex;
     flex-direction: column;
@@ -29,7 +29,7 @@
     margin: 0 0 15px 0;
     font-size: 1.2rem;
     font-weight: 700;
-    color: #40e0d0;
+    color: var(--accent-color);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -48,16 +48,16 @@
 .search-box input {
     width: 100%;
     padding: 12px 15px 12px 40px;
-    background-color: rgba(10, 30, 47, 0.8);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 25px;
-    color: #e0f2fe;
+    color: var(--text-primary);
     font-size: 14px;
 }
 
 .search-box input:focus {
     outline: none;
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
     box-shadow: 0 0 0 2px rgba(64, 224, 208, 0.2);
 }
 
@@ -66,7 +66,7 @@
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #40e0d0;
+    color: var(--accent-color);
     font-size: 16px;
 }
 
@@ -85,7 +85,7 @@
 
 .info-message {
     text-align: center;
-    color: #a5d8ff;
+    color: var(--text-accent);
 }
 
 .info-message i {
@@ -103,7 +103,7 @@
 .map-container {
     flex: 1;
     position: relative;
-    background: #0a1e2f;
+    background: var(--bg-sidebar);
 }
 
 .map {
@@ -126,10 +126,10 @@
 .btn-map-control {
     width: 40px;
     height: 40px;
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 8px;
-    color: #e0f2fe;
+    color: var(--text-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -139,8 +139,8 @@
 }
 
 .btn-map-control:hover {
-    background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
-    border-color: #40e0d0;
+    background: linear-gradient(90deg, var(--gradient-end) 0%, #3b82f6 100%);
+    border-color: var(--accent-color);
     transform: translateY(-1px);
 }
 
@@ -150,11 +150,11 @@
     bottom: 20px;
     left: 20px;
     z-index: 10;
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 25px;
     padding: 10px 20px;
-    color: #e0f2fe;
+    color: var(--text-primary);
     font-size: 14px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
@@ -167,7 +167,7 @@
 /* Ticket de envío */
 .envio-ticket {
     width: 350px;
-    background: linear-gradient(135deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-left: 1px solid rgba(64, 224, 208, 0.3);
     display: flex;
     flex-direction: column;
@@ -190,12 +190,12 @@
 
 .ticket-title i {
     font-size: 1.5rem;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .ticket-title h4 {
     margin: 0;
-    color: #40e0d0;
+    color: var(--accent-color);
     font-weight: 700;
     font-size: 1.1rem;
 }
@@ -203,7 +203,7 @@
 .btn-close-ticket {
     background: transparent;
     border: none;
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-size: 1.2rem;
     cursor: pointer;
     padding: 5px;
@@ -211,7 +211,7 @@
 }
 
 .btn-close-ticket:hover {
-    color: #40e0d0;
+    color: var(--accent-color);
     transform: scale(1.1);
 }
 
@@ -234,7 +234,7 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 10px;
-    color: #40e0d0;
+    color: var(--accent-color);
     font-weight: 600;
     font-size: 0.9rem;
     border-bottom: 1px solid rgba(64, 224, 208, 0.2);
@@ -254,17 +254,17 @@
 }
 
 .ticket-item-label {
-    color: #a5d8ff;
+    color: var(--text-accent);
 }
 
 .ticket-item-value {
-    color: #e0f2fe;
+    color: var(--text-primary);
     font-weight: 500;
     text-align: right;
 }
 
 .ticket-item-value.highlight {
-    color: #40e0d0;
+    color: var(--accent-color);
     font-weight: 700;
 }
 
@@ -277,7 +277,7 @@
 
 .ticket-icono i {
     font-size: 2rem;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .ticket-icono-info {
@@ -286,13 +286,13 @@
 
 .ticket-icono-nombre {
     font-weight: 700;
-    color: #e0f2fe;
+    color: var(--text-primary);
     margin-bottom: 3px;
 }
 
 .ticket-icono-detalle {
     font-size: 0.8rem;
-    color: #a5d8ff;
+    color: var(--text-accent);
 }
 
 .ticket-estado {
@@ -313,7 +313,7 @@
 
 .estado-en-ruta {
     background: rgba(64, 224, 208, 0.2);
-    color: #40e0d0;
+    color: var(--accent-color);
     border: 1px solid rgba(64, 224, 208, 0.3);
 }
 
@@ -336,7 +336,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-    color: #a5d8ff;
+    color: var(--text-accent);
     z-index: 5;
     pointer-events: none;
 }
@@ -348,7 +348,7 @@
 }
 
 .no-busqueda h4 {
-    color: #40e0d0;
+    color: var(--accent-color);
     margin-bottom: 10px;
 }
 
@@ -363,7 +363,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(10, 30, 47, 0.8);
+    background: var(--bg-input);
     z-index: 1000;
     display: flex;
     align-items: center;
@@ -372,7 +372,7 @@
 
 .loading-spinner {
     text-align: center;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .loading-spinner i {
@@ -382,12 +382,12 @@
 
 .loading-spinner p {
     font-size: 1rem;
-    color: #e0f2fe;
+    color: var(--text-primary);
 }
 
 /* Botones */
 .btn-primary {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     color: white;
     padding: 12px 20px;
@@ -403,9 +403,9 @@
 }
 
 .btn-primary:hover {
-    background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
+    background: linear-gradient(90deg, var(--gradient-end) 0%, #3b82f6 100%);
     transform: translateY(-1px);
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
 }
 
 /* Utilidades */

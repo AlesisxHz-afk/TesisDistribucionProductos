@@ -377,17 +377,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para cerrar sesión
     function cerrarSesion() {
+        const style = getComputedStyle(document.body);
+        const bgSecondary = style.getPropertyValue('--bg-dropdown').trim() || '#152a3a';
+        const textPrimary = style.getPropertyValue('--text-primary').trim() || '#e0f2fe';
+        const accentColor = style.getPropertyValue('--accent-color').trim() || '#40e0d0';
+
         Swal.fire({
             title: '¿Cerrar Sesión?',
             text: '¿Estás seguro de que deseas salir del sistema?',
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#40e0d0',
+            confirmButtonColor: accentColor,
             cancelButtonColor: '#f87171',
             confirmButtonText: 'Sí, cerrar sesión',
             cancelButtonText: 'Cancelar',
-            background: '#152a3a',
-            color: '#e0f2fe',
+            background: bgSecondary,
+            color: textPrimary,
             backdrop: 'rgba(0, 0, 0, 0.7)'
         }).then((result) => {
             if (result.isConfirmed) {
@@ -411,9 +416,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             title: 'Sesión Cerrada',
                             text: 'Has cerrado sesión exitosamente',
                             icon: 'success',
-                            confirmButtonColor: '#40e0d0',
-                            background: '#152a3a',
-                            color: '#e0f2fe',
+                            confirmButtonColor: accentColor,
+                            background: bgSecondary,
+                            color: textPrimary,
                             timer: 1500,
                             showConfirmButton: false
                         }).then(() => {
@@ -440,6 +445,68 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = '/login';
     }
 
+    // Función para inicializar el tema (Modo Claro / Modo Oscuro)
+    function inicializarTema() {
+        const toggleBtn = document.getElementById('theme-toggle-btn');
+        if (!toggleBtn) return;
+        
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        actualizarIconoTema(toggleBtn, currentTheme);
+        
+        toggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            actualizarIconoTema(toggleBtn, newTheme);
+        });
+    }
+    
+    function actualizarIconoTema(btn, theme) {
+        const icon = btn.querySelector('i');
+        if (icon) {
+            if (theme === 'dark') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+        }
+    }
+
+    // Función para generar frutas flotantes en el fondo del contenedor principal
+    function generarFrutasFlotantes() {
+        const container = document.getElementById('floating-fruits-container');
+        if (!container) return;
+        
+        const fruits = ['🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍒', '🍍', '🥝', '🥑'];
+        const count = 25;
+        
+        container.innerHTML = '';
+        
+        for (let i = 0; i < count; i++) {
+            const fruit = document.createElement('div');
+            fruit.className = 'floating-fruit';
+            fruit.innerText = fruits[Math.floor(Math.random() * fruits.length)];
+            
+            // Posiciones iniciales aleatorias
+            fruit.style.left = `${Math.random() * 100}%`;
+            fruit.style.top = `${Math.random() * 100}%`;
+            
+            // Tamaños aleatorios
+            const size = Math.random() * 20 + 20; // de 20px a 40px
+            fruit.style.fontSize = `${size}px`;
+            
+            // Tiempos aleatorios para la animación
+            const duration = Math.random() * 30 + 30; // de 30s a 60s
+            const delay = Math.random() * -60; // retraso negativo para empezar de inmediato
+            
+            fruit.style.animation = `floatAround ${duration}s linear infinite`;
+            fruit.style.animationDelay = `${delay}s`;
+            
+            container.appendChild(fruit);
+        }
+    }
+
     // Función para inicializar toda la aplicación
     function inicializarApp() {
         actualizarFechaHora();
@@ -449,6 +516,8 @@ document.addEventListener('DOMContentLoaded', function() {
         inicializarNavegacion();
         inicializarSubmenusReportes();
         configurarMenuPorTipo();
+        inicializarTema();
+        generarFrutasFlotantes();
         
         setInterval(actualizarFechaHora, 1000);
     }

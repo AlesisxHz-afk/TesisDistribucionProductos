@@ -6,7 +6,6 @@ from werkzeug.utils import secure_filename
 import base64
 from io import BytesIO
 from PIL import Image
-import imghdr
 
 def obtener_credenciales():
     """Obtiene las credenciales del usuario actual desde las cookies"""
@@ -143,32 +142,12 @@ def crear_usuario(username, password, nombres, paterno, materno, foto=None, tipo
         return None, f"Error al crear el usuario: {str(e)}"
 
 def get_image_format(image_bytes):
-    """Detecta el formato de la imagen usando imghdr"""
-    # Primero intentar con imghdr
-    image_format = imghdr.what(None, h=image_bytes)
-    
-    if image_format:
-        return image_format
-    
-    # Si imghdr no lo detecta, probar con firmas conocidas
-    signatures = {
-        b'\xff\xd8\xff': 'jpeg',
-        b'\x89PNG\r\n\x1a\n': 'png',
-        b'GIF87a': 'gif',
-        b'GIF89a': 'gif',
-        b'RIFF': 'webp',  # WebP empieza con RIFF
-        b'BM': 'bmp',
-        b'II*\x00': 'tiff',  # Little endian TIFF
-        b'MM\x00*': 'tiff',  # Big endian TIFF
-        b'<?xml': 'svg',  # SVG es XML
-        b'\x00\x00\x00 ftypavif': 'avif',  # AVIF signature
-    }
-    
-    for signature, fmt in signatures.items():
-        if image_bytes.startswith(signature):
-            return fmt
-    
-    return None
+    """Detecta el formato de una imagen usando Pillow."""
+    try:
+        img = Image.open(BytesIO(image_bytes))
+        return img.format.lower() if img.format else None
+    except Exception:
+        return None
 
 def guardar_foto_usuario(foto, foto_path):
     """Guarda una foto de usuario, manejando tanto archivos como base64"""

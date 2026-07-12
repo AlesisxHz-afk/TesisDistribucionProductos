@@ -135,6 +135,9 @@ async function predecirStock() {
             currentAnio = anio;
             currentMes = mes;
             prediccionesData = data.predicciones || [];
+            prediccionesData.forEach(pred => {
+                pred.envios = generarEnviosDePrediccion(pred);
+            });
             filteredPredicciones = [...prediccionesData];
             currentPage = 1;
             
@@ -213,7 +216,11 @@ async function guardarPredicciones() {
                 tipo_producto: p.tipo_producto,
                 variedad_producto: p.variedad_producto,
                 demanda_predicha: parseFloat(p.demanda_predicha),
-                total_envios: parseInt(p.total_envios || 1)
+                total_envios: parseInt(p.total_envios || 1),
+                envios: p.envios ? p.envios.map(e => ({
+                    dia: parseInt(e.dia),
+                    cantidad: parseFloat(e.cantidad)
+                })) : null
             }))
         };
         
@@ -260,7 +267,79 @@ async function guardarPredicciones() {
     }
 }
 
-// Función para ver detalle de envíos - VERSIÓN CORREGIDA CON MÍNIMO 100 kg
+// Función para generar la lista inicial de envíos distribuyendo la demanda
+function generarEnviosDePrediccion(pred) {
+    const totalEnvios = pred.total_envios || 1;
+    const demandaTotal = pred.demanda_predicha || 0;
+    
+    const minimoPorEnvio = 100;
+    const demandaMinimaNecesaria = totalEnvios * minimoPorEnvio;
+    
+    let cantidades = [];
+    
+    if (demandaTotal < demandaMinimaNecesaria) {
+        const enviosPosibles = Math.floor(demandaTotal / minimoPorEnvio);
+        
+        if (enviosPosibles === 0) {
+            cantidades = [demandaTotal];
+        } else {
+            cantidades = Array(enviosPosibles).fill(minimoPorEnvio);
+            const resto = demandaTotal - (enviosPosibles * minimoPorEnvio);
+            if (resto > 0) {
+                for (let i = 0; i < resto; i++) {
+                    const indice = Math.floor(Math.random() * enviosPosibles);
+                    cantidades[indice] += 1;
+                }
+            }
+        }
+    } else {
+        cantidades = Array(totalEnvios).fill(minimoPorEnvio);
+        const sobra = demandaTotal - (totalEnvios * minimoPorEnvio);
+        
+        if (sobra > 0) {
+            for (let i = 0; i < sobra; i++) {
+                const indice = Math.floor(Math.random() * totalEnvios);
+                cantidades[indice] += 1;
+            }
+        }
+    }
+    
+    cantidades = cantidades.map(c => Math.round(c * 100) / 100);
+    
+    const sumaActual = cantidades.reduce((a, b) => a + b, 0);
+    if (Math.abs(sumaActual - demandaTotal) > 0.1) {
+        const diferencia = demandaTotal - sumaActual;
+        cantidades[cantidades.length - 1] += diferencia;
+        cantidades[cantidades.length - 1] = Math.round(cantidades[cantidades.length - 1] * 100) / 100;
+    }
+    
+    const diasDisponibles = [];
+    for (let i = 1; i <= 28; i++) {
+        diasDisponibles.push(i);
+    }
+    
+    for (let i = diasDisponibles.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [diasDisponibles[i], diasDisponibles[j]] = [diasDisponibles[j], diasDisponibles[i]];
+    }
+    
+    const diasSeleccionados = diasDisponibles.slice(0, cantidades.length).sort((a, b) => a - b);
+    
+    const envios = [];
+    for (let i = 0; i < cantidades.length; i++) {
+        envios.push({
+            id: i + 1,
+            dia: diasSeleccionados[i],
+            fecha: `${currentAnio}-${String(currentMes).padStart(2, '0')}-${String(diasSeleccionados[i]).padStart(2, '0')}`,
+            cantidad: cantidades[i]
+        });
+    }
+    
+    envios.sort((a, b) => a.dia - b.dia);
+    return envios;
+}
+
+// Función para ver detalle de envíos - VERSIÓN EDITABLE POR ENVÍO
 function verDetalle(productoId, productoNombre, productoTipo, productoVariedad) {
     try {
         const prediccion = prediccionesData.find(p => p.producto_id == productoId);
@@ -270,99 +349,14 @@ function verDetalle(productoId, productoNombre, productoTipo, productoVariedad) 
             return;
         }
         
-        const totalEnvios = prediccion.total_envios || 1;
-        const demandaTotal = prediccion.demanda_predicha || 0;
-        
-        console.log(`Producto: ${productoNombre}, Demanda total: ${demandaTotal}, Envíos: ${totalEnvios}`);
-        
-        // Verificar si la demanda total es suficiente para el mínimo por envío
-        const minimoPorEnvio = 100;
-        const demandaMinimaNecesaria = totalEnvios * minimoPorEnvio;
-        
-        let cantidades = [];
-        
-        if (demandaTotal < demandaMinimaNecesaria) {
-            // No alcanza para el mínimo, ajustar número de envíos
-            const enviosPosibles = Math.floor(demandaTotal / minimoPorEnvio);
-            
-            if (enviosPosibles === 0) {
-                // Si ni siquiera para 1 envío, crear un solo envío con toda la demanda
-                cantidades = [demandaTotal];
-                console.log(`Demanda insuficiente (${demandaTotal}), creando 1 envío`);
-            } else {
-                // Crear envíos con el mínimo y distribuir el resto
-                console.log(`Ajustando de ${totalEnvios} a ${enviosPosibles} envíos por mínimo de ${minimoPorEnvio} kg`);
-                
-                // Crear array con el mínimo para cada envío
-                cantidades = Array(enviosPosibles).fill(minimoPorEnvio);
-                
-                // Distribuir el resto
-                const resto = demandaTotal - (enviosPosibles * minimoPorEnvio);
-                if (resto > 0) {
-                    // Distribuir el resto aleatoriamente entre los envíos
-                    for (let i = 0; i < resto; i++) {
-                        const indice = Math.floor(Math.random() * enviosPosibles);
-                        cantidades[indice] += 1;
-                    }
-                }
-            }
-        } else {
-            // Hay suficiente demanda, distribuir respetando el mínimo
-            console.log(`Demanda suficiente (${demandaTotal}), creando ${totalEnvios} envíos con mínimo ${minimoPorEnvio} kg`);
-            
-            // Asignar el mínimo a cada envío
-            cantidades = Array(totalEnvios).fill(minimoPorEnvio);
-            
-            // Calcular cuánto sobra para distribuir
-            const sobra = demandaTotal - (totalEnvios * minimoPorEnvio);
-            
-            if (sobra > 0) {
-                // Distribuir la sobra de forma aleatoria
-                for (let i = 0; i < sobra; i++) {
-                    const indice = Math.floor(Math.random() * totalEnvios);
-                    cantidades[indice] += 1;
-                }
-            }
+        if (!prediccion.envios) {
+            prediccion.envios = generarEnviosDePrediccion(prediccion);
         }
         
-        // Redondear todas las cantidades a 2 decimales
-        cantidades = cantidades.map(c => Math.round(c * 100) / 100);
+        const envios = prediccion.envios;
+        const total = envios.reduce((sum, e) => sum + e.cantidad, 0);
         
-        // Verificar que la suma sea correcta y ajustar si es necesario
-        const sumaActual = cantidades.reduce((a, b) => a + b, 0);
-        if (Math.abs(sumaActual - demandaTotal) > 0.1) {
-            const diferencia = demandaTotal - sumaActual;
-            cantidades[cantidades.length - 1] += diferencia;
-            cantidades[cantidades.length - 1] = Math.round(cantidades[cantidades.length - 1] * 100) / 100;
-        }
-        
-        // Generar días únicos para los envíos
-        const diasDisponibles = [];
-        for (let i = 1; i <= 28; i++) {
-            diasDisponibles.push(i);
-        }
-        
-        // Mezclar días
-        for (let i = diasDisponibles.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [diasDisponibles[i], diasDisponibles[j]] = [diasDisponibles[j], diasDisponibles[i]];
-        }
-        
-        // Tomar los primeros N días
-        const diasSeleccionados = diasDisponibles.slice(0, cantidades.length).sort((a, b) => a - b);
-        
-        // Crear array de envíos
-        const envios = [];
-        for (let i = 0; i < cantidades.length; i++) {
-            envios.push({
-                dia: diasSeleccionados[i],
-                fecha: `${currentAnio}-${String(currentMes).padStart(2, '0')}-${String(diasSeleccionados[i]).padStart(2, '0')}`,
-                cantidad: cantidades[i]
-            });
-        }
-        
-        // Ordenar por día
-        envios.sort((a, b) => a.dia - b.dia);
+        console.log(`Producto: ${productoNombre}, Demanda total: ${total}, Envíos: ${envios.length}`);
         
         // Llenar modal
         document.getElementById('detalle-producto-nombre').textContent = productoNombre;
@@ -372,7 +366,6 @@ function verDetalle(productoId, productoNombre, productoTipo, productoVariedad) 
         const tbody = document.getElementById('detalle-envios-body');
         tbody.innerHTML = '';
         
-        let total = 0;
         envios.forEach(envio => {
             const tr = document.createElement('tr');
             
@@ -382,14 +375,23 @@ function verDetalle(productoId, productoNombre, productoTipo, productoVariedad) 
             
             const tdCantidad = document.createElement('td');
             tdCantidad.className = 'text-right';
-            tdCantidad.textContent = envio.cantidad.toFixed(2);
+            tdCantidad.style.fontWeight = 'bold';
+            tdCantidad.textContent = envio.cantidad.toFixed(2) + ' kg';
             tr.appendChild(tdCantidad);
             
+            const tdAcciones = document.createElement('td');
+            tdAcciones.className = 'text-center';
+            tdAcciones.innerHTML = `
+                <button class="btn btn-warning btn-sm" onclick="editarEnvioEspecifico(${productoId}, ${envio.id})">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+            `;
+            tr.appendChild(tdAcciones);
+            
             tbody.appendChild(tr);
-            total += envio.cantidad;
         });
         
-        document.getElementById('detalle-total').textContent = total.toFixed(2);
+        document.getElementById('detalle-total').textContent = total.toFixed(2) + ' kg';
         
         // Agregar información adicional
         const infoDiv = document.createElement('div');
@@ -413,7 +415,6 @@ function verDetalle(productoId, productoNombre, productoTipo, productoVariedad) 
             Mín: ${min} kg | 
             Máx: ${max} kg | 
             Prom: ${promedio} kg
-            ${envios.length < prediccion.total_envios ? `<br><small class="text-warning">⚠️ Se redujo de ${prediccion.total_envios} a ${envios.length} envíos por mínimo de 100 kg</small>` : ''}
         `;
         
         // Eliminar info anterior si existe
@@ -430,6 +431,110 @@ function verDetalle(productoId, productoNombre, productoTipo, productoVariedad) 
         mostrarError('Error al generar detalle');
     }
 }
+
+// Función para editar un envío específico del modal de detalles
+function editarEnvioEspecifico(productoId, envioId) {
+    const pred = prediccionesData.find(p => p.producto_id == productoId);
+    if (!pred) return;
+    
+    const envio = pred.envios.find(e => e.id == envioId);
+    if (!envio) return;
+    
+    const style = getComputedStyle(document.body);
+    const bgSecondary = style.getPropertyValue('--bg-dropdown').trim() || '#152a3a';
+    const textPrimary = style.getPropertyValue('--text-primary').trim() || '#e0f2fe';
+    const accentColor = style.getPropertyValue('--accent-color').trim() || '#40e0d0';
+
+    Swal.fire({
+        title: 'Editar Envío',
+        html: `
+            <div style="text-align: left; padding: 10px;">
+                <p style="margin-bottom:15px; color:${textPrimary};"><strong>Producto:</strong> ${pred.nombre_producto}</p>
+                <p style="margin-bottom:15px; color:${textPrimary};"><strong>Fecha del Envío:</strong> ${envio.fecha}</p>
+                <div style="margin-bottom: 15px;">
+                    <label for="swal-dia-envio" style="display: block; font-weight: bold; margin-bottom: 5px; color: ${textPrimary};">Día de envío (1-28):</label>
+                    <input id="swal-dia-envio" type="number" class="swal2-input" value="${envio.dia}" style="margin: 0; width: 100%;" min="1" max="28">
+                </div>
+                <div>
+                    <label for="swal-cant-envio" style="display: block; font-weight: bold; margin-bottom: 5px; color: ${textPrimary};">Cantidad (kg):</label>
+                    <input id="swal-cant-envio" type="number" step="0.01" class="swal2-input" value="${envio.cantidad.toFixed(2)}" style="margin: 0; width: 100%;" min="1">
+                </div>
+            </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        background: bgSecondary,
+        color: textPrimary,
+        preConfirm: () => {
+            const dia = parseInt(document.getElementById('swal-dia-envio').value);
+            const cant = parseFloat(document.getElementById('swal-cant-envio').value);
+            
+            if (isNaN(dia) || dia < 1 || dia > 28) {
+                Swal.showValidationMessage('El día debe estar entre 1 y 28');
+                return false;
+            }
+            if (isNaN(cant) || cant < 1) {
+                Swal.showValidationMessage('La cantidad debe ser mayor o igual a 1 kg');
+                return false;
+            }
+            
+            return { dia, cantidad: cant };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Actualizar el envío
+            envio.dia = result.value.dia;
+            envio.cantidad = result.value.cantidad;
+            envio.fecha = `${currentAnio}-${String(currentMes).padStart(2, '0')}-${String(result.value.dia).padStart(2, '0')}`;
+            
+            // Ordenar los envíos por día
+            pred.envios.sort((a, b) => a.dia - b.dia);
+            
+            // Recalcular total de demanda y envíos
+            pred.demanda_predicha = pred.envios.reduce((sum, e) => sum + e.cantidad, 0);
+            pred.total_envios = pred.envios.length;
+            
+            // Actualizar también en filteredPredicciones
+            const fp = filteredPredicciones.find(p => p.producto_id == productoId);
+            if (fp) {
+                fp.demanda_predicha = pred.demanda_predicha;
+                fp.total_envios = pred.total_envios;
+                fp.envios = pred.envios;
+            }
+            
+            // Volver a renderizar la tabla principal
+            renderizarTabla(filteredPredicciones);
+            
+            // Habilitar el botón guardar por si estaba deshabilitado
+            const btnGuardar = document.getElementById('btn-guardar-predicciones');
+            if (btnGuardar) {
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar';
+            }
+            
+            // Ocultar modal de detalle y volver a mostrarlo actualizado
+            $('#modal-detalle').modal('hide');
+            setTimeout(() => {
+                verDetalle(productoId, pred.nombre_producto, pred.tipo_producto, pred.variedad_producto);
+            }, 300);
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Envío actualizado',
+                text: 'El envío se actualizó localmente.',
+                timer: 1500,
+                showConfirmButton: false,
+                background: bgSecondary,
+                color: textPrimary
+            });
+        }
+    });
+}
+window.editarEnvioEspecifico = editarEnvioEspecifico;
 
 // Función para renderizar tabla
 function renderizarTabla(predicciones) {
@@ -471,7 +576,7 @@ function renderizarTabla(predicciones) {
             <td class="text-center">
                 <div class="acciones-cell">
                     <button class="btn btn-info btn-sm" onclick="verDetalle(${pred.producto_id}, '${pred.nombre_producto}', '${pred.tipo_producto || 'N/A'}', '${pred.variedad_producto || 'N/A'}')">
-                        <i class="fas fa-eye"></i> Ver
+                        <i class="fas fa-eye"></i> Ver / Editar Envíos
                     </button>
                 </div>
             </td>

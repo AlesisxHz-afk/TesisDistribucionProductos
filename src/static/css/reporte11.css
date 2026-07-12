@@ -17,7 +17,7 @@
 
 /* Cards principales */
 .card {
-    background-color: #152a3a;
+    background-color: var(--bg-secondary);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 15px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
@@ -33,11 +33,11 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #40e0d0 0%, #4682b4 100%);
+    background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
 }
 
 .card-header {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-bottom: 1px solid rgba(64, 224, 208, 0.2);
     padding: 20px;
     display: flex;
@@ -51,7 +51,7 @@
     margin: 0;
     font-size: 1.3rem;
     font-weight: 700;
-    color: #40e0d0;
+    color: var(--accent-color);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -63,7 +63,7 @@
 
 .card-body {
     padding: 20px;
-    background-color: #152a3a;
+    background-color: var(--bg-secondary);
 }
 
 /* Filtros */
@@ -95,7 +95,7 @@
 .info-label {
     display: block;
     font-size: 12px;
-    color: #a5d8ff;
+    color: var(--text-accent);
     margin-bottom: 5px;
 }
 
@@ -103,7 +103,7 @@
     display: block;
     font-size: 14px;
     font-weight: 600;
-    color: #e0f2fe;
+    color: var(--text-primary);
 }
 
 /* Selector de vista */
@@ -115,7 +115,7 @@
 }
 
 .btn-view {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     color: white;
     padding: 10px 20px;
@@ -134,13 +134,13 @@
     opacity: 1;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
 }
 
 .btn-view.active {
     opacity: 1;
-    background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
-    border-color: #40e0d0;
+    background: linear-gradient(90deg, var(--gradient-end) 0%, #3b82f6 100%);
+    border-color: var(--accent-color);
     box-shadow: 0 0 15px rgba(64, 224, 208, 0.3);
 }
 
@@ -157,7 +157,7 @@
 }
 
 .envio-card {
-    background: linear-gradient(135deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 12px;
     overflow: hidden;
@@ -169,7 +169,7 @@
 .envio-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(64, 224, 208, 0.2);
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
 }
 
 .card-header-mini {
@@ -181,28 +181,28 @@
 }
 
 .card-header-mini.card-estado-entregado {
-    background: linear-gradient(90deg, #1e3a5a, #2c5282);
-    border-left: 4px solid #40e0d0;
+    background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+    border-left: 4px solid var(--accent-color);
 }
 
 .card-header-mini.card-estado-pendiente {
-    background: linear-gradient(90deg, #1e3a5a, #856404);
+    background: linear-gradient(90deg, var(--gradient-start), #856404);
     border-left: 4px solid #ffc107;
 }
 
 .card-header-mini.card-estado-cancelado {
-    background: linear-gradient(90deg, #1e3a5a, #721c24);
+    background: linear-gradient(90deg, var(--gradient-start), #721c24);
     border-left: 4px solid #f87171;
 }
 
 .card-numero {
     font-weight: 700;
-    color: #40e0d0;
+    color: var(--accent-color);
     font-size: 14px;
 }
 
 .card-fecha {
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-size: 12px;
 }
 
@@ -215,12 +215,12 @@
     align-items: center;
     gap: 10px;
     margin-bottom: 10px;
-    color: #e0f2fe;
+    color: var(--text-primary);
     font-size: 13px;
 }
 
 .card-body-mini i {
-    color: #40e0d0;
+    color: var(--accent-color);
     width: 16px;
     font-size: 14px;
 }
@@ -259,7 +259,7 @@
     top: 0;
     bottom: 0;
     width: 2px;
-    background: linear-gradient(to bottom, #40e0d0, #4682b4);
+    background: linear-gradient(to bottom, var(--accent-color), var(--accent-secondary));
 }
 
 .timeline-item {
@@ -280,15 +280,15 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #40e0d0;
-    border: 2px solid #152a3a;
+    background: var(--accent-color);
+    border: 2px solid var(--bg-secondary);
     top: 5px;
     z-index: 1;
 }
 
 .timeline-marker.timeline-completado {
-    background: #40e0d0;
-    box-shadow: 0 0 10px #40e0d0;
+    background: var(--accent-color);
+    box-shadow: 0 0 10px var(--accent-color);
 }
 
 .timeline-marker.timeline-pendiente {
@@ -302,7 +302,7 @@
 }
 
 .timeline-content {
-    background: linear-gradient(135deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 10px;
     padding: 15px;
@@ -310,7 +310,7 @@
 }
 
 .timeline-item:hover .timeline-content {
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
     box-shadow: 0 5px 15px rgba(64, 224, 208, 0.2);
 }
 
@@ -325,12 +325,12 @@
 
 .timeline-numero {
     font-weight: 700;
-    color: #40e0d0;
+    color: var(--accent-color);
     font-size: 14px;
 }
 
 .timeline-fecha {
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-size: 12px;
 }
 
@@ -339,7 +339,7 @@
     flex-wrap: wrap;
     gap: 15px;
     font-size: 13px;
-    color: #e0f2fe;
+    color: var(--text-primary);
 }
 
 .timeline-body span {
@@ -349,7 +349,7 @@
 }
 
 .timeline-body i {
-    color: #40e0d0;
+    color: var(--accent-color);
     width: 16px;
 }
 
@@ -363,7 +363,7 @@
 
 .timeline-estado.timeline-completado {
     background: rgba(64, 224, 208, 0.2);
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .timeline-estado.timeline-pendiente {
@@ -388,14 +388,14 @@
 }
 
 .summary-card {
-    background: linear-gradient(135deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.2);
     border-radius: 15px;
     padding: 20px;
 }
 
 .summary-card h4 {
-    color: #40e0d0;
+    color: var(--accent-color);
     margin: 0 0 20px 0;
     padding-bottom: 10px;
     border-bottom: 1px solid rgba(64, 224, 208, 0.3);
@@ -425,17 +425,17 @@
 
 .stat-label {
     font-size: 12px;
-    color: #a5d8ff;
+    color: var(--text-accent);
 }
 
 .stat-value {
     font-size: 18px;
     font-weight: 700;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .stat-value.success {
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .stat-value.warning {
@@ -463,11 +463,11 @@
 }
 
 .summary-label {
-    color: #a5d8ff;
+    color: var(--text-accent);
 }
 
 .summary-value {
-    color: #e0f2fe;
+    color: var(--text-primary);
     font-weight: 600;
 }
 
@@ -484,7 +484,7 @@
 
 .badge-alta {
     background-color: rgba(64, 224, 208, 0.2);
-    color: #40e0d0;
+    color: var(--accent-color);
     border: 1px solid rgba(64, 224, 208, 0.3);
 }
 
@@ -502,7 +502,7 @@
 
 /* Estados para badges en tabla y modal */
 .estado-ENTREGADO {
-    color: #40e0d0;
+    color: var(--accent-color);
     font-weight: 600;
     display: inline-flex;
     align-items: center;
@@ -543,12 +543,12 @@
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-size: 14px;
 }
 
 .form-group label i {
-    color: #40e0d0;
+    color: var(--accent-color);
     margin-right: 5px;
 }
 
@@ -558,18 +558,18 @@
     padding: 10px 15px;
     font-size: 14px;
     line-height: 1.5;
-    color: #e0f2fe;
-    background-color: rgba(10, 30, 47, 0.8);
+    color: var(--text-primary);
+    background-color: var(--bg-input);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 8px;
     transition: border-color 0.15s ease-in-out;
 }
 
 .form-control:focus {
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
     outline: 0;
     box-shadow: 0 0 0 3px rgba(64, 224, 208, 0.1);
-    background-color: rgba(10, 30, 47, 0.9);
+    background-color: var(--submenu-bg);
 }
 
 select.form-control {
@@ -583,7 +583,7 @@ select.form-control {
 
 /* Botones principales */
 .btn-primary {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     color: white;
     padding: 10px 20px;
@@ -598,10 +598,10 @@ select.form-control {
 }
 
 .btn-primary:hover {
-    background: linear-gradient(90deg, #2c5282 0%, #3b82f6 100%);
+    background: linear-gradient(90deg, var(--gradient-end) 0%, #3b82f6 100%);
     transform: translateY(-1px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    border-color: #40e0d0;
+    border-color: var(--accent-color);
 }
 
 .btn-success {
@@ -677,15 +677,15 @@ select.form-control {
 
 .modal-content {
     position: relative;
-    background: linear-gradient(135deg, #152a3a 0%, #1e3a5a 100%);
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--gradient-start) 100%);
     border: 1px solid rgba(64, 224, 208, 0.3);
     border-radius: 15px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    color: #e0f2fe;
+    color: var(--text-primary);
 }
 
 .modal-header {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%);
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
     border-bottom: 1px solid rgba(64, 224, 208, 0.3);
     padding: 20px;
     display: flex;
@@ -694,7 +694,7 @@ select.form-control {
 }
 
 .modal-header .modal-title {
-    color: #40e0d0;
+    color: var(--accent-color);
     font-weight: 700;
     font-size: 1.25rem;
     margin: 0;
@@ -710,7 +710,7 @@ select.form-control {
     font-size: 24px;
     font-weight: 700;
     line-height: 1;
-    color: #e0f2fe;
+    color: var(--text-primary);
     opacity: 0.7;
     cursor: pointer;
     transition: opacity 0.3s ease;
@@ -718,7 +718,7 @@ select.form-control {
 
 .modal-header .close:hover {
     opacity: 1;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 .modal-body {
@@ -755,13 +755,13 @@ select.form-control {
 
 .resumen-label {
     font-size: 12px;
-    color: #a5d8ff;
+    color: var(--text-accent);
 }
 
 .resumen-value {
     font-size: 14px;
     font-weight: 700;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 /* Paginación info */
@@ -774,7 +774,7 @@ select.form-control {
 }
 
 .text-muted {
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-size: 13px;
     font-style: italic;
 }
@@ -783,7 +783,7 @@ select.form-control {
 .no-results {
     text-align: center;
     padding: 40px 20px;
-    color: #a5d8ff;
+    color: var(--text-accent);
     font-style: italic;
 }
 
@@ -796,42 +796,42 @@ select.form-control {
 
 .no-results h4 {
     margin-bottom: 10px;
-    color: #40e0d0;
+    color: var(--accent-color);
 }
 
 /* Flatpickr customization */
 .flatpickr-calendar {
-    background: #152a3a !important;
+    background: var(--bg-secondary) !important;
     border: 1px solid rgba(64, 224, 208, 0.3) !important;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
 }
 
 .flatpickr-months {
-    background: linear-gradient(90deg, #1e3a5a 0%, #2c5282 100%) !important;
+    background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%) !important;
 }
 
 .flatpickr-month {
-    color: #40e0d0 !important;
+    color: var(--accent-color) !important;
 }
 
 .flatpickr-weekday {
-    color: #a5d8ff !important;
-    background: rgba(10, 30, 47, 0.8) !important;
+    color: var(--text-accent) !important;
+    background: var(--bg-input) !important;
 }
 
 .flatpickr-day {
-    color: #e0f2fe !important;
+    color: var(--text-primary) !important;
 }
 
 .flatpickr-day.selected {
-    background: #40e0d0 !important;
-    border-color: #40e0d0 !important;
-    color: #152a3a !important;
+    background: var(--accent-color) !important;
+    border-color: var(--accent-color) !important;
+    color: var(--bg-secondary) !important;
 }
 
 .flatpickr-day:hover {
     background: rgba(64, 224, 208, 0.2) !important;
-    border-color: #40e0d0 !important;
+    border-color: var(--accent-color) !important;
 }
 
 /* Responsive */

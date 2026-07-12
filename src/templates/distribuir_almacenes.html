@@ -3,10 +3,10 @@
 {% block title %}Distribuir en Almacenes - Alaya S.A.C{% endblock %}
 
 {% block page_title %}Distribución de Envíos{% endblock %}
-{% block page_description %}Clasifica y asigna envíos a los almacenes óptimos usando el modelo PKT{% endblock %}
+{% block page_description %}Clasifica y asigna envíos a los almacenes óptimos{% endblock %}
 
 {% block maincss %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/distribuir_almacenes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/distribuir_almacenes.css') }}?v=1.2">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}
@@ -88,5 +88,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZoobTeKCRt0-Fifbh7DSI6MamaBVbngU&callback=initMapCallback" async defer></script>
-    <script src="{{ url_for('static', filename='js/distribuir_almacenes.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/distribuir_almacenes.js') }}?v=1.2"></script>
 {% endblock %}
