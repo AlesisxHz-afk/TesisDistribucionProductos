@@ -10,7 +10,7 @@
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/x-icon">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=2.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=2.2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {% block maincss %}
@@ -306,7 +306,7 @@
         </main>
     </div>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=2.2"></script>
     {% block javascript %}
     {% endblock %}
     {% block mainjs %}

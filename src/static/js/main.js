@@ -507,6 +507,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Función para gestionar clase al abrir/cerrar modal en Bootstrap de forma segura
+    function inicializarModalesCentrados() {
+        if (window.jQuery) {
+            $(document).on('show.bs.modal', function () {
+                document.body.classList.add('modal-active');
+            });
+
+            $(document).on('hidden.bs.modal', function () {
+                if ($('.modal.show:visible').length === 0) {
+                    document.body.classList.remove('modal-active');
+                }
+            });
+        }
+    }
+
     // Función para inicializar toda la aplicación
     function inicializarApp() {
         actualizarFechaHora();
@@ -518,6 +533,7 @@ document.addEventListener('DOMContentLoaded', function() {
         configurarMenuPorTipo();
         inicializarTema();
         generarFrutasFlotantes();
+        inicializarModalesCentrados();
         
         setInterval(actualizarFechaHora, 1000);
     }
