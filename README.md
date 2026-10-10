@@ -1,4 +1,4 @@
-# 🍎 Sistema de Distribución de Productos - Agrícola Alaya S.A.C 🚚
+# 🍎 Sistema de Distribución de Productos 🚚
 
 Plataforma web inteligente basada en **Machine Learning** y **Flask** para optimizar la planificación de stock, la distribución a almacenes y la logística de rutas de transporte de productos hortofrutícolas.
 
