@@ -76,8 +76,8 @@
                                 </a>
                                 <ul class="reportes-submenu">
                                     <li><a href="/main/reporte/reporte_a1"><i class="fas fa-warehouse"></i> Inventario vs Capacidad</a></li>
-                                    <li><a href="/main/reporte/reporte_a2"><i class="fas fa-fire"></i> Mapa de Calor de Envíos</a></li>
-                                    <li><a href="/main/reporte/reporte_a3"><i class="fas fa-battery-three-quarters"></i> Capacidad Disponible</a></li>
+                                    <li><a href="/main/reporte/reporte_a2"><i class="fas fa-exchange-alt"></i> Movimientos por Almacén</a></li>
+                                    <li><a href="/main/reporte/reporte_a3"><i class="fas fa-map-marked-alt"></i> Directorio y Ubicación</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -100,9 +100,9 @@
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                                 <ul class="reportes-submenu">
-                                    <li><a href="/main/reporte/reporte_v1"><i class="fas fa-truck"></i> Flota de Vehículos</a></li>
-                                    <li><a href="/main/reporte/reporte_v2"><i class="fas fa-route"></i> Rutas por Vehículo</a></li>
-                                    <li><a href="/main/reporte/reporte_v3"><i class="fas fa-gas-pump"></i> Gasto de Combustible</a></li>
+                                    <li><a href="/main/reporte/reporte_v1"><i class="fas fa-truck"></i> Flota y Estado</a></li>
+                                    <li><a href="/main/reporte/reporte_v2"><i class="fas fa-id-card"></i> Asignación Conductor</a></li>
+                                    <li><a href="/main/reporte/reporte_v3"><i class="fas fa-shipping-fast"></i> Despachos por Vehículo</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -126,9 +126,9 @@
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                                 <ul class="reportes-submenu">
-                                    <li><a href="/main/reporte/reporte_c1"><i class="fas fa-trophy"></i> Desempeño de Conductores</a></li>
-                                    <li><a href="/main/reporte/reporte_c2"><i class="fas fa-calendar-week"></i> Disponibilidad Semanal</a></li>
-                                    <li><a href="/main/reporte/reporte_c3"><i class="fas fa-chart-area"></i> Envíos por Conductor</a></li>
+                                    <li><a href="/main/reporte/reporte_c1"><i class="fas fa-id-badge"></i> Padrón de Conductores</a></li>
+                                    <li><a href="/main/reporte/reporte_c2"><i class="fas fa-clock"></i> Disponibilidad Semanal</a></li>
+                                    <li><a href="/main/reporte/reporte_c3"><i class="fas fa-route"></i> Envíos por Conductor</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -308,6 +308,8 @@
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block javascript %}
+    {% endblock %}
+    {% block mainjs %}
     {% endblock %}
     
 </body>

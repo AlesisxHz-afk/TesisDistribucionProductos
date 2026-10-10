@@ -974,3 +974,540 @@ def obtener_demanda_mensual_historica():
             'error': str(e),
             'message': 'Error al obtener demanda mensual histórica'
         }
+
+# ==========================================================================
+# FUNCIONES RÁPIDAS Y OPTIMIZADAS PARA REPORTES SIMPLES (P1-P3, A1-A3, V1-V3, C1-C3)
+# ==========================================================================
+
+def datos_reporte_p1():
+    """P1: Stock y Estado de Productos (Rápido y directo)"""
+    try:
+        prods = producto.query.order_by(producto.nombre.asc()).all()
+        items = []
+        tipos_set = set()
+        estados_set = set()
+
+        for p in prods:
+            stock = float(p.cant_productos_act or 0)
+            if stock >= 500:
+                nivel = 'Óptimo'
+                nivel_badge = 'badge-success'
+            elif stock >= 100:
+                nivel = 'Regular'
+                nivel_badge = 'badge-warning'
+            else:
+                nivel = 'Crítico'
+                nivel_badge = 'badge-danger'
+
+            items.append({
+                'id': p.producto_id,
+                'nombre': p.nombre,
+                'tipo': p.tipo or 'Sin categoría',
+                'variedad': p.variedad or '-',
+                'stock': stock,
+                'nivel': nivel,
+                'nivel_badge': nivel_badge,
+                'estado': p.estado_producto or 'Activo',
+                'estado_badge': 'badge-success' if (p.estado_producto or '').lower() == 'activo' else 'badge-danger'
+            })
+            if p.tipo:
+                tipos_set.add(p.tipo)
+            if p.estado_producto:
+                estados_set.add(p.estado_producto)
+
+        return {
+            'items': items,
+            'tipos': sorted(list(tipos_set)),
+            'estados': sorted(list(estados_set))
+        }
+    except Exception as e:
+        print(f"Error en datos_reporte_p1: {e}")
+        return {'items': [], 'tipos': [], 'estados': []}
+
+def datos_reporte_p2():
+    """P2: Parámetros de Conservación (Temperatura y Humedad Óptima)"""
+    try:
+        prods = producto.query.order_by(producto.temperatura_optima.asc()).all()
+        items = []
+        tipos_set = set()
+
+        for p in prods:
+            temp = float(p.temperatura_optima or 0)
+            hum = float(p.humedad_optima or 0)
+            items.append({
+                'id': p.producto_id,
+                'nombre': p.nombre,
+                'tipo': p.tipo or 'Sin categoría',
+                'variedad': p.variedad or '-',
+                'temperatura': temp,
+                'humedad': hum,
+                'rango': 'Refrigerado (<5°C)' if temp < 5 else ('Fresco (5-15°C)' if temp <= 15 else 'Ambiente (>15°C)'),
+                'estado': p.estado_producto or 'Activo'
+            })
+            if p.tipo:
+                tipos_set.add(p.tipo)
+
+        return {
+            'items': items,
+            'tipos': sorted(list(tipos_set))
+        }
+    except Exception as e:
+        print(f"Error en datos_reporte_p2: {e}")
+        return {'items': [], 'tipos': []}
+
+def datos_reporte_p3():
+    """P3: Historial Reciente de Envíos por Producto"""
+    try:
+        results = db.session.query(
+            distribucionalmacenproducto,
+            producto.nombre.label('prod_nombre'),
+            producto.tipo.label('prod_tipo'),
+            almacen.nombre.label('alm_nombre')
+        ).outerjoin(producto, distribucionalmacenproducto.producto_id == producto.producto_id)\
+         .outerjoin(almacen, distribucionalmacenproducto.almacen_id == almacen.almacen_id)\
+         .order_by(distribucionalmacenproducto.fecha_envio.desc().nullslast(), distribucionalmacenproducto.asignacion_id.desc())\
+         .limit(200).all()
+
+        items = []
+        estados_set = set()
+        productos_set = set()
+
+        for dist, p_nom, p_tipo, a_nom in results:
+            est = dist.estado_envio or 'Completado'
+            estados_set.add(est)
+            if p_nom:
+                productos_set.add(p_nom)
+
+            badge = 'badge-success' if 'complet' in est.lower() or 'entregad' in est.lower() else (
+                'badge-warning' if 'tránsit' in est.lower() or 'transit' in est.lower() or 'pend' in est.lower() else 'badge-info'
+            )
+
+            items.append({
+                'nro_envio': dist.nro_envio or f"ENV-{dist.asignacion_id:04d}",
+                'fecha': dist.fecha_envio.strftime('%d/%m/%Y') if dist.fecha_envio else '-',
+                'hora': dist.hora_envio.strftime('%H:%M') if dist.hora_envio else '-',
+                'producto': p_nom or 'Producto N/A',
+                'tipo': p_tipo or '-',
+                'almacen': a_nom or 'Almacén N/A',
+                'demanda': float(dist.demanda or 0),
+                'gasto': float(dist.gasto or 0),
+                'estado': est,
+                'estado_badge': badge
+            })
+
+        return {
+            'items': items,
+            'estados': sorted(list(estados_set)),
+            'productos': sorted(list(productos_set))
+        }
+    except Exception as e:
+        print(f"Error en datos_reporte_p3: {e}")
+        return {'items': [], 'estados': [], 'productos': []}
+
+def datos_reporte_a1():
+    """A1: Capacidad y Nivel de Ocupación por Almacén"""
+    try:
+        subq = db.session.query(
+            almacencapacidad.almacen_id,
+            func.coalesce(func.sum(almacencapacidad.cant_productos_act), 0).label('stock_ocupado')
+        ).group_by(almacencapacidad.almacen_id).subquery()
+
+        alms = db.session.query(
+            almacen,
+            func.coalesce(subq.c.stock_ocupado, 0).label('ocupado')
+        ).outerjoin(subq, almacen.almacen_id == subq.c.almacen_id)\
+         .order_by(almacen.nombre.asc()).all()
+
+        items = []
+        tipos_set = set()
+
+        for alm, ocupado in alms:
+            cap = float(alm.capacidad or 0)
+            stock = float(ocupado or 0)
+            disp = max(0.0, cap - stock)
+            pct = round((stock / cap * 100) if cap > 0 else 0, 1)
+
+            if pct >= 90:
+                pct_class = 'bg-danger'
+                estado_cap = 'Lleno'
+            elif pct >= 60:
+                pct_class = 'bg-warning'
+                estado_cap = 'Moderado'
+            else:
+                pct_class = 'bg-success'
+                estado_cap = 'Disponible'
+
+            items.append({
+                'id': alm.almacen_id,
+                'nombre': alm.nombre,
+                'tipo': alm.tipo_almacen or 'General',
+                'capacidad': cap,
+                'ocupado': stock,
+                'disponible': disp,
+                'porcentaje': pct,
+                'pct_class': pct_class,
+                'estado_cap': estado_cap,
+                'estado': alm.estado or 'Activo'
+            })
+            if alm.tipo_almacen:
+                tipos_set.add(alm.tipo_almacen)
+
+        return {
+            'items': items,
+            'tipos': sorted(list(tipos_set))
+        }
+    except Exception as e:
+        print(f"Error en datos_reporte_a1: {e}")
+        return {'items': [], 'tipos': []}
+
+def datos_reporte_a2():
+    """A2: Movimientos y Despachos por Almacén"""
+    try:
+        results = db.session.query(
+            distribucionalmacenproducto,
+            almacen.nombre.label('alm_nombre'),
+            almacen.tipo_almacen.label('alm_tipo'),
+            producto.nombre.label('prod_nombre')
+        ).outerjoin(almacen, distribucionalmacenproducto.almacen_id == almacen.almacen_id)\
+         .outerjoin(producto, distribucionalmacenproducto.producto_id == producto.producto_id)\
+         .order_by(distribucionalmacenproducto.fecha_envio.desc().nullslast(), distribucionalmacenproducto.asignacion_id.desc())\
+         .limit(200).all()
+
+        items = []
+        almacenes_set = set()
+        estados_set = set()
+
+        for dist, a_nom, a_tipo, p_nom in results:
+            alm_txt = a_nom or 'Almacén N/A'
+            est = dist.estado_envio or 'Completado'
+            almacenes_set.add(alm_txt)
+            estados_set.add(est)
+
+            badge = 'badge-success' if 'complet' in est.lower() or 'entregad' in est.lower() else (
+                'badge-warning' if 'tránsit' in est.lower() or 'transit' in est.lower() or 'pend' in est.lower() else 'badge-info'
+            )
+
+            items.append({
+                'nro_envio': dist.nro_envio or f"ENV-{dist.asignacion_id:04d}",
+                'fecha': dist.fecha_envio.strftime('%d/%m/%Y') if dist.fecha_envio else '-',
+                'almacen': alm_txt,
+                'tipo_almacen': a_tipo or '-',
+                'producto': p_nom or '-',
+                'demanda': float(dist.demanda or 0),
+                'gasto': float(dist.gasto or 0),
+                'estado': est,
+                'estado_badge': badge
+            })
+
+        return {
+            'items': items,
+            'almacenes': sorted(list(almacenes_set)),
+            'estados': sorted(list(estados_set))
+        }
+    except Exception as e:
+        print(f"Error en datos_reporte_a2: {e}")
+        return {'items': [], 'almacenes': [], 'estados': []}
+
+def datos_reporte_a3():
+    """A3: Directorio, Ubicación y Capacidad de Almacenes"""
+    try:
+        alms = almacen.query.order_by(almacen.nombre.asc()).all()
+        items = []
+        tipos_set = set()
+        estados_set = set()
+
+        for alm in alms:
+            items.append({
+                'id': alm.almacen_id,
+                'nombre': alm.nombre,
+                'tipo': alm.tipo_almacen or 'General',
+                'direccion': alm.direccion or 'No especificada',
+                'latitud': float(alm.latitud) if alm.latitud else None,
+                'longitud': float(alm.longitud) if alm.longitud else None,
+                'capacidad': float(alm.capacidad or 0),
+                'estado': alm.estado or 'Activo',
+                'estado_badge': 'badge-success' if (alm.estado or '').lower() == 'activo' else 'badge-secondary'
+            })
+            if alm.tipo_almacen:
+                tipos_set.add(alm.tipo_almacen)
+            if alm.estado:
+                estados_set.add(alm.estado)
+
+        return {
+            'items': items,
+            'tipos': sorted(list(tipos_set)),
+            'estados': sorted(list(estados_set))
+        }
+    except Exception as e:
+        print(f"Error en datos_reporte_a3: {e}")
+        return {'items': [], 'tipos': [], 'estados': []}
+
+def datos_reporte_v1():
+    """V1: Estado y Flota de Vehículos"""
+    try:
+        vehs = vehiculo.query.order_by(vehiculo.placa.asc()).all()
+        items = []
+        tipos_set = set()
+        estados_set = set()
+
+        for v in vehs:
+            est = v.estado or 'Activo'
+            estados_set.add(est)
+            if v.tipo_vehiculo:
+                tipos_set.add(v.tipo_vehiculo)
+
+            badge = 'badge-success' if est.lower() == 'activo' else (
+                'badge-warning' if 'manten' in est.lower() else 'badge-danger'
+            )
+
+            items.append({
+                'id': v.vehiculo_id,
+                'placa': v.placa,
+                'marca_modelo': f"{v.marca} {v.modelo}".strip(),
+                'tipo': v.tipo_vehiculo or 'Carga',
+                'anio': v.anio_fabricacion or '-',
+                'capacidad': v.cantidad_carga or 0,
+                'estado': est,
+                'estado_badge': badge
+            })
+
+        return {
+            'items': items,
+            'tipos': sorted(list(tipos_set)),
+            'estados': sorted(list(estados_set))
+        }
+    except Exception as e:
+        print(f"Error en datos_reporte_v1: {e}")
+        return {'items': [], 'tipos': [], 'estados': []}
+
+def datos_reporte_v2():
+    """V2: Asignaciones de Vehículos a Conductores"""
+    try:
+        asigns = db.session.query(
+            vehiculoconductor,
+            vehiculo,
+            conductor
+        ).join(vehiculo, vehiculoconductor.vehiculo_id == vehiculo.vehiculo_id)\
+         .join(conductor, vehiculoconductor.conductor_id == conductor.conductor_id)\
+         .order_by(vehiculoconductor.fecha_asignacion.desc()).all()
+
+        items = []
+        estados_set = set()
+
+        for vc, v, c in asigns:
+            est = vc.estado or 'Activo'
+            estados_set.add(est)
+            badge = 'badge-success' if est.lower() == 'activo' else 'badge-secondary'
+
+            items.append({
+                'id': vc.vehiculo_conductor_id,
+                'placa': v.placa,
+                'vehiculo': f"{v.marca} {v.modelo}",
+                'conductor': f"{c.nombre} {c.apellido_paterno} {c.apellido_materno}".strip(),
+                'dni': c.dni,
+                'fecha_asignacion': vc.fecha_asignacion.strftime('%d/%m/%Y') if vc.fecha_asignacion else '-',
+                'estado': est,
+                'estado_badge': badge
+            })
+
+        return {
+            'items': items,
+            'estados': sorted(list(estados_set))
+        }
+    except Exception as e:
+        print(f"Error en datos_reporte_v2: {e}")
+        return {'items': [], 'estados': []}
+
+def datos_reporte_v3():
+    """V3: Registro de Despachos por Vehículo"""
+    try:
+        results = db.session.query(
+            distribucionalmacenproducto,
+            vehiculo.placa.label('placa'),
+            vehiculo.marca.label('marca'),
+            vehiculo.modelo.label('modelo'),
+            conductor.nombre.label('c_nombre'),
+            conductor.apellido_paterno.label('c_ape'),
+            almacen.nombre.label('alm_nombre')
+        ).outerjoin(vehiculoconductor, distribucionalmacenproducto.vehiculo_conductor_id == vehiculoconductor.vehiculo_conductor_id)\
+         .outerjoin(vehiculo, vehiculoconductor.vehiculo_id == vehiculo.vehiculo_id)\
+         .outerjoin(conductor, vehiculoconductor.conductor_id == conductor.conductor_id)\
+         .outerjoin(almacen, distribucionalmacenproducto.almacen_id == almacen.almacen_id)\
+         .order_by(distribucionalmacenproducto.fecha_envio.desc().nullslast(), distribucionalmacenproducto.asignacion_id.desc())\
+         .limit(200).all()
+
+        items = []
+        placas_set = set()
+        estados_set = set()
+
+        for dist, placa, marca, modelo, c_nom, c_ape, alm_nom in results:
+            plc = placa or 'Sin Vehículo'
+            if placa:
+                placas_set.add(plc)
+            est = dist.estado_envio or 'Completado'
+            estados_set.add(est)
+
+            badge = 'badge-success' if 'complet' in est.lower() or 'entregad' in est.lower() else (
+                'badge-warning' if 'tránsit' in est.lower() or 'transit' in est.lower() or 'pend' in est.lower() else 'badge-info'
+            )
+
+            cond_nom = f"{c_nom or ''} {c_ape or ''}".strip() or 'No asignado'
+
+            items.append({
+                'nro_envio': dist.nro_envio or f"ENV-{dist.asignacion_id:04d}",
+                'fecha': dist.fecha_envio.strftime('%d/%m/%Y') if dist.fecha_envio else '-',
+                'placa': plc,
+                'vehiculo': f"{marca or ''} {modelo or ''}".strip() or '-',
+                'conductor': cond_nom,
+                'almacen': alm_nom or '-',
+                'demanda': float(dist.demanda or 0),
+                'gasto': float(dist.gasto or 0),
+                'estado': est,
+                'estado_badge': badge
+            })
+
+        return {
+            'items': items,
+            'placas': sorted(list(placas_set)),
+            'estados': sorted(list(estados_set))
+        }
+    except Exception as e:
+        print(f"Error en datos_reporte_v3: {e}")
+        return {'items': [], 'placas': [], 'estados': []}
+
+def datos_reporte_c1():
+    """C1: Directorio y Registro de Conductores"""
+    try:
+        conds = conductor.query.order_by(conductor.nombre.asc()).all()
+        items = []
+        estados_set = set()
+
+        for c in conds:
+            est = c.estado or 'Activo'
+            estados_set.add(est)
+            badge = 'badge-success' if est.lower() == 'activo' else 'badge-secondary'
+
+            items.append({
+                'id': c.conductor_id,
+                'dni': c.dni,
+                'nombre_completo': f"{c.nombre} {c.apellido_paterno} {c.apellido_materno}".strip(),
+                'telefono': c.telefono or '-',
+                'direccion': c.direccion or '-',
+                'fecha_ingreso': c.fecha_ingreso.strftime('%d/%m/%Y') if c.fecha_ingreso else '-',
+                'estado': est,
+                'estado_badge': badge
+            })
+
+        return {
+            'items': items,
+            'estados': sorted(list(estados_set))
+        }
+    except Exception as e:
+        print(f"Error en datos_reporte_c1: {e}")
+        return {'items': [], 'estados': []}
+
+def datos_reporte_c2():
+    """C2: Disponibilidad Horaria Semanal de Conductores"""
+    try:
+        disps = db.session.query(
+            disponibilidadconductor,
+            conductor
+        ).join(conductor, disponibilidadconductor.conductor_id == conductor.conductor_id)\
+         .order_by(conductor.nombre.asc(), disponibilidadconductor.dia.asc()).all()
+
+        items = []
+        dias_set = set()
+        conductores_set = set()
+
+        for d, c in disps:
+            c_nom = f"{c.nombre} {c.apellido_paterno}".strip()
+            conductores_set.add(c_nom)
+            dias_set.add(d.dia)
+
+            # Calcular total horas
+            h_ini = d.hora_inicio.strftime('%H:%M') if d.hora_inicio else '00:00'
+            h_fin = d.hora_fin.strftime('%H:%M') if d.hora_fin else '00:00'
+            
+            try:
+                diff_hours = (d.hora_fin.hour + d.hora_fin.minute/60) - (d.hora_inicio.hour + d.hora_inicio.minute/60)
+                diff_str = f"{diff_hours:.1f} hrs" if diff_hours > 0 else "-"
+            except Exception:
+                diff_str = "-"
+
+            items.append({
+                'id': d.disponibilidad_id,
+                'conductor': c_nom,
+                'dni': c.dni,
+                'dia': d.dia,
+                'hora_inicio': h_ini,
+                'hora_fin': h_fin,
+                'total_horas': diff_str
+            })
+
+        # Ordenar días orden natural
+        orden_dias = ['Lunes', 'Martes', 'Miércoles', 'Miercoles', 'Jueves', 'Viernes', 'Sábado', 'Sabado', 'Domingo']
+        dias_ordenados = sorted(list(dias_set), key=lambda x: orden_dias.index(x) if x in orden_dias else 99)
+
+        return {
+            'items': items,
+            'dias': dias_ordenados,
+            'conductores': sorted(list(conductores_set))
+        }
+    except Exception as e:
+        print(f"Error en datos_reporte_c2: {e}")
+        return {'items': [], 'dias': [], 'conductores': []}
+
+def datos_reporte_c3():
+    """C3: Historial de Envíos Realizados por Conductor"""
+    try:
+        results = db.session.query(
+            distribucionalmacenproducto,
+            conductor.nombre.label('c_nombre'),
+            conductor.apellido_paterno.label('c_ape'),
+            conductor.dni.label('dni'),
+            vehiculo.placa.label('placa'),
+            almacen.nombre.label('alm_nombre')
+        ).outerjoin(vehiculoconductor, distribucionalmacenproducto.vehiculo_conductor_id == vehiculoconductor.vehiculo_conductor_id)\
+         .outerjoin(conductor, vehiculoconductor.conductor_id == conductor.conductor_id)\
+         .outerjoin(vehiculo, vehiculoconductor.vehiculo_id == vehiculo.vehiculo_id)\
+         .outerjoin(almacen, distribucionalmacenproducto.almacen_id == almacen.almacen_id)\
+         .order_by(distribucionalmacenproducto.fecha_envio.desc().nullslast(), distribucionalmacenproducto.asignacion_id.desc())\
+         .limit(200).all()
+
+        items = []
+        conductores_set = set()
+        estados_set = set()
+
+        for dist, c_nom, c_ape, dni, placa, alm_nom in results:
+            cond_nom = f"{c_nom or ''} {c_ape or ''}".strip() or 'No Asignado'
+            if c_nom:
+                conductores_set.add(cond_nom)
+
+            est = dist.estado_envio or 'Completado'
+            estados_set.add(est)
+
+            badge = 'badge-success' if 'complet' in est.lower() or 'entregad' in est.lower() else (
+                'badge-warning' if 'tránsit' in est.lower() or 'transit' in est.lower() or 'pend' in est.lower() else 'badge-info'
+            )
+
+            items.append({
+                'nro_envio': dist.nro_envio or f"ENV-{dist.asignacion_id:04d}",
+                'fecha': dist.fecha_envio.strftime('%d/%m/%Y') if dist.fecha_envio else '-',
+                'conductor': cond_nom,
+                'dni': dni or '-',
+                'placa': placa or '-',
+                'almacen': alm_nom or '-',
+                'demanda': float(dist.demanda or 0),
+                'gasto': float(dist.gasto or 0),
+                'estado': est,
+                'estado_badge': badge
+            })
+
+        return {
+            'items': items,
+            'conductores': sorted(list(conductores_set)),
+            'estados': sorted(list(estados_set))
+        }
+    except Exception as e:
+        print(f"Error en datos_reporte_c3: {e}")
+        return {'items': [], 'conductores': [], 'estados': []}

@@ -1,0 +1,391 @@
+/* ==========================================================================
+   reportes_simple.css - Agrícola Alaya S.A.C
+   Diseño ligero, ultra-rápido, interactivo y compatible con Tema Claro/Oscuro
+   ========================================================================== */
+
+.report-box {
+    padding: 16px 20px;
+    background: transparent;
+    min-height: calc(100vh - 170px);
+}
+
+/* ===== TOOLBAR INTERACTIVO ===== */
+.report-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--bg-secondary);
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px var(--shadow-color);
+    margin-bottom: 16px;
+}
+
+.toolbar-search {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+    max-width: 360px;
+    display: flex;
+    align-items: center;
+}
+
+.toolbar-search i {
+    position: absolute;
+    left: 14px;
+    color: var(--text-muted);
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.search-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 14px 0 38px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.toolbar-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filter-select {
+    height: 40px;
+    padding: 0 12px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 140px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.record-badge {
+    background: rgba(var(--accent-rgb), 0.1);
+    color: var(--accent-color);
+    font-weight: 600;
+    font-size: 12.5px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.btn-action {
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.btn-action:hover {
+    background: var(--bg-primary);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    transform: translateY(-1px);
+}
+
+.btn-action i.fa-file-excel {
+    color: #10b981;
+}
+
+.btn-action i.fa-file-csv {
+    color: #3b82f6;
+}
+
+.btn-action i.fa-print {
+    color: #6366f1;
+}
+
+/* ===== CONTENEDOR DE TABLA ===== */
+.table-container {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px var(--shadow-color);
+    overflow: hidden;
+    position: relative;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    text-align: left;
+}
+
+.report-table thead th {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s ease;
+}
+
+.report-table thead th:hover {
+    background: rgba(var(--accent-rgb), 0.08);
+    color: var(--accent-color);
+}
+
+.report-table thead th i {
+    font-size: 11px;
+    margin-left: 4px;
+    opacity: 0.6;
+}
+
+.report-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.15s ease;
+}
+
+.report-table tbody tr:hover {
+    background: rgba(var(--accent-rgb), 0.04);
+}
+
+.report-table tbody td {
+    padding: 12px 16px;
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+.report-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 36px 20px !important;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* ===== BADGES Y ESTADOS ===== */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.badge-success {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.badge-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+.badge-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.badge-info {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+
+.badge-secondary {
+    background: rgba(107, 114, 128, 0.15);
+    color: #6b7280;
+}
+
+/* Barra de progreso de porcentaje */
+.percent-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 110px;
+}
+
+.percent-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.percent-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--accent-color);
+}
+
+.percent-text {
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 36px;
+    text-align: right;
+}
+
+/* ===== PAGINACIÓN ===== */
+.report-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 18px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.pagination-btn {
+    min-width: 34px;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+    font-family: inherit;
+    user-select: none;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    background: rgba(var(--accent-rgb), 0.08);
+}
+
+.pagination-btn.active {
+    background: var(--accent-color) !important;
+    color: #ffffff !important;
+    border-color: var(--accent-color) !important;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(var(--accent-rgb), 0.3);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination-ellipsis {
+    padding: 0 4px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 32px;
+}
+
+/* ===== RESPONSIVE & IMPRESIÓN ===== */
+@media (max-width: 768px) {
+    .report-box {
+        padding: 10px;
+    }
+    .report-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .toolbar-search {
+        max-width: 100%;
+    }
+    .toolbar-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filter-select {
+        width: 100%;
+    }
+    .toolbar-actions {
+        justify-content: space-between;
+    }
+}
+
+@media print {
+    .sidebar, .navbar, .report-toolbar, .theme-toggle-btn {
+        display: none !important;
+    }
+    .report-box {
+        padding: 0 !important;
+    }
+    .table-container {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+}

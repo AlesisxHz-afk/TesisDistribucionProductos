@@ -8,6 +8,7 @@ let scrollObserver;
 let productCarousel;
 let totalSlides = 0;
 let lastScrollTop = 0;
+let mainHeader = null;
 let navbar = null;
 let topBar = null;
 let isNavbarHidden = false;
@@ -266,9 +267,14 @@ const modalContent = {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Agrícola Alaya S.A.C - Inicializando...');
     
-    // Obtener referencias a navbar y top-bar
+    // Obtener referencias a encabezado, navbar y top-bar
+    mainHeader = document.querySelector('.main-header');
     navbar = document.querySelector('.navbar');
     topBar = document.querySelector('.top-bar');
+    
+    // Ajustar padding-top del body según la altura del encabezado fijo
+    adjustBodyPadding();
+    window.addEventListener('resize', adjustBodyPadding);
     
     // Verificar si estamos en la página de galería
     const isGaleriaPage = document.querySelector('.galeria-hero') !== null;
@@ -290,37 +296,32 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * Manejo del scroll para ocultar/mostrar navbar y top-bar
+ * Ajustar el padding superior del body dinámicamente según la altura del encabezado fijo
+ */
+function adjustBodyPadding() {
+    const header = document.querySelector('.main-header');
+    if (header) {
+        document.body.style.paddingTop = header.offsetHeight + 'px';
+    }
+}
+
+/**
+ * Manejo del scroll para mantener el encabezado siempre visible y fijo
  */
 function initNavbarScroll() {
-    if (!navbar || !topBar) return;
+    const header = document.querySelector('.main-header') || navbar;
+    if (!header) return;
     
     window.addEventListener('scroll', function() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const scrollDirection = scrollTop > lastScrollTop ? 'down' : 'up';
         
-        // Mostrar/ocultar navbar según la dirección del scroll
-        if (scrollDirection === 'down' && scrollTop > 100) {
-            // Ocultar navbar y top-bar
-            if (!isNavbarHidden) {
-                navbar.classList.add('hidden');
-                topBar.classList.add('hidden');
-                isNavbarHidden = true;
-            }
-        } else if (scrollDirection === 'up' || scrollTop < 100) {
-            // Mostrar navbar y top-bar
-            if (isNavbarHidden) {
-                navbar.classList.remove('hidden');
-                topBar.classList.remove('hidden');
-                isNavbarHidden = false;
-            }
-            
-            // Efecto de navbar scrolled
-            if (scrollTop > 100) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
+        // El encabezado se queda permanentemente arriba al bajar la página
+        if (scrollTop > 20) {
+            header.classList.add('scrolled');
+            if (navbar) navbar.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+            if (navbar) navbar.classList.remove('scrolled');
         }
         
         lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
@@ -368,7 +369,8 @@ function initSmoothScroll() {
  * Scroll suave a elemento específico
  */
 function smoothScrollTo(element, duration) {
-    const targetPosition = element.getBoundingClientRect().top + window.pageYOffset;
+    const headerOffset = document.querySelector('.main-header')?.offsetHeight || 120;
+    const targetPosition = element.getBoundingClientRect().top + window.pageYOffset - headerOffset;
     const startPosition = window.pageYOffset;
     const distance = targetPosition - startPosition;
     let startTime = null;
@@ -1005,11 +1007,5 @@ if (carouselContainer) {
     }, 150));
 }
 
-// Hacer que el navbar se muestre al hacer hover en la parte superior de la pantalla
-document.addEventListener('mousemove', function(e) {
-    if (e.clientY < 50 && isNavbarHidden) {
-        navbar.classList.remove('hidden');
-        topBar.classList.remove('hidden');
-        isNavbarHidden = false;
-    }
-});
+// Asegurar ajuste correcto de padding al terminar de cargar la ventana
+window.addEventListener('load', adjustBodyPadding);

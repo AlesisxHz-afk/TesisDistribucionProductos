@@ -1,62 +1,91 @@
 {% extends "main.html" %}
-{% block title %}Gasto de Combustible - Alaya S.A.C{% endblock %}
-{% block page_title %}Reporte: Gasto de Combustible por Vehículo{% endblock %}
-{% block page_description %}Analiza el gasto de combustible por vehículo y período{% endblock %}
-{% block maincss %}<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_comun.css') }}">{% endblock %}
+{% block title %}Despachos por Vehículo - Agrícola Alaya{% endblock %}
+{% block page_title %}Reporte: Despachos y Envíos por Vehículo{% endblock %}
+{% block page_description %}Actividad logística, entregas y costos asociados por unidad vehicular{% endblock %}
+
+{% block maincss %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_simple.css') }}">
+{% endblock %}
+
 {% block contenido %}
-<div class="rpt-page">
-  <div class="rpt-header">
-    <div class="rpt-header-left">
-      <h2><i class="fas fa-gas-pump" style="margin-right:10px;"></i>Gasto de Combustible por Vehículo</h2>
-      <p>Visualiza y compara los gastos de combustible de la flota. Selecciona un vehículo para ver su evolución.</p>
+<div class="report-box">
+  <div class="report-toolbar">
+    <div class="toolbar-search">
+      <i class="fas fa-search"></i>
+      <input type="text" id="reportSearch" class="search-input" placeholder="Buscar por placa, conductor, envío..." autocomplete="off">
     </div>
-    <div class="rpt-header-icon"><i class="fas fa-gas-pump"></i></div>
-  </div>
 
-  <div class="rpt-kpi-grid">
-    <div class="rpt-kpi-card" style="--kpi-color:#fb923c;"><div class="rpt-kpi-icon"><i class="fas fa-money-bill-wave"></i></div><div class="rpt-kpi-value" id="kpi-gasto-total">—</div><div class="rpt-kpi-label">Gasto Total S/</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#fdd54f;"><div class="rpt-kpi-icon"><i class="fas fa-chart-line"></i></div><div class="rpt-kpi-value" id="kpi-gasto-prom">—</div><div class="rpt-kpi-label">Prom. por Envío S/</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#f87171;"><div class="rpt-kpi-icon"><i class="fas fa-fire"></i></div><div class="rpt-kpi-value" id="kpi-mayor-gasto">—</div><div class="rpt-kpi-label">Mayor Gasto (placa)</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#4ade80;"><div class="rpt-kpi-icon"><i class="fas fa-leaf"></i></div><div class="rpt-kpi-value" id="kpi-menor-gasto">—</div><div class="rpt-kpi-label">Menor Gasto (placa)</div></div>
-  </div>
-
-  <div class="rpt-filtros">
-    <label>Vehículo (placa):</label>
-    <select id="filtro-vehiculo" class="rpt-select" style="min-width:150px;"><option value="">— Todos —</option></select>
-    <button class="rpt-btn" id="btn-ver-evolucion"><i class="fas fa-chart-line"></i> Ver Evolución</button>
-    <button class="rpt-btn rpt-btn-secondary" id="btn-reset"><i class="fas fa-undo"></i> Reset</button>
-  </div>
-
-  <div class="rpt-charts-grid">
-    <div class="rpt-chart-card full-width">
-      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Gasto de Combustible por Vehículo (Total)</div>
-      <div class="rpt-chart-canvas-wrap tall"><canvas id="chart-gasto-total"></canvas></div>
+    <div class="toolbar-filters">
+      <select class="filter-select" data-col="2">
+        <option value="">Todas las Placas</option>
+        {% for pl in placas %}
+        <option value="{{ pl }}">{{ pl }}</option>
+        {% endfor %}
+      </select>
+      <select class="filter-select" data-col="8">
+        <option value="">Todos los Estados</option>
+        {% for es in estados %}
+        <option value="{{ es }}">{{ es }}</option>
+        {% endfor %}
+      </select>
     </div>
-    <div class="rpt-chart-card full-width" id="card-evolucion" style="display:none;">
-      <div class="rpt-chart-title" id="evolucion-title"><i class="fas fa-chart-line"></i> Evolución de Gasto</div>
-      <div class="rpt-chart-canvas-wrap"><canvas id="chart-evolucion"></canvas></div>
+
+    <div class="toolbar-actions">
+      <span class="record-badge" id="recordCount">Cargando...</span>
+      <button type="button" class="btn-action" onclick="exportReportExcel('reporte_despachos_vehiculos')" title="Descargar en Excel">
+        <i class="fas fa-file-excel text-success"></i> Excel
+      </button>
+      <button type="button" class="btn-action" onclick="exportReportCSV('reporte_despachos_vehiculos')" title="Descargar en CSV">
+        <i class="fas fa-file-csv text-primary"></i> CSV
+      </button>
+      <button type="button" class="btn-action" onclick="window.print()" title="Imprimir">
+        <i class="fas fa-print"></i> Imprimir
+      </button>
     </div>
   </div>
 
-  <div class="rpt-chart-card">
-    <div class="rpt-chart-title"><i class="fas fa-table"></i> Ranking de Gasto por Vehículo</div>
-    <div class="rpt-table-wrap">
-      <table class="rpt-table">
-        <thead><tr>
-          <th>#</th>
-          <th onclick="sortTable(0)">Placa ↕</th>
-          <th onclick="sortTable(1)">Tipo ↕</th>
-          <th onclick="sortTable(2)">N° Envíos ↕</th>
-          <th onclick="sortTable(3)">Gasto Total ↕</th>
-          <th onclick="sortTable(4)">Gasto Prom/Envío ↕</th>
-        </tr></thead>
-        <tbody id="tabla-body"><tr><td colspan="6" class="rpt-loading"><i class="fas fa-spinner"></i> Cargando...</td></tr></tbody>
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="report-table" id="reportTable">
+        <thead>
+          <tr>
+            <th data-col="0">N° Envío <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="1">Fecha <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="2">Placa Vehículo <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="3">Vehículo <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="4">Conductor <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="5">Almacén Destino <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="6" style="text-align: right;">Carga (kg) <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="7" style="text-align: right;">Gasto (S/.) <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="8">Estado <i class="fas fa-sort sort-icon text-muted"></i></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in items %}
+          <tr>
+            <td><strong>{{ r.nro_envio }}</strong></td>
+            <td>{{ r.fecha }}</td>
+            <td><strong style="letter-spacing: 0.05em;"><i class="fas fa-truck text-secondary me-1"></i>{{ r.placa }}</strong></td>
+            <td>{{ r.vehiculo }}</td>
+            <td><strong>{{ r.conductor }}</strong></td>
+            <td>{{ r.almacen }}</td>
+            <td style="text-align: right; font-weight: 600;">{{ "{:,.2f}".format(r.demanda) }}</td>
+            <td style="text-align: right; color: var(--accent-color); font-weight: 600;">S/. {{ "{:,.2f}".format(r.gasto) }}</td>
+            <td><span class="badge-status {{ r.estado_badge }}">{{ r.estado }}</span></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="9" class="empty-state">No se registraron despachos por vehículo.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
+    <div class="report-pagination" id="reportPagination"></div>
   </div>
 </div>
 {% endblock %}
+
 {% block javascript %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="{{ url_for('static', filename='js/reporte_v3.js') }}"></script>
+<script src="{{ url_for('static', filename='js/reportes_simple.js') }}"></script>
 {% endblock %}

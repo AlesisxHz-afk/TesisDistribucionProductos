@@ -1,75 +1,87 @@
 {% extends "main.html" %}
-{% block title %}Flota de Vehículos - Alaya S.A.C{% endblock %}
-{% block page_title %}Reporte: Flota de Vehículos{% endblock %}
-{% block page_description %}Estado actual de toda la flota con filtros interactivos y estadísticas{% endblock %}
-{% block maincss %}<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_comun.css') }}">{% endblock %}
+{% block title %}Flota de Vehículos - Agrícola Alaya{% endblock %}
+{% block page_title %}Reporte: Flota y Estado de Vehículos{% endblock %}
+{% block page_description %}Parque automotor, capacidad de carga y operatividad{% endblock %}
+
+{% block maincss %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_simple.css') }}">
+{% endblock %}
+
 {% block contenido %}
-<div class="rpt-page">
-  <div class="rpt-header">
-    <div class="rpt-header-left">
-      <h2><i class="fas fa-truck" style="margin-right:10px;"></i>Flota de Vehículos</h2>
-      <p>Estado actual de todos los vehículos. Filtra, ordena y analiza la flota completa.</p>
+<div class="report-box">
+  <div class="report-toolbar">
+    <div class="toolbar-search">
+      <i class="fas fa-search"></i>
+      <input type="text" id="reportSearch" class="search-input" placeholder="Buscar por placa, modelo, tipo..." autocomplete="off">
     </div>
-    <div class="rpt-header-icon"><i class="fas fa-truck-moving"></i></div>
-  </div>
 
-  <div class="rpt-kpi-grid">
-    <div class="rpt-kpi-card" style="--kpi-color:#40e0d0;"><div class="rpt-kpi-icon"><i class="fas fa-truck"></i></div><div class="rpt-kpi-value" id="kpi-total">—</div><div class="rpt-kpi-label">Total Vehículos</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#4ade80;"><div class="rpt-kpi-icon"><i class="fas fa-check-circle"></i></div><div class="rpt-kpi-value" id="kpi-activos">—</div><div class="rpt-kpi-label">Activos</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#fdd54f;"><div class="rpt-kpi-icon"><i class="fas fa-route"></i></div><div class="rpt-kpi-value" id="kpi-en-uso">—</div><div class="rpt-kpi-label">En Uso</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#f87171;"><div class="rpt-kpi-icon"><i class="fas fa-ban"></i></div><div class="rpt-kpi-value" id="kpi-inactivos">—</div><div class="rpt-kpi-label">Inactivos</div></div>
-  </div>
-
-  <div class="rpt-filtros">
-    <label>Tipo:</label>
-    <select id="filtro-tipo" class="rpt-select"><option value="">— Todos —</option></select>
-    <label>Estado:</label>
-    <select id="filtro-estado" class="rpt-select" style="min-width:120px;">
-      <option value="">— Todos —</option>
-      <option value="ACTIVO">Activo</option>
-      <option value="EN_USO">En Uso</option>
-      <option value="INACTIVO">Inactivo</option>
-    </select>
-    <label>Marca:</label>
-    <input type="text" id="filtro-marca" class="rpt-input" style="min-width:120px;" placeholder="Marca...">
-    <button class="rpt-btn" id="btn-aplicar"><i class="fas fa-filter"></i> Filtrar</button>
-    <button class="rpt-btn rpt-btn-secondary" id="btn-reset"><i class="fas fa-undo"></i> Reset</button>
-  </div>
-
-  <div class="rpt-charts-grid">
-    <div class="rpt-chart-card">
-      <div class="rpt-chart-title"><i class="fas fa-chart-pie"></i> Distribución por Estado</div>
-      <div class="rpt-chart-canvas-wrap"><canvas id="chart-estado"></canvas></div>
+    <div class="toolbar-filters">
+      <select class="filter-select" data-col="3">
+        <option value="">Todos los Tipos</option>
+        {% for t in tipos %}
+        <option value="{{ t }}">{{ t }}</option>
+        {% endfor %}
+      </select>
+      <select class="filter-select" data-col="6">
+        <option value="">Todos los Estados</option>
+        {% for e in estados %}
+        <option value="{{ e }}">{{ e }}</option>
+        {% endfor %}
+      </select>
     </div>
-    <div class="rpt-chart-card">
-      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Cantidad por Tipo de Vehículo</div>
-      <div class="rpt-chart-canvas-wrap"><canvas id="chart-tipo"></canvas></div>
+
+    <div class="toolbar-actions">
+      <span class="record-badge" id="recordCount">Cargando...</span>
+      <button type="button" class="btn-action" onclick="exportReportExcel('reporte_flota_vehiculos')" title="Descargar en Excel">
+        <i class="fas fa-file-excel text-success"></i> Excel
+      </button>
+      <button type="button" class="btn-action" onclick="exportReportCSV('reporte_flota_vehiculos')" title="Descargar en CSV">
+        <i class="fas fa-file-csv text-primary"></i> CSV
+      </button>
+      <button type="button" class="btn-action" onclick="window.print()" title="Imprimir">
+        <i class="fas fa-print"></i> Imprimir
+      </button>
     </div>
   </div>
 
-  <div class="rpt-chart-card">
-    <div class="rpt-chart-title"><i class="fas fa-table"></i> Detalle de la Flota</div>
-    <div class="rpt-search-wrap">
-      <input type="text" class="rpt-search" id="tabla-search" placeholder="Buscar placa, modelo, marca...">
-    </div>
-    <div class="rpt-table-wrap">
-      <table class="rpt-table">
-        <thead><tr>
-          <th onclick="sortTable(0)">Placa ↕</th>
-          <th onclick="sortTable(1)">Marca ↕</th>
-          <th onclick="sortTable(2)">Modelo ↕</th>
-          <th onclick="sortTable(3)">Tipo ↕</th>
-          <th onclick="sortTable(4)">Cap. Carga ↕</th>
-          <th onclick="sortTable(5)">Año ↕</th>
-          <th>Estado</th>
-        </tr></thead>
-        <tbody id="tabla-body"><tr><td colspan="7" class="rpt-loading"><i class="fas fa-spinner"></i> Cargando...</td></tr></tbody>
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="report-table" id="reportTable">
+        <thead>
+          <tr>
+            <th data-col="0">ID <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="1">Placa <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="2">Marca y Modelo <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="3">Tipo Vehículo <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="4">Año Fabricación <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="5" style="text-align: right;">Capacidad Carga (kg) <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="6">Estado <i class="fas fa-sort sort-icon text-muted"></i></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for v in items %}
+          <tr>
+            <td><strong>#{{ v.id }}</strong></td>
+            <td><strong style="letter-spacing: 0.05em;"><i class="fas fa-truck text-secondary me-1"></i>{{ v.placa }}</strong></td>
+            <td>{{ v.marca_modelo }}</td>
+            <td>{{ v.tipo }}</td>
+            <td>{{ v.anio }}</td>
+            <td style="text-align: right; font-weight: 600;">{{ "{:,.0f}".format(v.capacidad) }} kg</td>
+            <td><span class="badge-status {{ v.estado_badge }}">{{ v.estado }}</span></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="empty-state">No se registraron vehículos en la flota.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
+    <div class="report-pagination" id="reportPagination"></div>
   </div>
 </div>
 {% endblock %}
+
 {% block javascript %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="{{ url_for('static', filename='js/reporte_v1.js') }}"></script>
+<script src="{{ url_for('static', filename='js/reportes_simple.js') }}"></script>
 {% endblock %}

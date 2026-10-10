@@ -1,56 +1,89 @@
 {% extends "main.html" %}
-{% block title %}Mapa de Calor de Envíos - Alaya S.A.C{% endblock %}
-{% block page_title %}Reporte: Mapa de Calor de Envíos{% endblock %}
-{% block page_description %}Visualiza la frecuencia de envíos por almacén y mes en un heatmap interactivo{% endblock %}
-{% block maincss %}<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_comun.css') }}">{% endblock %}
+{% block title %}Movimientos por Almacén - Agrícola Alaya{% endblock %}
+{% block page_title %}Reporte: Movimientos y Despachos por Almacén{% endblock %}
+{% block page_description %}Despachos, demanda y costos por almacén de destino{% endblock %}
+
+{% block maincss %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_simple.css') }}">
+{% endblock %}
+
 {% block contenido %}
-<div class="rpt-page">
-  <div class="rpt-header">
-    <div class="rpt-header-left">
-      <h2><i class="fas fa-fire" style="margin-right:10px;"></i>Mapa de Calor de Envíos por Almacén</h2>
-      <p>Heatmap interactivo: cada celda muestra la cantidad de envíos a un almacén en un mes. Haz clic para filtrar.</p>
+<div class="report-box">
+  <div class="report-toolbar">
+    <div class="toolbar-search">
+      <i class="fas fa-search"></i>
+      <input type="text" id="reportSearch" class="search-input" placeholder="Buscar por almacén, envío, producto..." autocomplete="off">
     </div>
-    <div class="rpt-header-icon"><i class="fas fa-fire"></i></div>
+
+    <div class="toolbar-filters">
+      <select class="filter-select" data-col="2">
+        <option value="">Todos los Almacenes</option>
+        {% for alm in almacenes %}
+        <option value="{{ alm }}">{{ alm }}</option>
+        {% endfor %}
+      </select>
+      <select class="filter-select" data-col="7">
+        <option value="">Todos los Estados</option>
+        {% for es in estados %}
+        <option value="{{ es }}">{{ es }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="toolbar-actions">
+      <span class="record-badge" id="recordCount">Cargando...</span>
+      <button type="button" class="btn-action" onclick="exportReportExcel('reporte_movimientos_almacenes')" title="Descargar en Excel">
+        <i class="fas fa-file-excel text-success"></i> Excel
+      </button>
+      <button type="button" class="btn-action" onclick="exportReportCSV('reporte_movimientos_almacenes')" title="Descargar en CSV">
+        <i class="fas fa-file-csv text-primary"></i> CSV
+      </button>
+      <button type="button" class="btn-action" onclick="window.print()" title="Imprimir">
+        <i class="fas fa-print"></i> Imprimir
+      </button>
+    </div>
   </div>
 
-  <div class="rpt-kpi-grid">
-    <div class="rpt-kpi-card" style="--kpi-color:#40e0d0;"><div class="rpt-kpi-icon"><i class="fas fa-truck"></i></div><div class="rpt-kpi-value" id="kpi-total">—</div><div class="rpt-kpi-label">Total Envíos</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#fdd54f;"><div class="rpt-kpi-icon"><i class="fas fa-building"></i></div><div class="rpt-kpi-value" id="kpi-almacenes">—</div><div class="rpt-kpi-label">Almacenes</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#f87171;"><div class="rpt-kpi-icon"><i class="fas fa-fire"></i></div><div class="rpt-kpi-value" id="kpi-mes-pico">—</div><div class="rpt-kpi-label">Mes más activo</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#4ade80;"><div class="rpt-kpi-icon"><i class="fas fa-star"></i></div><div class="rpt-kpi-value" id="kpi-almacen-top">—</div><div class="rpt-kpi-label">Almacén top</div></div>
-  </div>
-
-  <div class="rpt-filtros">
-    <label>Año:</label>
-    <select id="filtro-anio" class="rpt-select" style="min-width:110px;"><option value="">— Todos —</option></select>
-    <button class="rpt-btn" id="btn-aplicar"><i class="fas fa-fire"></i> Generar Heatmap</button>
-    <button class="rpt-btn rpt-btn-secondary" id="btn-reset"><i class="fas fa-undo"></i> Reset</button>
-    <span id="celda-info" style="font-size:12px;color:#fdd54f;margin-left:10px;"></span>
-  </div>
-
-  <div class="rpt-chart-card" style="margin-bottom:18px;">
-    <div class="rpt-chart-title"><i class="fas fa-th"></i> Heatmap: Envíos por Almacén × Mes</div>
-    <div style="overflow-x:auto;">
-      <table class="heatmap-table" id="heatmap-table">
-        <thead><tr id="heatmap-header"></tr></thead>
-        <tbody id="heatmap-body"><tr><td colspan="13" class="rpt-loading"><i class="fas fa-spinner"></i> Cargando...</td></tr></tbody>
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="report-table" id="reportTable">
+        <thead>
+          <tr>
+            <th data-col="0">N° Envío <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="1">Fecha <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="2">Almacén Destino <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="3">Tipo Almacén <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="4">Producto <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="5" style="text-align: right;">Demanda (kg) <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="6" style="text-align: right;">Gasto (S/.) <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="7">Estado Envío <i class="fas fa-sort sort-icon text-muted"></i></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in items %}
+          <tr>
+            <td><strong>{{ r.nro_envio }}</strong></td>
+            <td>{{ r.fecha }}</td>
+            <td><strong>{{ r.almacen }}</strong></td>
+            <td>{{ r.tipo_almacen }}</td>
+            <td>{{ r.producto }}</td>
+            <td style="text-align: right; font-weight: 600;">{{ "{:,.2f}".format(r.demanda) }}</td>
+            <td style="text-align: right; color: var(--accent-color); font-weight: 600;">S/. {{ "{:,.2f}".format(r.gasto) }}</td>
+            <td><span class="badge-status {{ r.estado_badge }}">{{ r.estado }}</span></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" class="empty-state">No se registraron movimientos hacia los almacenes.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
-  </div>
-
-  <div class="rpt-charts-grid">
-    <div class="rpt-chart-card">
-      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Envíos por Mes</div>
-      <div class="rpt-chart-canvas-wrap"><canvas id="chart-mes"></canvas></div>
-    </div>
-    <div class="rpt-chart-card">
-      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Envíos por Almacén</div>
-      <div class="rpt-chart-canvas-wrap"><canvas id="chart-almacen"></canvas></div>
-    </div>
+    <div class="report-pagination" id="reportPagination"></div>
   </div>
 </div>
 {% endblock %}
+
 {% block javascript %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="{{ url_for('static', filename='js/reporte_a2.js') }}"></script>
+<script src="{{ url_for('static', filename='js/reportes_simple.js') }}"></script>
 {% endblock %}

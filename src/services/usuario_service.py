@@ -10,11 +10,27 @@ from PIL import Image
 def obtener_credenciales():
     """Obtiene las credenciales del usuario actual desde las cookies"""
     username = request.cookies.get('usuario')
-    tipo_id = request.cookies.get('tipo')
+    if not username:
+        return None
 
-    # Buscar el usuario y el tipo de usuario en la base de datos
+    # Buscar el usuario en la base de datos
     user = usuario.query.filter_by(usuario=username).first()
-    cargo = tipousuario.query.filter_by(tipo_usuario_id=tipo_id).first()
+    if not user:
+        return None
+
+    # Usar el tipo_usuario_id del usuario (entero) o convertir el de la cookie
+    tipo_id = user.tipo_usuario_id
+    if tipo_id is None:
+        raw_tipo = request.cookies.get('tipo')
+        if raw_tipo:
+            try:
+                tipo_id = int(raw_tipo)
+            except (ValueError, TypeError):
+                tipo_id = None
+
+    cargo = None
+    if tipo_id is not None:
+        cargo = tipousuario.query.filter_by(tipo_usuario_id=tipo_id).first()
 
     # Verificar que tanto el usuario como el cargo existen
     if user and cargo:
@@ -55,6 +71,12 @@ def crear_usuario(username, password, nombres, paterno, materno, foto=None, tipo
     h.update(bytes(password, encoding="utf-8"))
     encpass = h.hexdigest()
     
+    # Asegurar que tipo_usuario_id sea entero
+    try:
+        tipo_usuario_id = int(tipo_usuario_id)
+    except (ValueError, TypeError):
+        tipo_usuario_id = 1
+        
     # Verificar si el tipo_usuario existe
     tipo_existe = tipousuario.query.filter_by(tipo_usuario_id=tipo_usuario_id).first()
     if not tipo_existe:

@@ -1,57 +1,81 @@
 {% extends "main.html" %}
-{% block title %}Desempeño de Conductores - Alaya S.A.C{% endblock %}
-{% block page_title %}Reporte: Desempeño de Conductores{% endblock %}
-{% block page_description %}Ranking interactivo de conductores por envíos completados y demanda transportada{% endblock %}
-{% block maincss %}<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_comun.css') }}">{% endblock %}
+{% block title %}Padrón de Conductores - Agrícola Alaya{% endblock %}
+{% block page_title %}Reporte: Padrón y Registro de Conductores{% endblock %}
+{% block page_description %}Datos de contacto, fecha de ingreso y estado del personal de transporte{% endblock %}
+
+{% block maincss %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_simple.css') }}">
+{% endblock %}
+
 {% block contenido %}
-<div class="rpt-page">
-  <div class="rpt-header">
-    <div class="rpt-header-left">
-      <h2><i class="fas fa-trophy" style="margin-right:10px;"></i>Desempeño de Conductores</h2>
-      <p>Ranking de conductores por número de envíos realizados, demanda transportada y puntualidad</p>
+<div class="report-box">
+  <div class="report-toolbar">
+    <div class="toolbar-search">
+      <i class="fas fa-search"></i>
+      <input type="text" id="reportSearch" class="search-input" placeholder="Buscar por nombre, DNI, teléfono..." autocomplete="off">
     </div>
-    <div class="rpt-header-icon"><i class="fas fa-user-tie"></i></div>
-  </div>
 
-  <div class="rpt-kpi-grid">
-    <div class="rpt-kpi-card" style="--kpi-color:#40e0d0;"><div class="rpt-kpi-icon"><i class="fas fa-users"></i></div><div class="rpt-kpi-value" id="kpi-total-cond">—</div><div class="rpt-kpi-label">Conductores Activos</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#fdd54f;"><div class="rpt-kpi-icon"><i class="fas fa-shipping-fast"></i></div><div class="rpt-kpi-value" id="kpi-total-envios">—</div><div class="rpt-kpi-label">Total Envíos</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#4ade80;"><div class="rpt-kpi-icon"><i class="fas fa-medal"></i></div><div class="rpt-kpi-value" id="kpi-conductor-top">—</div><div class="rpt-kpi-label">Conductor N°1</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#fb923c;"><div class="rpt-kpi-icon"><i class="fas fa-layer-group"></i></div><div class="rpt-kpi-value" id="kpi-dem-prom">—</div><div class="rpt-kpi-label">Demanda Prom/Conductor</div></div>
-  </div>
-
-  <div class="rpt-filtros">
-    <label>Estado:</label>
-    <select id="filtro-estado" class="rpt-select" style="min-width:120px;">
-      <option value="">— Todos —</option>
-      <option value="ACTIVO">Activo</option>
-      <option value="EN_USO">En Uso</option>
-      <option value="INACTIVO">Inactivo</option>
-    </select>
-    <label>Ordenar por:</label>
-    <select id="filtro-orden" class="rpt-select" style="min-width:160px;">
-      <option value="envios">N° Envíos</option>
-      <option value="demanda">Demanda Total</option>
-      <option value="nombre">Nombre</option>
-    </select>
-    <button class="rpt-btn" id="btn-aplicar"><i class="fas fa-sort"></i> Ordenar</button>
-    <button class="rpt-btn rpt-btn-secondary" id="btn-reset"><i class="fas fa-undo"></i> Reset</button>
-  </div>
-
-  <div class="rpt-chart-card" style="margin-bottom:18px;">
-    <div class="rpt-chart-title"><i class="fas fa-trophy"></i> Ranking de Conductores</div>
-    <div id="ranking-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
-  </div>
-
-  <div class="rpt-charts-grid">
-    <div class="rpt-chart-card full-width">
-      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Comparativa de Envíos por Conductor</div>
-      <div class="rpt-chart-canvas-wrap tall"><canvas id="chart-ranking"></canvas></div>
+    <div class="toolbar-filters">
+      <select class="filter-select" data-col="6">
+        <option value="">Todos los Estados</option>
+        {% for e in estados %}
+        <option value="{{ e }}">{{ e }}</option>
+        {% endfor %}
+      </select>
     </div>
+
+    <div class="toolbar-actions">
+      <span class="record-badge" id="recordCount">Cargando...</span>
+      <button type="button" class="btn-action" onclick="exportReportExcel('reporte_padron_conductores')" title="Descargar en Excel">
+        <i class="fas fa-file-excel text-success"></i> Excel
+      </button>
+      <button type="button" class="btn-action" onclick="exportReportCSV('reporte_padron_conductores')" title="Descargar en CSV">
+        <i class="fas fa-file-csv text-primary"></i> CSV
+      </button>
+      <button type="button" class="btn-action" onclick="window.print()" title="Imprimir">
+        <i class="fas fa-print"></i> Imprimir
+      </button>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="report-table" id="reportTable">
+        <thead>
+          <tr>
+            <th data-col="0">ID <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="1">DNI <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="2">Nombres y Apellidos <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="3">Teléfono <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="4">Dirección <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="5">Fecha Ingreso <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="6">Estado <i class="fas fa-sort sort-icon text-muted"></i></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in items %}
+          <tr>
+            <td><strong>#{{ c.id }}</strong></td>
+            <td><strong style="letter-spacing: 0.05em;">{{ c.dni }}</strong></td>
+            <td><strong><i class="fas fa-user text-secondary me-1"></i>{{ c.nombre_completo }}</strong></td>
+            <td>{{ c.telefono }}</td>
+            <td>{{ c.direccion }}</td>
+            <td>{{ c.fecha_ingreso }}</td>
+            <td><span class="badge-status {{ c.estado_badge }}">{{ c.estado }}</span></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="empty-state">No se registraron conductores en el sistema.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="report-pagination" id="reportPagination"></div>
   </div>
 </div>
 {% endblock %}
+
 {% block javascript %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="{{ url_for('static', filename='js/reporte_c1.js') }}"></script>
+<script src="{{ url_for('static', filename='js/reportes_simple.js') }}"></script>
 {% endblock %}

@@ -1,106 +1,87 @@
 {% extends "main.html" %}
-{% block title %}Stock por Tipo de Producto - Alaya S.A.C{% endblock %}
-{% block page_title %}Reporte: Stock por Tipo de Producto{% endblock %}
-{% block page_description %}Analiza la cantidad actual de productos agrupados por tipo y estado{% endblock %}
+{% block title %}Stock por Producto - Agrícola Alaya{% endblock %}
+{% block page_title %}Reporte: Stock de Productos{% endblock %}
+{% block page_description %}Inventario y existencias actuales por producto{% endblock %}
+
 {% block maincss %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_comun.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_simple.css') }}">
 {% endblock %}
+
 {% block contenido %}
-<div class="rpt-page">
-  <div class="rpt-header">
-    <div class="rpt-header-left">
-      <h2><i class="fas fa-boxes" style="margin-right:10px;"></i>Stock por Tipo de Producto</h2>
-      <p>Visualiza y compara las existencias actuales agrupadas por categoría de producto</p>
+<div class="report-box">
+  <div class="report-toolbar">
+    <div class="toolbar-search">
+      <i class="fas fa-search"></i>
+      <input type="text" id="reportSearch" class="search-input" placeholder="Buscar por producto, variedad, tipo..." autocomplete="off">
     </div>
-    <div class="rpt-header-icon"><i class="fas fa-boxes"></i></div>
-  </div>
 
-  <!-- KPIs -->
-  <div class="rpt-kpi-grid" id="kpi-grid">
-    <div class="rpt-kpi-card" style="--kpi-color:#40e0d0;">
-      <div class="rpt-kpi-icon"><i class="fas fa-box"></i></div>
-      <div class="rpt-kpi-value" id="kpi-total">—</div>
-      <div class="rpt-kpi-label">Total Productos</div>
+    <div class="toolbar-filters">
+      <select class="filter-select" data-col="2">
+        <option value="">Todos los Tipos</option>
+        {% for t in tipos %}
+        <option value="{{ t }}">{{ t }}</option>
+        {% endfor %}
+      </select>
+      <select class="filter-select" data-col="6">
+        <option value="">Todos los Estados</option>
+        {% for e in estados %}
+        <option value="{{ e }}">{{ e }}</option>
+        {% endfor %}
+      </select>
     </div>
-    <div class="rpt-kpi-card" style="--kpi-color:#4ade80;">
-      <div class="rpt-kpi-icon"><i class="fas fa-check-circle"></i></div>
-      <div class="rpt-kpi-value" id="kpi-activos">—</div>
-      <div class="rpt-kpi-label">Activos</div>
-    </div>
-    <div class="rpt-kpi-card" style="--kpi-color:#f87171;">
-      <div class="rpt-kpi-icon"><i class="fas fa-times-circle"></i></div>
-      <div class="rpt-kpi-value" id="kpi-inactivos">—</div>
-      <div class="rpt-kpi-label">Inactivos</div>
-    </div>
-    <div class="rpt-kpi-card" style="--kpi-color:#fdd54f;">
-      <div class="rpt-kpi-icon"><i class="fas fa-layer-group"></i></div>
-      <div class="rpt-kpi-value" id="kpi-stock-total">—</div>
-      <div class="rpt-kpi-label">Stock Total (u)</div>
-    </div>
-  </div>
 
-  <!-- Filtros -->
-  <div class="rpt-filtros">
-    <label>Filtrar por tipo:</label>
-    <select id="filtro-tipo" class="rpt-select">
-      <option value="">— Todos los tipos —</option>
-    </select>
-    <label>Estado:</label>
-    <select id="filtro-estado" class="rpt-select" style="min-width:130px;">
-      <option value="">— Todos —</option>
-      <option value="ACTIVO">Activo</option>
-      <option value="INACTIVO">Inactivo</option>
-    </select>
-    <button class="rpt-btn" id="btn-aplicar"><i class="fas fa-filter"></i> Aplicar</button>
-    <button class="rpt-btn rpt-btn-secondary" id="btn-reset"><i class="fas fa-undo"></i> Reset</button>
-  </div>
-
-  <!-- Gráficos -->
-  <div class="rpt-charts-grid">
-    <div class="rpt-chart-card">
-      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Stock por Tipo (barras)</div>
-      <div class="rpt-chart-canvas-wrap"><canvas id="chart-barras"></canvas></div>
-    </div>
-    <div class="rpt-chart-card">
-      <div class="rpt-chart-title"><i class="fas fa-chart-pie"></i> Distribución por Estado</div>
-      <div class="rpt-chart-canvas-wrap"><canvas id="chart-donut"></canvas></div>
-    </div>
-    <div class="rpt-chart-card full-width">
-      <div class="rpt-chart-title"><i class="fas fa-chart-area"></i> Stock Acumulado por Tipo (área)</div>
-      <div class="rpt-chart-canvas-wrap"><canvas id="chart-area"></canvas></div>
+    <div class="toolbar-actions">
+      <span class="record-badge" id="recordCount">Cargando...</span>
+      <button type="button" class="btn-action" onclick="exportReportExcel('reporte_stock_productos')" title="Descargar en Excel">
+        <i class="fas fa-file-excel text-success"></i> Excel
+      </button>
+      <button type="button" class="btn-action" onclick="exportReportCSV('reporte_stock_productos')" title="Descargar en CSV">
+        <i class="fas fa-file-csv text-primary"></i> CSV
+      </button>
+      <button type="button" class="btn-action" onclick="window.print()" title="Imprimir">
+        <i class="fas fa-print"></i> Imprimir
+      </button>
     </div>
   </div>
 
-  <!-- Tabla -->
-  <div class="rpt-chart-card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <div class="rpt-chart-title" style="margin:0;"><i class="fas fa-table"></i> Detalle de Productos</div>
-    </div>
-    <div class="rpt-search-wrap">
-      <input type="text" class="rpt-search" id="tabla-search" placeholder="Buscar producto...">
-    </div>
-    <div class="rpt-table-wrap">
-      <table class="rpt-table" id="tabla-productos">
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="report-table" id="reportTable">
         <thead>
           <tr>
-            <th onclick="sortTable(0)">Nombre ↕</th>
-            <th onclick="sortTable(1)">Tipo ↕</th>
-            <th onclick="sortTable(2)">Variedad ↕</th>
-            <th onclick="sortTable(3)">Stock Act. ↕</th>
-            <th onclick="sortTable(4)">Temp. Ópt. ↕</th>
-            <th onclick="sortTable(5)">Humedad Ópt. ↕</th>
-            <th>Estado</th>
+            <th data-col="0">ID <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="1">Producto <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="2">Tipo / Categoría <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="3">Variedad <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="4" style="text-align: right;">Stock Actual (kg) <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="5">Nivel <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="6">Estado <i class="fas fa-sort sort-icon text-muted"></i></th>
           </tr>
         </thead>
-        <tbody id="tabla-body">
-          <tr><td colspan="7" class="rpt-loading"><i class="fas fa-spinner"></i> Cargando...</td></tr>
+        <tbody>
+          {% for p in items %}
+          <tr>
+            <td><strong>#{{ p.id }}</strong></td>
+            <td><strong>{{ p.nombre }}</strong></td>
+            <td>{{ p.tipo }}</td>
+            <td>{{ p.variedad }}</td>
+            <td style="text-align: right; font-weight: 600;">{{ "{:,.2f}".format(p.stock) }}</td>
+            <td><span class="badge-status {{ p.nivel_badge }}">{{ p.nivel }}</span></td>
+            <td><span class="badge-status {{ p.estado_badge }}">{{ p.estado }}</span></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="empty-state">No se registraron productos en el sistema.</td>
+          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
+    <div class="report-pagination" id="reportPagination"></div>
   </div>
 </div>
 {% endblock %}
+
 {% block javascript %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="{{ url_for('static', filename='js/reporte_p1.js') }}"></script>
+<script src="{{ url_for('static', filename='js/reportes_simple.js') }}"></script>
 {% endblock %}

@@ -1,58 +1,87 @@
 {% extends "main.html" %}
-{% block title %}Disponibilidad Semanal - Alaya S.A.C{% endblock %}
-{% block page_title %}Reporte: Disponibilidad Semanal de Conductores{% endblock %}
-{% block page_description %}Visualiza los horarios de disponibilidad de cada conductor por día de la semana{% endblock %}
-{% block maincss %}<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_comun.css') }}">{% endblock %}
+{% block title %}Disponibilidad de Conductores - Agrícola Alaya{% endblock %}
+{% block page_title %}Reporte: Disponibilidad Horaria Semanal{% endblock %}
+{% block page_description %}Jornadas, días de atención y franjas horarias por conductor{% endblock %}
+
+{% block maincss %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_simple.css') }}">
+{% endblock %}
+
 {% block contenido %}
-<div class="rpt-page">
-  <div class="rpt-header">
-    <div class="rpt-header-left">
-      <h2><i class="fas fa-calendar-week" style="margin-right:10px;"></i>Disponibilidad Semanal de Conductores</h2>
-      <p>Mapa visual de horarios disponibles. Haz clic en una celda verde para ver detalles del turno.</p>
+<div class="report-box">
+  <div class="report-toolbar">
+    <div class="toolbar-search">
+      <i class="fas fa-search"></i>
+      <input type="text" id="reportSearch" class="search-input" placeholder="Buscar por conductor, DNI, día..." autocomplete="off">
     </div>
-    <div class="rpt-header-icon"><i class="fas fa-calendar-check"></i></div>
+
+    <div class="toolbar-filters">
+      <select class="filter-select" data-col="1">
+        <option value="">Todos los Conductores</option>
+        {% for co in conductores %}
+        <option value="{{ co }}">{{ co }}</option>
+        {% endfor %}
+      </select>
+      <select class="filter-select" data-col="3">
+        <option value="">Todos los Días</option>
+        {% for d in dias %}
+        <option value="{{ d }}">{{ d }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="toolbar-actions">
+      <span class="record-badge" id="recordCount">Cargando...</span>
+      <button type="button" class="btn-action" onclick="exportReportExcel('reporte_disponibilidad_conductores')" title="Descargar en Excel">
+        <i class="fas fa-file-excel text-success"></i> Excel
+      </button>
+      <button type="button" class="btn-action" onclick="exportReportCSV('reporte_disponibilidad_conductores')" title="Descargar en CSV">
+        <i class="fas fa-file-csv text-primary"></i> CSV
+      </button>
+      <button type="button" class="btn-action" onclick="window.print()" title="Imprimir">
+        <i class="fas fa-print"></i> Imprimir
+      </button>
+    </div>
   </div>
 
-  <div class="rpt-kpi-grid">
-    <div class="rpt-kpi-card" style="--kpi-color:#40e0d0;"><div class="rpt-kpi-icon"><i class="fas fa-users"></i></div><div class="rpt-kpi-value" id="kpi-conductores">—</div><div class="rpt-kpi-label">Conductores</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#4ade80;"><div class="rpt-kpi-icon"><i class="fas fa-calendar-check"></i></div><div class="rpt-kpi-value" id="kpi-disponibles">—</div><div class="rpt-kpi-label">Turnos Disponibles</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#fdd54f;"><div class="rpt-kpi-icon"><i class="fas fa-clock"></i></div><div class="rpt-kpi-value" id="kpi-dia-pico">—</div><div class="rpt-kpi-label">Día más cubierto</div></div>
-    <div class="rpt-kpi-card" style="--kpi-color:#f87171;"><div class="rpt-kpi-icon"><i class="fas fa-user-slash"></i></div><div class="rpt-kpi-value" id="kpi-sin-disp">—</div><div class="rpt-kpi-label">Sin disponibilidad</div></div>
-  </div>
-
-  <div class="rpt-filtros">
-    <label>Conductor:</label>
-    <select id="filtro-conductor" class="rpt-select" style="min-width:200px;"><option value="">— Todos —</option></select>
-    <label>Estado:</label>
-    <select id="filtro-estado" class="rpt-select" style="min-width:120px;">
-      <option value="">— Todos —</option><option value="ACTIVO">Activo</option><option value="EN_USO">En Uso</option>
-    </select>
-    <button class="rpt-btn" id="btn-aplicar"><i class="fas fa-filter"></i> Filtrar</button>
-    <button class="rpt-btn rpt-btn-secondary" id="btn-reset"><i class="fas fa-undo"></i> Reset</button>
-  </div>
-
-  <div class="rpt-chart-card" style="margin-bottom:18px;">
-    <div class="rpt-chart-title"><i class="fas fa-th"></i> Grilla de Disponibilidad Semanal</div>
-    <p style="font-size:12px;color:#7fc8e8;margin-bottom:12px;">🟢 Disponible | ⬜ Sin turno registrado. Haz clic para ver hora de inicio y fin.</p>
-    <div id="disponibilidad-info" style="font-size:12px;color:#fdd54f;margin-bottom:12px;min-height:18px;"></div>
-    <div style="overflow-x:auto;">
-      <div class="sem-grid" id="grid-sem" style="min-width:600px;"></div>
+  <div class="table-container">
+    <div class="table-responsive">
+      <table class="report-table" id="reportTable">
+        <thead>
+          <tr>
+            <th data-col="0">ID <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="1">Conductor <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="2">DNI <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="3">Día Semanal <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="4">Hora Inicio <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="5">Hora Fin <i class="fas fa-sort sort-icon text-muted"></i></th>
+            <th data-col="6">Jornada Total <i class="fas fa-sort sort-icon text-muted"></i></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for h in items %}
+          <tr>
+            <td><strong>#{{ h.id }}</strong></td>
+            <td><strong><i class="fas fa-user text-secondary me-1"></i>{{ h.conductor }}</strong></td>
+            <td>{{ h.dni }}</td>
+            <td><span class="badge-status badge-info"><i class="far fa-calendar-alt me-1"></i>{{ h.dia }}</span></td>
+            <td><i class="far fa-clock me-1 text-muted"></i>{{ h.hora_inicio }}</td>
+            <td><i class="far fa-clock me-1 text-muted"></i>{{ h.hora_fin }}</td>
+            <td><strong>{{ h.total_horas }}</strong></td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="empty-state">No se registraron horarios de disponibilidad para los conductores.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-  </div>
-
-  <div class="rpt-charts-grid">
-    <div class="rpt-chart-card">
-      <div class="rpt-chart-title"><i class="fas fa-chart-bar"></i> Conductores por Día</div>
-      <div class="rpt-chart-canvas-wrap"><canvas id="chart-dia"></canvas></div>
-    </div>
-    <div class="rpt-chart-card">
-      <div class="rpt-chart-title"><i class="fas fa-chart-pie"></i> Estado de Conductores</div>
-      <div class="rpt-chart-canvas-wrap"><canvas id="chart-estado"></canvas></div>
-    </div>
+    <div class="report-pagination" id="reportPagination"></div>
   </div>
 </div>
 {% endblock %}
+
 {% block javascript %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="{{ url_for('static', filename='js/reporte_c2.js') }}"></script>
+<script src="{{ url_for('static', filename='js/reportes_simple.js') }}"></script>
 {% endblock %}

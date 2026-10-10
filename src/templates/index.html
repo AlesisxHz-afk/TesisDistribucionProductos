@@ -27,54 +27,57 @@
     <i class="fas fa-arrow-up"></i>
   </button>
 
-  <!-- Barra superior fija -->
-  <div class="top-bar">
-    <div class="container">
-      <div class="top-bar-content">
-        <div class="top-bar-left">
-          <a href="tel:+51984134872"><i class="fas fa-phone"></i> +51 984 134 872</a>
-          <a href="#" id="openMapModal"><i class="fas fa-map-marker-alt"></i> Olmos, Lambayeque</a>
-          <a href="#" onclick="openInfoModal('Contáctanos')"><i class="fas fa-envelope"></i> Contáctanos</a>
-        </div>
-        <div class="top-bar-right">
-          <a href="/login" class="login-link"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</a>
+  <!-- Encabezado fijo permanente (Barra superior + Navbar) -->
+  <header class="main-header">
+    <!-- Barra superior -->
+    <div class="top-bar">
+      <div class="container">
+        <div class="top-bar-content">
+          <div class="top-bar-left">
+            <a href="tel:+51984134872"><i class="fas fa-phone"></i> +51 984 134 872</a>
+            <a href="#" id="openMapModal"><i class="fas fa-map-marker-alt"></i> Olmos, Lambayeque</a>
+            <a href="#" onclick="openInfoModal('Contáctanos')"><i class="fas fa-envelope"></i> Contáctanos</a>
+          </div>
+          <div class="top-bar-right">
+            <a href="/login" class="login-link"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</a>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Navbar fijo -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container">
-      <!-- Logo -->
-      <a class="navbar-brand" href="/">
-        <img src="/static/images/logo.png" alt="Logo Agrícola Alaya" width="180" height="70" />
-      </a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container">
+        <!-- Logo -->
+        <a class="navbar-brand" href="/">
+          <img src="/static/images/logo.png" alt="Logo Agrícola Alaya" width="180" height="70" />
+        </a>
 
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarNav"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" onclick="openInfoModal('Sobre Nosotros')">Sobre nosotros</a>
-          </li>
-          <li class="nav-item"><a class="nav-link" href="/producto/galeria">Productos</a></li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" onclick="openInfoModal('Contáctanos')">Contáctanos</a>
-          </li>
-        </ul>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" onclick="openInfoModal('Sobre Nosotros')">Sobre nosotros</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="/producto/galeria">Productos</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" onclick="openInfoModal('Contáctanos')">Contáctanos</a>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
+  </header>
 
   <!-- Modal para información -->
   <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">

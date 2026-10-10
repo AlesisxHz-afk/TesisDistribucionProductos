@@ -16,18 +16,21 @@ main = Blueprint("reporte", __name__, url_prefix="/reporte")
 
 @main.route('/reporte_p1')
 def reporte_p1():
-    """Reporte Interactivo: Stock por Tipo de Producto"""
-    return render_template('reporte_p1.html')
+    """Reporte 1: Stock y Estado de Productos"""
+    data = reportes_service.datos_reporte_p1()
+    return render_template('reporte_p1.html', items=data['items'], tipos=data['tipos'], estados=data['estados'])
 
 @main.route('/reporte_p2')
 def reporte_p2():
-    """Reporte Interactivo: Temperatura y Humedad Óptima por Producto"""
-    return render_template('reporte_p2.html')
+    """Reporte 2: Parámetros de Conservación Térmica y Humedad"""
+    data = reportes_service.datos_reporte_p2()
+    return render_template('reporte_p2.html', items=data['items'], tipos=data['tipos'])
 
 @main.route('/reporte_p3')
 def reporte_p3():
-    """Reporte Interactivo: Envíos por Producto en el Tiempo"""
-    return render_template('reporte_p3.html')
+    """Reporte 3: Historial de Envíos por Producto"""
+    data = reportes_service.datos_reporte_p3()
+    return render_template('reporte_p3.html', items=data['items'], estados=data['estados'], productos=data['productos'])
 
 # ============================
 # RUTAS PARA REPORTES — ALMACENES (A1, A2, A3)
@@ -35,18 +38,21 @@ def reporte_p3():
 
 @main.route('/reporte_a1')
 def reporte_a1():
-    """Reporte Interactivo: Inventario vs Capacidad por Almacén"""
-    return render_template('reporte_a1.html')
+    """Reporte 1: Capacidad y Ocupación de Almacenes"""
+    data = reportes_service.datos_reporte_a1()
+    return render_template('reporte_a1.html', items=data['items'], tipos=data['tipos'])
 
 @main.route('/reporte_a2')
 def reporte_a2():
-    """Reporte Interactivo: Mapa de Calor de Envíos por Almacén"""
-    return render_template('reporte_a2.html')
+    """Reporte 2: Movimientos y Despachos por Almacén"""
+    data = reportes_service.datos_reporte_a2()
+    return render_template('reporte_a2.html', items=data['items'], almacenes=data['almacenes'], estados=data['estados'])
 
 @main.route('/reporte_a3')
 def reporte_a3():
-    """Reporte Interactivo: Capacidad Disponible por Almacén"""
-    return render_template('reporte_a3.html')
+    """Reporte 3: Directorio y Ubicación de Almacenes"""
+    data = reportes_service.datos_reporte_a3()
+    return render_template('reporte_a3.html', items=data['items'], tipos=data['tipos'], estados=data['estados'])
 
 # ============================
 # RUTAS PARA REPORTES — VEHÍCULOS (V1, V2, V3)
@@ -54,18 +60,21 @@ def reporte_a3():
 
 @main.route('/reporte_v1')
 def reporte_v1():
-    """Reporte Interactivo: Flota de Vehículos"""
-    return render_template('reporte_v1.html')
+    """Reporte 1: Flota y Estado de Vehículos"""
+    data = reportes_service.datos_reporte_v1()
+    return render_template('reporte_v1.html', items=data['items'], tipos=data['tipos'], estados=data['estados'])
 
 @main.route('/reporte_v2')
 def reporte_v2():
-    """Reporte Interactivo: Rutas Realizadas por Vehículo"""
-    return render_template('reporte_v2.html')
+    """Reporte 2: Asignaciones de Conductor a Vehículo"""
+    data = reportes_service.datos_reporte_v2()
+    return render_template('reporte_v2.html', items=data['items'], estados=data['estados'])
 
 @main.route('/reporte_v3')
 def reporte_v3():
-    """Reporte Interactivo: Gasto de Combustible por Vehículo"""
-    return render_template('reporte_v3.html')
+    """Reporte 3: Despachos y Envíos por Vehículo"""
+    data = reportes_service.datos_reporte_v3()
+    return render_template('reporte_v3.html', items=data['items'], placas=data['placas'], estados=data['estados'])
 
 # ============================
 # RUTAS PARA REPORTES — CONDUCTORES (C1, C2, C3)
@@ -73,18 +82,21 @@ def reporte_v3():
 
 @main.route('/reporte_c1')
 def reporte_c1():
-    """Reporte Interactivo: Desempeño de Conductores"""
-    return render_template('reporte_c1.html')
+    """Reporte 1: Padrón y Registro de Conductores"""
+    data = reportes_service.datos_reporte_c1()
+    return render_template('reporte_c1.html', items=data['items'], estados=data['estados'])
 
 @main.route('/reporte_c2')
 def reporte_c2():
-    """Reporte Interactivo: Disponibilidad Semanal de Conductores"""
-    return render_template('reporte_c2.html')
+    """Reporte 2: Disponibilidad Horaria Semanal de Conductores"""
+    data = reportes_service.datos_reporte_c2()
+    return render_template('reporte_c2.html', items=data['items'], dias=data['dias'], conductores=data['conductores'])
 
 @main.route('/reporte_c3')
 def reporte_c3():
-    """Reporte Interactivo: Envíos por Conductor en el Tiempo"""
-    return render_template('reporte_c3.html')
+    """Reporte 3: Historial de Envíos Realizados por Conductor"""
+    data = reportes_service.datos_reporte_c3()
+    return render_template('reporte_c3.html', items=data['items'], conductores=data['conductores'], estados=data['estados'])
 
 
 # ============================
