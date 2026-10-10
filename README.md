@@ -70,6 +70,3 @@ python main.py
 Accede a [http://localhost:5000](http://localhost:5000) en tu navegador.
 
 ---
-
-## 📄 Licencia
-Este proyecto es de uso exclusivo para la Agroindustrial Alaya S.A.C.
