@@ -241,13 +241,13 @@ async function guardarPerfil(e) {
             
         } else {
             showSwalError(data.error || 'Error al actualizar el perfil');
-            saveButton.innerHTML = '<i class="fas fa-save"></i> Guardar Todos los Cambios';
+            saveButton.innerHTML = '<i class="fas fa-save"></i> Guardar cambios';
             saveButton.disabled = false;
         }
     } catch (error) {
         console.error('Error:', error);
         showSwalError('Error al conectar con el servidor');
-        saveButton.innerHTML = '<i class="fas fa-save"></i> Guardar Todos los Cambios';
+        saveButton.innerHTML = '<i class="fas fa-save"></i> Guardar cambios';
         saveButton.disabled = false;
     }
 }

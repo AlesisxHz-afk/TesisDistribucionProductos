@@ -6,162 +6,132 @@
 {% block page_description %}Actualiza tu información personal{% endblock %}
 
 {% block maincss %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/usuario_perfil.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/usuario_perfil.css') }}?v=2.1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 {% endblock %}
 
 {% block contenido %}
 <div class="profile-container">
-    
-    <!-- Mensajes de éxito/error (ocultos inicialmente) -->
+
     <div id="successMessage" class="alert alert-success d-none" role="alert"></div>
     <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
-    
-    <div class="profile-content">
-        <div class="profile-sidebar">
-            <div class="profile-photo-section">
+
+    <!-- Una sola tarjeta: foto, datos del usuario y formulario, todo junto -->
+    <form id="profileForm" class="profile-card">
+
+        <div class="profile-card-header">
+            <div class="profile-identity">
                 <div class="photo-container">
-                    <img id="profilePhoto" 
-                         src="{% if foto_usuario %}{{ url_for('static', filename='images/usuario/' + foto_usuario) }}{% else %}{{ url_for('static', filename='images/usuario/userdefault.jpg') }}{% endif %}" 
-                         alt="Foto de perfil" 
-                         class="profile-photo">
-                    <div class="photo-actions">
-                        <button type="button" class="btn-photo-action btn-change" onclick="openPhotoOptions()">
-                            <i class="fas fa-camera"></i> Cambiar
-                        </button>
-                        <button type="button" class="btn-photo-action btn-remove" onclick="removePhoto()">
-                            <i class="fas fa-trash"></i> Eliminar
-                        </button>
-                    </div>
+                    <img id="profilePhoto"
+                         src="{% if foto_usuario %}{{ url_for('static', filename='images/usuario/' + foto_usuario) }}{% else %}{{ url_for('static', filename='images/usuario/userdefault.jpg') }}{% endif %}"
+                         alt="Foto de perfil" class="profile-photo">
+                    <button type="button" class="photo-badge" onclick="openPhotoOptions()" title="Cambiar foto">
+                        <i class="fas fa-camera"></i>
+                    </button>
                     <input type="file" id="fileInput" accept="image/*" style="display: none;" capture="environment">
                     <input type="hidden" id="photoBase64" name="photoBase64">
                 </div>
-                <div class="photo-info">
-                    <small class="text-muted">Formatos: JPG, PNG, GIF (Máx. 2MB)</small>
+
+                <div class="identity-text">
+                    <h3>{{ apellidosynombres or username or 'Mi perfil' }}</h3>
+                    <div class="identity-meta">
+                        <span class="meta-chip"><i class="fas fa-at"></i><span id="usernameDisplay">{{ username or '—' }}</span></span>
+                        <span class="meta-chip"><i class="fas fa-shield-alt"></i><span id="roleDisplay">{{ tipo_nombre or '—' }}</span></span>
+                        <span class="status-active" id="statusDisplay">{% if estado_usuario == True or estado_usuario == 'true' or estado_usuario == 'ACTIVO' %}Activo{% else %}Inactivo{% endif %}</span>
+                    </div>
+                    <div class="photo-links">
+                        <button type="button" class="link-btn" onclick="openPhotoOptions()"><i class="fas fa-camera"></i> Cambiar foto</button>
+                        <button type="button" class="link-btn danger" onclick="removePhoto()"><i class="fas fa-trash"></i> Quitar</button>
+                        <small>JPG, PNG o GIF · Máx. 2MB</small>
+                    </div>
                 </div>
             </div>
-            
-            <div class="user-info-card">
-                <div class="info-item">
-                    <i class="fas fa-user"></i>
-                    <div>
-                        <span class="label">Usuario:</span>
-                        <span id="usernameDisplay" class="value">{{ username or 'Cargando...' }}</span>
+
+            <div class="profile-actions">
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                    <i class="fas fa-undo"></i> Descartar
+                </button>
+                <button type="submit" class="btn btn-primary" id="saveButton">
+                    <i class="fas fa-save"></i> Guardar cambios
+                </button>
+            </div>
+        </div>
+
+        <div class="profile-card-body">
+            <h6 class="section-title"><i class="fas fa-user"></i> Datos personales</h6>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="usuario" class="form-label"><i class="fas fa-at"></i> Usuario</label>
+                    <input type="text" class="form-control" id="usuario" name="usuario" value="{{ username or '' }}" readonly>
+                    <div class="field-note">
+                        <small class="form-text">No se puede modificar</small>
                     </div>
                 </div>
-                <div class="info-item">
-                    <i class="fas fa-shield-alt"></i>
-                    <div>
-                        <span class="label">Rol:</span>
-                        <span id="roleDisplay" class="value">{{ tipo_nombre or 'Cargando...' }}</span>
+
+                <div class="form-group">
+                    <label for="nombres" class="form-label required"><i class="fas fa-user"></i> Nombres</label>
+                    <input type="text" class="form-control" id="nombres" name="nombres" value="{{ nombres or '' }}" required>
+                    <div class="field-note">
+                        <small class="form-text">Según tu documento</small>
+                        <div class="invalid-feedback">Por favor ingresa tus nombres</div>
                     </div>
                 </div>
-                <div class="info-item">
-                    <i class="fas fa-circle"></i>
-                    <div>
-                        <span class="label">Estado:</span>
-                        <span id="statusDisplay" class="status-active">
-                            {% if estado_usuario == True or estado_usuario == 'true' or estado_usuario == 'ACTIVO' %}
-                                Activo
-                            {% else %}
-                                Inactivo
-                            {% endif %}
-                        </span>
+
+                <div class="form-group">
+                    <label for="ape_paterno" class="form-label required"><i class="fas fa-user-tag"></i> Apellido paterno</label>
+                    <input type="text" class="form-control" id="ape_paterno" name="ape_paterno" value="{{ ape_paterno or '' }}" required>
+                    <div class="field-note">
+                        <small class="form-text">Primer apellido</small>
+                        <div class="invalid-feedback">Por favor ingresa tu apellido paterno</div>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ape_materno" class="form-label required"><i class="fas fa-user-tag"></i> Apellido materno</label>
+                    <input type="text" class="form-control" id="ape_materno" name="ape_materno" value="{{ ape_materno or '' }}" required>
+                    <div class="field-note">
+                        <small class="form-text">Segundo apellido</small>
+                        <div class="invalid-feedback">Por favor ingresa tu apellido materno</div>
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="section-title section-title-separated">
+                <i class="fas fa-key"></i> Cambiar contraseña <span class="optional-tag">Opcional</span>
+            </h6>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="current_password" class="form-label"><i class="fas fa-lock"></i> Contraseña actual</label>
+                    <input type="password" class="form-control" id="current_password" name="current_password">
+                    <div class="field-note">
+                        <small class="form-text">Solo si vas a cambiarla</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="new_password" class="form-label"><i class="fas fa-key"></i> Nueva contraseña</label>
+                    <input type="password" class="form-control" id="new_password" name="new_password">
+                    <div class="field-note">
+                        <small class="form-text">Mínimo 6 caracteres</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password" class="form-label"><i class="fas fa-check-circle"></i> Confirmar contraseña</label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                    <div class="field-note">
+                        <small class="form-text">Repite la nueva contraseña</small>
+                        <div class="invalid-feedback">Las contraseñas no coinciden</div>
+                    </div>
+                </div>
+
+                <div class="form-hint">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Déjalos vacíos para mantener tu contraseña actual.</span>
                 </div>
             </div>
         </div>
-        
-        <div class="profile-main">
-            <!-- Formulario Único de Perfil -->
-            <div class="card profile-form-card">
-                <div class="card-header">
-                    <h5><i class="fas fa-user-edit"></i> Información personal y contraseña</h5>
-                </div>
-                <div class="card-body">
-                    <form id="profileForm">
-                        <!-- Información Personal -->
-                        <div class="form-section">
-                            <h6 class="section-title">
-                                <i class="fas fa-user"></i> Datos personales
-                            </h6>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="usuario" class="form-label">
-                                        <i class="fas fa-at"></i> Usuario
-                                    </label>
-                                    <input type="text" class="form-control" id="usuario" name="usuario" value="{{ username or '' }}" readonly>
-                                    <small class="form-text">No se puede modificar</small>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nombres" class="form-label required">
-                                        <i class="fas fa-user"></i> Nombres
-                                    </label>
-                                    <input type="text" class="form-control" id="nombres" name="nombres" value="{{ nombres or '' }}" required>
-                                    <div class="invalid-feedback">Por favor ingresa tus nombres</div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="ape_paterno" class="form-label required">
-                                        <i class="fas fa-user-tag"></i> Apellido paterno
-                                    </label>
-                                    <input type="text" class="form-control" id="ape_paterno" name="ape_paterno" value="{{ ape_paterno or '' }}" required>
-                                    <div class="invalid-feedback">Por favor ingresa tu apellido paterno</div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="ape_materno" class="form-label required">
-                                        <i class="fas fa-user-tag"></i> Apellido materno
-                                    </label>
-                                    <input type="text" class="form-control" id="ape_materno" name="ape_materno" value="{{ ape_materno or '' }}" required>
-                                    <div class="invalid-feedback">Por favor ingresa tu apellido materno</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Cambiar Contraseña -->
-                        <div class="form-section">
-                            <h6 class="section-title">
-                                <i class="fas fa-key"></i> Cambiar contraseña (opcional)
-                            </h6>
-                            <div class="password-grid">
-                                <div class="form-group">
-                                    <label for="current_password" class="form-label">
-                                        <i class="fas fa-lock"></i> Contraseña actual
-                                    </label>
-                                    <input type="password" class="form-control" id="current_password" name="current_password">
-                                    <small class="form-text">Solo para cambiar contraseña</small>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="new_password" class="form-label">
-                                        <i class="fas fa-key"></i> Nueva contraseña
-                                    </label>
-                                    <input type="password" class="form-control" id="new_password" name="new_password">
-                                    <small class="form-text">Mínimo 6 caracteres</small>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="confirm_password" class="form-label">
-                                        <i class="fas fa-check-circle"></i> Confirmar contraseña
-                                    </label>
-                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password">
-                                    <div class="invalid-feedback">Las contraseñas no coinciden</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary" id="saveButton">
-                                <i class="fas fa-save"></i> Guardar 
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    </form>
 </div>
 
 <!-- Modal para opciones de foto -->
@@ -195,5 +165,5 @@
         };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-    <script src="{{ url_for('static', filename='js/usuario_perfil.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/usuario_perfil.js') }}?v=1.1"></script>
 {% endblock %}

@@ -458,12 +458,6 @@ body {
     transition: color 0.3s ease;
 }
 
-.header-info {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
 .info-item {
     display: flex;
     align-items: center;
@@ -1334,11 +1328,6 @@ body {
         text-align: center;
     }
     
-    .header-info {
-        justify-content: center;
-        width: 100%;
-    }
-    
     .footer-content {
         flex-direction: column;
         text-align: center;
@@ -1373,10 +1362,6 @@ body {
     
     .dashboard-grid {
         grid-template-columns: 1fr;
-    }
-    
-    .header-info {
-        flex-wrap: wrap;
     }
     
     .info-item {
@@ -1749,27 +1734,44 @@ body {
    ESTILOS DE TEMA Y ANIMACIONES DE FRUTAS
    ============================================= */
 
-.theme-toggle-btn {
-    background: var(--header-btn-bg);
-    border: 1px solid var(--border-accent);
-    color: var(--text-accent);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px var(--shadow-color);
-    margin-right: 15px;
+/* Opción de modo oscuro dentro del menú del usuario */
+.theme-menu-item {
+    justify-content: flex-start;
 }
 
-.theme-toggle-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 15px var(--shadow-hover);
-    border-color: var(--accent-color);
+.theme-menu-item > span:first-of-type {
+    flex: 1;
+}
+
+.theme-switch {
+    position: relative;
+    width: 34px;
+    height: 18px;
+    border-radius: 10px;
+    background-color: var(--border-color);
+    border: 1px solid var(--border-accent);
+    flex-shrink: 0;
+    transition: background-color 0.3s ease;
+}
+
+.theme-switch-knob {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--text-light);
+    box-shadow: 0 1px 3px var(--shadow-color);
+    transition: transform 0.3s ease;
+}
+
+.theme-menu-item.dark-mode-active .theme-switch {
+    background-color: var(--accent-color);
+}
+
+.theme-menu-item.dark-mode-active .theme-switch-knob {
+    transform: translateX(16px);
 }
 
 .floating-fruits-container {

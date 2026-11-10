@@ -10,7 +10,7 @@
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/x-icon">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=2.2">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v=2.3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {% block maincss %}
@@ -186,16 +186,7 @@
                     <h2 id="page-title">{% block page_title %}Inicio{% endblock %}</h2>
                     <p id="page-description">{% block page_description %}Panel de control principal{% endblock %}</p>
                 </div>
-                <div class="header-info">
-                    <div class="info-item">
-                        <i class="fas fa-clock"></i>
-                        <span id="current-time"></span>
-                    </div>
-                </div>
                 <div class="header-actions">
-                    <button class="theme-toggle-btn" id="theme-toggle-btn" title="Cambiar tema">
-                        <i class="fas fa-moon"></i>
-                    </button>
                     <div class="user-dropdown" id="user-dropdown">
                         <button class="user-menu-btn" id="user-menu-btn">
                             <div class="user-header-avatar" id="header-user-avatar">
@@ -212,6 +203,12 @@
                             <a href="/main/usuario/usuario_perfil" class="dropdown-item">
                                 <i class="fas fa-user"></i> Mi Perfil
                             </a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item theme-menu-item" id="theme-toggle-btn" type="button" title="Cambiar tema" aria-pressed="false">
+                                <i class="fas fa-moon" id="theme-icon"></i>
+                                <span id="theme-label">Modo oscuro</span>
+                                <span class="theme-switch"><span class="theme-switch-knob"></span></span>
+                            </button>
                             <div class="dropdown-divider"></div>
                             <button class="dropdown-item logout-btn" id="header-logout-btn">
                                 <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
@@ -306,7 +303,7 @@
         </main>
     </div>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}?v=2.2"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}?v=2.3"></script>
     {% block javascript %}
     {% endblock %}
     {% block mainjs %}

@@ -374,7 +374,7 @@
 }
 
 @media print {
-    .sidebar, .navbar, .report-toolbar, .theme-toggle-btn {
+    .sidebar, .navbar, .report-toolbar, .dropdown-menu, .theme-menu-item {
         display: none !important;
     }
     .report-box {

@@ -7,33 +7,18 @@ document.addEventListener('DOMContentLoaded', function() {
         return null;
     }
 
-    // Función para actualizar fecha y hora
-    function actualizarFechaHora() {
+    // Función para mostrar la fecha actual en el pie del sidebar
+    function actualizarFecha() {
         const fechaElement = document.getElementById('current-date');
-        const horaElement = document.getElementById('current-time');
-        
-        if (fechaElement || horaElement) {
-            const ahora = new Date();
-            
-            if (fechaElement) {
-                const opcionesFecha = { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                };
-                fechaElement.textContent = ahora.toLocaleDateString('es-ES', opcionesFecha);
-            }
-            
-            if (horaElement) {
-                const opcionesHora = {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                };
-                horaElement.textContent = ahora.toLocaleTimeString('es-ES', opcionesHora);
-            }
-        }
+        if (!fechaElement) return;
+
+        const opcionesFecha = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+        fechaElement.textContent = new Date().toLocaleDateString('es-ES', opcionesFecha);
     }
 
     // Función para cargar datos del usuario
@@ -449,28 +434,28 @@ document.addEventListener('DOMContentLoaded', function() {
     function inicializarTema() {
         const toggleBtn = document.getElementById('theme-toggle-btn');
         if (!toggleBtn) return;
-        
+
         const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-        actualizarIconoTema(toggleBtn, currentTheme);
-        
+        actualizarItemTema(toggleBtn, currentTheme);
+
         toggleBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
-            actualizarIconoTema(toggleBtn, newTheme);
+            actualizarItemTema(toggleBtn, newTheme);
         });
     }
-    
-    function actualizarIconoTema(btn, theme) {
+
+    function actualizarItemTema(btn, theme) {
+        const esOscuro = theme === 'dark';
         const icon = btn.querySelector('i');
-        if (icon) {
-            if (theme === 'dark') {
-                icon.className = 'fas fa-sun';
-            } else {
-                icon.className = 'fas fa-moon';
-            }
-        }
+        const label = btn.querySelector('#theme-label');
+
+        if (icon) icon.className = esOscuro ? 'fas fa-sun' : 'fas fa-moon';
+        if (label) label.textContent = esOscuro ? 'Modo claro' : 'Modo oscuro';
+        btn.classList.toggle('dark-mode-active', esOscuro);
+        btn.setAttribute('aria-pressed', esOscuro ? 'true' : 'false');
     }
 
     // Función para generar frutas flotantes en el fondo del contenedor principal
@@ -524,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para inicializar toda la aplicación
     function inicializarApp() {
-        actualizarFechaHora();
+        actualizarFecha();
         cargarDatosUsuario();
         inicializarUserDropdown();
         inicializarLogout();
@@ -534,8 +519,6 @@ document.addEventListener('DOMContentLoaded', function() {
         inicializarTema();
         generarFrutasFlotantes();
         inicializarModalesCentrados();
-        
-        setInterval(actualizarFechaHora, 1000);
     }
 
     inicializarApp();
